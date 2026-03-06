@@ -50,6 +50,7 @@ model User {
   todos         Todo[]
   comments      Comment[]
   notifications Notification[]
+  refreshtoken  RefreshToken[]
 }
 
 model Workspace {
@@ -218,4 +219,13 @@ model AutomationRule {
   createdAt DateTime @default(now())
 
   board Board @relation(fields: [boardId], references: [id])
+}
+
+model RefreshToken {
+  id String @id @default(uuid())
+  token String 
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
