@@ -223,7 +223,7 @@ model AutomationRule {
 
 model RefreshToken {
   id String @id @default(uuid())
-  token String 
+  token String @unique
   userId String
   user User @relation(fields: [userId], references: [id])
   expiresAt DateTime
