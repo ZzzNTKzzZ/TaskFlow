@@ -1,0 +1,221 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ENUMS
+
+enum TodoStatus {
+  todo
+  doing
+  done
+}
+
+enum Priority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum BoardVisibility {
+  private
+  workspace
+  public
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+// MODELS
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+
+  workspaces    WorkspaceMember[]
+  boards        BoardMember[]
+  cards         CardAssignee[]
+  todos         Todo[]
+  comments      Comment[]
+  notifications Notification[]
+}
+
+model Workspace {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  members WorkspaceMember[]
+  boards  Board[]
+}
+
+model WorkspaceMember {
+  id          String        @id @default(uuid())
+  userId      String
+  workspaceId String
+  role        WorkspaceRole
+
+  user      User      @relation(fields: [userId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([userId, workspaceId])
+}
+
+model Board {
+  id          String          @id @default(uuid())
+  title       String
+  background  String?
+  visibility  BoardVisibility
+  workspaceId String
+  position    Float
+  createdAt   DateTime        @default(now())
+
+  workspace Workspace        @relation(fields: [workspaceId], references: [id])
+  lists     List[]
+  members   BoardMember[]
+  rules     AutomationRule[]
+}
+
+model BoardMember {
+  id      String @id @default(uuid())
+  userId  String
+  boardId String
+
+  user  User  @relation(fields: [userId], references: [id])
+  board Board @relation(fields: [boardId], references: [id])
+
+  @@unique([userId, boardId])
+}
+
+model List {
+  id       String @id @default(uuid())
+  title    String
+  position Float
+  boardId  String
+
+  board Board  @relation(fields: [boardId], references: [id])
+  cards Card[]
+}
+
+model Card {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  position    Float
+  dueDate     DateTime?
+  listId      String
+  createdAt   DateTime  @default(now())
+
+  list       List           @relation(fields: [listId], references: [id])
+  assignees  CardAssignee[]
+  comments   Comment[]
+  checklists Checklist[]
+  labels     LabelOnCard[]
+}
+
+model CardAssignee {
+  id     String @id @default(uuid())
+  userId String
+  cardId String
+
+  user User @relation(fields: [userId], references: [id])
+  card Card @relation(fields: [cardId], references: [id])
+
+  @@unique([userId, cardId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  cardId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  card   Card @relation(fields: [cardId], references: [id])
+  author User @relation(fields: [authorId], references: [id])
+}
+
+model Checklist {
+  id     String @id @default(uuid())
+  title  String
+  cardId String
+
+  card  Card            @relation(fields: [cardId], references: [id])
+  items ChecklistItem[]
+}
+
+model ChecklistItem {
+  id          String  @id @default(uuid())
+  title       String
+  isCompleted Boolean @default(false)
+  checklistId String
+
+  checklist Checklist @relation(fields: [checklistId], references: [id])
+}
+
+model Todo {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TodoStatus
+  priority    Priority
+  dueDate     DateTime?
+  userId      String
+  createdAt   DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Label {
+  id    String @id @default(uuid())
+  name  String
+  color String
+
+  cards LabelOnCard[]
+}
+
+model LabelOnCard {
+  id      String @id @default(uuid())
+  cardId  String
+  labelId String
+
+  card  Card  @relation(fields: [cardId], references: [id])
+  label Label @relation(fields: [labelId], references: [id])
+
+  @@unique([cardId, labelId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model AutomationRule {
+  id        String   @id @default(uuid())
+  boardId   String
+  trigger   String
+  condition Json
+  action    Json
+  createdAt DateTime @default(now())
+
+  board Board @relation(fields: [boardId], references: [id])
+}
