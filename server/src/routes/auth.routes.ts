@@ -5,3 +5,4 @@ import { AuthController } from "../controllers/auth.controller.js";
 const authRoutes = Router()
 
 authRoutes.post("/auth/register", asyncHandler(AuthController.register))
+authRoutes.post("/auth/login", asyncHandler(AuthController.login))
