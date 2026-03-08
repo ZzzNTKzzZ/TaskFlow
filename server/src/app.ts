@@ -1,6 +1,7 @@
 import express from "express"
 import dotenv from "dotenv"
 import { routes } from "./routes/routes.js"
+import { errorMiddleware } from "./middleware/error.middleware.js"
 dotenv.config()
 const app = express()
 app.use(express.json())
@@ -11,7 +12,7 @@ app.get('/', (req, res) => {
 });
 
 routes(app)
-
+app.use(errorMiddleware)
 app.listen(PORT, () => {
   console.log(`Server is listening on http://localhost:${PORT}`);
 });
