@@ -69,8 +69,8 @@ model WorkspaceMember {
   workspaceId String
   role        WorkspaceRole
 
-  user      User      @relation(fields: [userId], references: [id])
-  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, workspaceId])
 }
@@ -84,7 +84,7 @@ model Board {
   position    Float
   createdAt   DateTime        @default(now())
 
-  workspace Workspace        @relation(fields: [workspaceId], references: [id])
+  workspace Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   lists     List[]
   members   BoardMember[]
   rules     AutomationRule[]
@@ -95,8 +95,8 @@ model BoardMember {
   userId  String
   boardId String
 
-  user  User  @relation(fields: [userId], references: [id])
-  board Board @relation(fields: [boardId], references: [id])
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
   @@unique([userId, boardId])
 }
@@ -107,7 +107,7 @@ model List {
   position Float
   boardId  String
 
-  board Board  @relation(fields: [boardId], references: [id])
+  board Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   cards Card[]
 }
 
@@ -120,7 +120,7 @@ model Card {
   listId      String
   createdAt   DateTime  @default(now())
 
-  list       List           @relation(fields: [listId], references: [id])
+  list       List           @relation(fields: [listId], references: [id], onDelete: Cascade)
   assignees  CardAssignee[]
   comments   Comment[]
   checklists Checklist[]
@@ -132,8 +132,8 @@ model CardAssignee {
   userId String
   cardId String
 
-  user User @relation(fields: [userId], references: [id])
-  card Card @relation(fields: [cardId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
   @@unique([userId, cardId])
 }
@@ -145,8 +145,8 @@ model Comment {
   content   String
   createdAt DateTime @default(now())
 
-  card   Card @relation(fields: [cardId], references: [id])
-  author User @relation(fields: [authorId], references: [id])
+  card   Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model Checklist {
@@ -154,7 +154,7 @@ model Checklist {
   title  String
   cardId String
 
-  card  Card            @relation(fields: [cardId], references: [id])
+  card  Card            @relation(fields: [cardId], references: [id], onDelete: Cascade)
   items ChecklistItem[]
 }
 
@@ -164,7 +164,7 @@ model ChecklistItem {
   isCompleted Boolean @default(false)
   checklistId String
 
-  checklist Checklist @relation(fields: [checklistId], references: [id])
+  checklist Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
 }
 
 model Todo {
@@ -177,7 +177,7 @@ model Todo {
   userId      String
   createdAt   DateTime   @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Label {
@@ -193,8 +193,8 @@ model LabelOnCard {
   cardId  String
   labelId String
 
-  card  Card  @relation(fields: [cardId], references: [id])
-  label Label @relation(fields: [labelId], references: [id])
+  card  Card  @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
 
   @@unique([cardId, labelId])
 }
@@ -207,7 +207,7 @@ model Notification {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AutomationRule {
@@ -218,14 +218,14 @@ model AutomationRule {
   action    Json
   createdAt DateTime @default(now())
 
-  board Board @relation(fields: [boardId], references: [id])
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }
 
 model RefreshToken {
   id String @id @default(uuid())
   token String @unique
   userId String
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
 }
