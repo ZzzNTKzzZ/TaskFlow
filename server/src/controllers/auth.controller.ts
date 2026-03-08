@@ -49,16 +49,43 @@ export class AuthController {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.status(201).json(user);
+    return res.status(200).json(user);
   }
 
   // POST: /auth/logout
   static async logout(req: Request, res: Response) {
-    const logout = await AuthService.logout(req.cookies.refreshToken)
+        const token = req.cookies?.refreshToken
 
+if (!token) {
+  return res.status(400).json({ message: "No refresh token" })
+}
+
+    const logout =await AuthService.logout(token)
     res.clearCookie("refreshToken")
     res.clearCookie("accessToken")
 
-    return res.status(201).json(logout.message)
+    return res.status(200).json({message: logout.message})
+  }
+
+  // POST: /auth/refresh
+  static async refresh(req: Request, res: Response) {
+
+
+    const {accessToken, refreshToken} = await AuthService.refreshToken(req.cookies.refreshToken)
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+return res.status(200).json({ message: "token refreshed" })
   }
 }
