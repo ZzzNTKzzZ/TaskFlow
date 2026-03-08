@@ -2,9 +2,9 @@ import type { Request, Response } from "express";
 import { AuthService } from "../services/auth.service.js";
 
 export class AuthController {
+  // POST: /auth/register
   static async register(req: Request, res: Response) {
     const { name, email, password } = req.body;
-
     const { user, accessToken, refreshToken } = await AuthService.register(
       name,
       email,
@@ -24,9 +24,10 @@ export class AuthController {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    res.send(201).json(user);
+    return res.send(201).json(user);
   }
 
+  // POST: /auth/login
   static async login(req: Request, res: Response) {
     const { email, password } = req.body;
 
@@ -48,9 +49,10 @@ export class AuthController {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    res.send(201).json(user);
+    return res.send(201).json(user);
   }
 
+  // POST: /auth/logout
   static async logout(req: Request, res: Response) {
     const logout = await AuthService.logout(req.cookies.refreshToken)
 
