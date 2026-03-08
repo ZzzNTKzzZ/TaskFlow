@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { AuthService } from "../services/auth.service.js";
+import { AppError } from "../utils/appError.js";
 
 export class AuthController {
   // POST: /auth/register
@@ -54,24 +55,24 @@ export class AuthController {
 
   // POST: /auth/logout
   static async logout(req: Request, res: Response) {
-        const token = req.cookies?.refreshToken
+    const token = req.cookies?.refreshToken;
 
-if (!token) {
-  return res.status(400).json({ message: "No refresh token" })
-}
+    if (!token) {
+      return res.status(400).json({ message: "No refresh token" });
+    }
 
-    const logout =await AuthService.logout(token)
-    res.clearCookie("refreshToken")
-    res.clearCookie("accessToken")
+    const logout = await AuthService.logout(token);
+    res.clearCookie("refreshToken");
+    res.clearCookie("accessToken");
 
-    return res.status(200).json({message: logout.message})
+    return res.status(200).json({ message: logout.message });
   }
 
   // POST: /auth/refresh
   static async refresh(req: Request, res: Response) {
-
-
-    const {accessToken, refreshToken} = await AuthService.refreshToken(req.cookies.refreshToken)
+    const { accessToken, refreshToken } = await AuthService.refreshToken(
+      req.cookies.refreshToken,
+    );
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
@@ -86,6 +87,16 @@ if (!token) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-return res.status(200).json({ message: "token refreshed" })
+    return res.status(200).json({ message: "token refreshed" });
+  }
+
+  // GET: /auth/me
+  static async getMe(req: Request, res: Response) {
+    const userId = req.user.id
+
+    if(!userId) return res.status(400).json({ message: "No userId"})
+    const user = await AuthService.getCurrentUser(userId)
+
+    return res.status(200).json(user)
   }
 }
