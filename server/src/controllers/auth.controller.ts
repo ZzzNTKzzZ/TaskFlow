@@ -24,7 +24,7 @@ export class AuthController {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.status(201).json(user);
+    return res.send(201).json(user);
   }
 
   // POST: /auth/login
@@ -49,16 +49,16 @@ export class AuthController {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.status(201).json(user);
+    return res.send(201).json(user);
   }
 
   // POST: /auth/logout
   static async logout(req: Request, res: Response) {
-    const logout = await AuthService.logout(req.cookies.refreshToken);
+    const logout = await AuthService.logout(req.cookies.refreshToken)
 
-    res.clearCookie("refreshToken");
-    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken")
+    res.clearCookie("accessToken")
 
-    return res.status(201).json({message: logout.message});
+    return res.send(201).json(logout.message)
   }
 }
