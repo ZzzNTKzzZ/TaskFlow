@@ -1,23 +1,31 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/appError.js";
+
 export const authMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const auth = req.headers.authorization;
-    const [scheme, token] = auth?.split(" ") ?? [];
+    const authHeader = req.headers.authorization;
 
-    if (!token || scheme !== "Bearer")
-      throw new AppError("Unauthorized: No token provided", 401);
+    if (!authHeader) {
+      throw new AppError("Unauthorized: No authorization header", 401);
+    }
 
-    const decode = jwt.verify(token, process.env.JWT_SECRET!);
+    const [scheme, token] = authHeader.split(" ");
 
-    (req as any).user = decode;
+    if (scheme !== "Bearer" || !token) {
+      throw new AppError("Unauthorized: Invalid token format", 401);
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+
+    (req as any).user = decoded;
+
     next();
   } catch (error) {
-    next(new AppError("Unauthorized: Invalid token", 401));
+    next(new AppError("Unauthorized: Invalid or expired token", 401));
   }
 };
