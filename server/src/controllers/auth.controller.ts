@@ -24,7 +24,7 @@ export class AuthController {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.send(201).json(user);
+    return res.status(201).json(user);
   }
 
   // POST: /auth/login
@@ -49,7 +49,7 @@ export class AuthController {
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.send(201).json(user);
+    return res.status(201).json(user);
   }
 
   // POST: /auth/logout
@@ -59,6 +59,6 @@ export class AuthController {
     res.clearCookie("refreshToken")
     res.clearCookie("accessToken")
 
-    return res.send(201).json(logout.message)
+    return res.status(201).json(logout.message)
   }
 }
