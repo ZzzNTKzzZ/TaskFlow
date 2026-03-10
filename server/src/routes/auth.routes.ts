@@ -19,7 +19,7 @@ authRoutes.post(
 );
 authRoutes.post("/logout", authMiddleware, asyncHandler(AuthController.logout));
 authRoutes.post(
-  "/refresh`",
+  "/refresh-token`",
   authMiddleware,
   asyncHandler(AuthController.refresh),
 );

@@ -68,7 +68,7 @@ export class AuthController {
     return res.status(200).json({ message: logout.message });
   }
 
-  // POST: /auth/refresh
+  // POST: /auth/refresh-token
   static async refresh(req: Request, res: Response) {
     const { accessToken, refreshToken } = await AuthService.refreshToken(
       req.cookies.refreshToken,
