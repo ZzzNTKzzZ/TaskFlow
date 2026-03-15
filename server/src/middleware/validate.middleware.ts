@@ -1,4 +1,4 @@
-import { success, type z, type ZodRawShape } from "zod";
+import { type z, type ZodRawShape } from "zod";
 import type { Response, Request, NextFunction } from "express";
 import { AppError } from "../utils/appError.js";
 export const validateMiddleware =
@@ -6,7 +6,7 @@ export const validateMiddleware =
   (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req.body);
 
-    if(!success) return res.status(400).json(result.error)
+    if(!result.success) return res.status(400).json(result.error)
 
     req.body = result.data
     next()

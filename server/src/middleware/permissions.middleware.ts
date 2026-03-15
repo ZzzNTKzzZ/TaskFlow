@@ -14,7 +14,6 @@ export const permissionMiddleware = (action: PermissionAction) => {
     if (!permissions[action].includes(role)) {
       return next(new Error("Forbidden"));
     }
-
     next();
   };
 };

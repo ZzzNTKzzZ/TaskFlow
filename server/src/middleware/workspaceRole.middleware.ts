@@ -12,7 +12,7 @@ export const workspaceRoleMiddleware = async (
 
     if (!userId) throw new AppError("User not authenticated", 401);
 
-    const workspaceId = req.params.workspaceId as string;
+    const workspaceId = req.body.workspaceId as string;
 
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
 
