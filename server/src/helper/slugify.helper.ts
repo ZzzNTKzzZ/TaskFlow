@@ -10,4 +10,5 @@ export default function slugify(text: string) {
     .replace(/-+/g, '-')               // Replace multiple hyphens with a single hyphen
     .replace(/^-+/, '')                // Remove leading hyphens
     .replace(/-+$/, '');               // Remove trailing hyphens
+
 }
