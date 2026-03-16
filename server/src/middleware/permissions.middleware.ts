@@ -5,14 +5,16 @@ import { AppError } from "../utils/appError.js";
 
 export const permissionMiddleware = (action: PermissionAction) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const role = req.workspaceRole;
+    const role = req.workspaceMember?.role;
+    if (!role) throw new AppError("Role not defined", 500);
 
-    if (!role) {
-      return next(new AppError("Workspace role not found", 404));
+    const allowedRoles = permissions[action];
+    if (!allowedRoles) {
+      throw new AppError("Permission not defined", 500);
     }
 
-    if (!permissions[action].includes(role)) {
-      return next(new Error("Forbidden"));
+    if (!allowedRoles.includes(role)) {
+      throw new AppError("Permission denied", 500);
     }
     next();
   };
