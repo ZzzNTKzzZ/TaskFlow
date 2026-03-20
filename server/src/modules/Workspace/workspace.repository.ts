@@ -6,15 +6,16 @@ import { prisma } from "../../lib/prisma.js";
 
 export default class WorkspaceRepository {
   static async findUserWorkspaces(userId: string) {
-    return prisma.workspace.findMany({
+    return await prisma.workspace.findMany({
       where: {
         members: { some: { userId } },
       },
       include: {
         members: {
           where: { userId },
-          select: { role: true },
+          select: { role: true, },
         },
+        
         _count: {
           select: { members: true },
         },
@@ -40,7 +41,7 @@ export default class WorkspaceRepository {
   }
 
   static async findWorkspace(workspaceId: string) {
-    return prisma.workspace.findUnique({
+    return await prisma.workspace.findUnique({
       where: { id: workspaceId },
     });
   }
@@ -50,7 +51,7 @@ export default class WorkspaceRepository {
     name: string,
     slug: string,
   ) {
-    return prisma.workspace.update({
+    return await prisma.workspace.update({
       where: { id: workspaceId },
       data: {
         name,
@@ -60,20 +61,20 @@ export default class WorkspaceRepository {
   }
 
   static async deleteWorkspace(workspaceId: string) {
-    return prisma.workspace.delete({
+    return await prisma.workspace.delete({
       where: { id: workspaceId },
     });
   }
 
   static async findWorkspaceBySlug(slug: string) {
-    return prisma.workspace.findUnique({
+    return await prisma.workspace.findUnique({
       where: { slug },
     });
   }
 
   // ========================== WORKSPACE MEMBER ==========================
   static async findMembers(workspaceId: string) {
-    return prisma.workspaceMember.findMany({
+    return await prisma.workspaceMember.findMany({
       where: { workspaceId },
       select: {
         id: true,
@@ -84,7 +85,7 @@ export default class WorkspaceRepository {
   }
 
   static async findMember(workspaceId: string, userId: string) {
-    return prisma.workspaceMember.findUnique({
+    return await prisma.workspaceMember.findUnique({
       where: {
         userId_workspaceId: {
           userId,
@@ -99,7 +100,7 @@ export default class WorkspaceRepository {
     userId: string,
     role: WorkspaceRole,
   ) {
-    return prisma.workspaceMember.create({
+    return await prisma.workspaceMember.create({
       data: {
         userId,
         workspaceId,
@@ -118,7 +119,7 @@ export default class WorkspaceRepository {
     userId: string,
     role: WorkspaceRole,
   ) {
-    return prisma.workspaceMember.update({
+    return await prisma.workspaceMember.update({
       where: {
         userId_workspaceId: {
           userId,
@@ -132,7 +133,7 @@ export default class WorkspaceRepository {
   }
 
   static async deleteMember(workspaceId: string, userId: string) {
-    return prisma.workspaceMember.delete({
+    return await prisma.workspaceMember.delete({
       where: {
         userId_workspaceId: {
           userId,
@@ -144,7 +145,7 @@ export default class WorkspaceRepository {
 
   // ========================== BOARD ==========================
   static async findBoards(workspaceId: string) {
-    return prisma.board.findMany({
+    return await prisma.board.findMany({
       where: { workspaceId },
     });
   }
@@ -154,9 +155,9 @@ export default class WorkspaceRepository {
     title: string,
     visibility: BoardVisibility,
     background: string,
-    userId: string
+    userId: string,
   ) {
-    return prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(async (tx) => {
       const board = await tx.board.create({
         data: {
           workspaceId,
@@ -169,12 +170,12 @@ export default class WorkspaceRepository {
 
       await tx.boardMember.create({
         data: {
-            userId,
-            boardId: board.id
+          userId,
+          boardId: board.id,
         },
       });
 
-      return board
+      return board;
     });
   }
 }

@@ -5,6 +5,7 @@ import { validateMiddleware } from "../../middleware/validate.middleware.js";
 import { workspaceSchema } from "../../validators/workspace.schema.js";
 import { workspaceAccess } from "../../middleware/workspaceAccess.middleware.js";
 import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
+import BoardController from "../Board/board.controller.js";
 
 const workspaceRoutes = Router();
 
@@ -79,4 +80,8 @@ workspaceRoutes.get(
   asyncHandler(WorkspaceController.getBoards)
 );
 
+workspaceRoutes.patch(
+  "/:workspaceId/boards/reorder",
+  asyncHandler(BoardController.reorder)
+);
 export default workspaceRoutes;
