@@ -1,19 +1,10 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { Router } from "express";
 import { validateMiddleware } from "../../middleware/validate.middleware.js";
-import { boardSchema, updateBoardSchema } from "../../validators/board.schema.js";
-import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
+import { updateBoardSchema } from "../../validators/board.schema.js";
 import BoardController from "./board.controller.js";
 
 const boardRoutes = Router();
-
-// CREATE board
-boardRoutes.post(
-  "/",
-  permissionMiddleware,
-  validateMiddleware(boardSchema),
-  asyncHandler(BoardController.createBoard),
-);
 
 // GET board
 boardRoutes.get("/:boardId", asyncHandler(BoardController.getBoard));
@@ -32,7 +23,11 @@ boardRoutes.delete("/:boardId", asyncHandler(BoardController.deleteBoard));
 
 boardRoutes.get("/:boardId/members", asyncHandler(BoardController.getMembers));
 
-boardRoutes.post("/:boardId/members", asyncHandler(BoardController.addMembers));
+boardRoutes.post(
+  "/:boardId/members",
+  // validateMiddleware(),
+  asyncHandler(BoardController.addMembers)
+);
 boardRoutes.delete(
   "/:boardId/members/:userId",
   asyncHandler(BoardController.deleteMember),

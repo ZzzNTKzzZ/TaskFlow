@@ -2,31 +2,7 @@ import type { Request, Response } from "express";
 import type { Prisma, BoardVisibility } from "../../../generated/prisma/index.js";
 import BoardService from "./board.service.js";
 
-interface CreateBoardBody {
-  title: string;
-  visibility: BoardVisibility;
-  position?: number;
-}
-
 export default class BoardController {
-  // POST /boards
-  static async createBoard(req: Request, res: Response) {
-    const userId = req.user.id;
-    const workspaceId = req.body.workspaceId;
-
-    const { title, visibility, position } = req.body as CreateBoardBody;
-
-    const payload: Prisma.BoardUncheckedCreateInput = {
-      title,
-      visibility,
-      workspaceId,
-      position: position ?? 0,
-    };
-
-    const board = await BoardService.createBoard(userId, payload);
-
-    res.status(201).json(board);
-  }
 
   // GET /boards/:boardId
   static async getBoard(req: Request, res: Response) {
@@ -41,9 +17,15 @@ export default class BoardController {
   static async editBoard(req: Request, res: Response) {
     const boardId = req.params.boardId as string;
 
-    const { title, background } = req.body;
+    const { title, background, visibility, position } = req.body;
 
-    const board = await BoardService.editBoard(boardId, title, background);
+   const board = await BoardService.editBoard(
+  boardId,
+  title,
+  visibility,
+  background,
+  position
+);
 
     res.status(200).json(board);
   }
@@ -76,21 +58,21 @@ export default class BoardController {
   }
 
   // DELETE /boards/:boardId/members/:userId
-  static async deleteMember(req: Request, res: Response) {
-    const boardId = req.params.boardId as string
-    const { memberId } = req.body
-    
-    await BoardService.deleteMember(boardId, memberId)
+static async deleteMember(req: Request, res: Response) {
+  const boardId = req.params.boardId as string;
+  const userId = req.params.userId as string;
 
-    res.status(200).json({ message : "Delete member"})
-  }
+  await BoardService.deleteMember(boardId, userId);
 
-  // PATCH /boards/reorder
+  res.status(200).json({ message: "Delete member" });
+}
+
+  // PATCH /workspaces/:workspaceId/boards/reorder
   static async reorder(req: Request, res: Response) {
-    const { boardId, prev, next } =  req.body
+  const { boardId, prev, next } = req.body;
 
-    const reorder = await BoardService.reorderBoard(boardId, prev, next)
+  const board = await BoardService.reorderBoard(boardId, prev, next);
 
-    res.status(200).json(reorder)
-  }
+  res.status(200).json(board);
+}
 }

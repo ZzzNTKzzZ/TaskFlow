@@ -1,102 +1,93 @@
-import { Prisma, type BoardVisibility } from "../../../generated/prisma/index.js";
+import {
+  Prisma,
+  type BoardVisibility,
+} from "../../../generated/prisma/index.js";
 import { prisma } from "../../lib/prisma.js";
+import { AppError } from "../../utils/appError.js";
+import BoardRepository from "./board.repository.js";
 
 export default class BoardService {
-  static async createBoard(
-    userId: string,
-    createBoardPayload: Prisma.BoardUncheckedCreateInput,
-  ) {
-    const board = await prisma.board.create({
-      data: {
-        ...createBoardPayload,
-      },
-    });
-
-    await prisma.boardMember.create({
-      data: {
-        userId,
-        boardId: board.id,
-      },
-    });
-    return board;
-  }
-
-
-
   static async getBoard(boardId: string) {
-    const board = await prisma.board.findUnique({
-      where: { id: boardId },
-    });
-
+    const board = await BoardRepository.findBoard(boardId);
     return board;
   }
 
-  static async editBoard(boardId: string, title: string, background: string) {
-    const board = await prisma.board.update({
-      where: { id: boardId },
-      data: {
-        title,
-        background,
-      },
-    });
+  static async editBoard(
+    boardId: string,
+    title: string,
+    visibility: BoardVisibility,
+    background: string,
+    position: number,
+  ) {
+    const existing = await BoardRepository.findBoard(boardId);
+    if (!existing) throw new AppError("Board not found", 404);
 
+    const board = await BoardRepository.updateBoard(
+      boardId,
+      title,
+      visibility,
+      background,
+      position,
+    );
     return board;
   }
 
   static async deleteBoard(boardId: string) {
-    const board = await prisma.board.delete({
-      where: { id: boardId },
-    });
+    const existing = await BoardRepository.findBoard(boardId);
+    if (!existing) throw new AppError("Board not found", 404);
 
+    const board = await BoardRepository.deleteBoard(boardId);
     return board;
   }
-
+  // ========================== BOARD MEMBER ==========================
   static async getMembers(boardId: string) {
-    const board = await prisma.board.findUnique({
-      where: { id: boardId },
-      include: {
-        members: {
-          select: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
-            },
-          },
-        },
-      },
-    });
-    return board?.members.map((m) => m.user);
+    const members = await BoardRepository.findBoardMembers(boardId);
+    return members.map((member) => ({
+      id: member.id,
+      userId: member.user.id,
+      name: member.user.name,
+    }));
   }
 
   static async addMembers(boardId: string, memberIds: string[]) {
-    return await prisma.boardMember.createMany({
-      data: memberIds.map((userId) => ({
-        boardId,
-        userId,
-      })),
-    });
+    const board = await BoardRepository.findBoard(boardId);
+    if (!board) throw new AppError("Board not found", 404);
+
+    const existing = await BoardRepository.findExistingBoardMembers(
+      boardId,
+      memberIds,
+    );
+
+    const existingUserIds = new Set(existing.map((m) => m.userId));
+    const newUserIds = memberIds.filter((id) => !existingUserIds.has(id));
+
+    if (newUserIds.length === 0) {
+      return {
+        added: [],
+        skipped: Array.from(existingUserIds),
+      };
+    }
+
+    await BoardRepository.addMembers(boardId, newUserIds);
+    return {
+      added: newUserIds,
+      skipped: Array.from(existingUserIds),
+    };
   }
 
   static async deleteMember(boardId: string, userId: string) {
-    await prisma.boardMember.delete({
-      where: {
-        userId_boardId: {
-          boardId,
-          userId,
-        },
-      },
-    });
+    const existing = await BoardRepository.findMember(boardId, userId);
+    if (!existing) throw new AppError("Member not found", 404);
+
+    await BoardRepository.deleteMember(boardId, userId);
+    return { message: "Delete success" };
   }
 
   static async reorderBoard(boardId: string, prev: number, next: number) {
     const newPosition = (prev + next) / 2;
 
-    return prisma.board.update({
-      where: { id: boardId },
-      data: { position: newPosition },
-    });
+    const board = await BoardRepository.reorder(boardId, newPosition);
+
+    return board;
   }
 }
