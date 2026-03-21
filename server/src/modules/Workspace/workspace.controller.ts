@@ -5,7 +5,7 @@ import { WorkspaceService } from "./workspace.service.js";
 export default class WorkspaceController {
   // GET: /workspaces
   static async getWorkspaces(req: Request, res: Response) {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const workspaces = await WorkspaceService.getUserWorkspaces(userId);
 
@@ -13,7 +13,7 @@ export default class WorkspaceController {
   }
   // POST: /workspaces
   static async createWorkspace(req: Request, res: Response) {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     const { name } = req.body;
 

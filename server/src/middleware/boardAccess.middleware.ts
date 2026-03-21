@@ -28,7 +28,7 @@ export const boardAccessMiddleware = async (
 
   if (!member) throw new AppError("Forbidden", 403);
 
-  req.workspaceRole = member.role;
+  req.workspaceMember = member;
 
   next();
 };

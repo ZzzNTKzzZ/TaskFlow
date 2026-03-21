@@ -56,7 +56,6 @@ export class AuthController {
   // POST: /auth/logout
   static async logout(req: Request, res: Response) {
     const token = req.cookies?.refreshToken;
-
     if (!token) {
       return res.status(400).json({ message: "No refresh token" });
     }
@@ -65,7 +64,7 @@ export class AuthController {
     res.clearCookie("refreshToken");
     res.clearCookie("accessToken");
 
-    res.status(200).json({ message: logout.message });
+    res.status(200).json({ logout });
   }
 
   // POST: /auth/refresh-token
@@ -87,13 +86,12 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(200).json({ message: "token refreshed" });
+    res.status(200).json({ accessToken, refreshToken});
   }
 
   // GET: /auth/me
   static async getMe(req: Request, res: Response) {
-    const userId = req.user.id
-
+    const userId = req.user.userId
     if(!userId) return res.status(400).json({ message: "No userId"})
     const user = await AuthService.getCurrentUser(userId)
 

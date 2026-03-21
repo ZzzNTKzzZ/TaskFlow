@@ -8,8 +8,7 @@ export const workspaceAccess = async (
   next: NextFunction,
 ) => {
     const workspaceId = req.params.workspaceId as string
-    const userId = req.user.id
-
+    const userId = req.user.userId
     const member = await prisma.workspaceMember.findUnique({
         where: {
             userId_workspaceId: {
