@@ -1,9 +1,11 @@
 import type { Request, Response } from "express";
-import type { Prisma, BoardVisibility } from "../../../generated/prisma/index.js";
+import type {
+  Prisma,
+  BoardVisibility,
+} from "../../../generated/prisma/index.js";
 import BoardService from "./board.service.js";
 
 export default class BoardController {
-
   // GET /boards/:boardId
   static async getBoard(req: Request, res: Response) {
     const boardId = req.params.boardId as string;
@@ -19,13 +21,13 @@ export default class BoardController {
 
     const { title, background, visibility, position } = req.body;
 
-   const board = await BoardService.editBoard(
-  boardId,
-  title,
-  visibility,
-  background,
-  position
-);
+    const board = await BoardService.editBoard(
+      boardId,
+      title,
+      visibility,
+      background,
+      position,
+    );
 
     res.status(200).json(board);
   }
@@ -49,30 +51,38 @@ export default class BoardController {
   }
   // POST /boards/:boardId/members
   static async addMembers(req: Request, res: Response) {
-    const boardId = req.params.boardId as string
-    const { memberIds }= req.body
+    const boardId = req.params.boardId as string;
+    const { memberIds } = req.body;
 
-    const members = await BoardService.addMembers(boardId, memberIds)
+    const members = await BoardService.addMembers(boardId, memberIds);
 
-    res.status(201).json(members)
+    res.status(201).json(members);
   }
 
   // DELETE /boards/:boardId/members/:userId
-static async deleteMember(req: Request, res: Response) {
-  const boardId = req.params.boardId as string;
-  const userId = req.params.userId as string;
+  static async deleteMember(req: Request, res: Response) {
+    const boardId = req.params.boardId as string;
+    const userId = req.params.userId as string;
 
-  await BoardService.deleteMember(boardId, userId);
+    await BoardService.deleteMember(boardId, userId);
 
-  res.status(200).json({ message: "Delete member" });
-}
+    res.status(200).json({ message: "Delete member" });
+  }
 
   // PATCH /workspaces/:workspaceId/boards/reorder
   static async reorder(req: Request, res: Response) {
-  const { boardId, prev, next } = req.body;
+    const workspaceId = req.params.workspaceId as string;
 
-  const board = await BoardService.reorderBoard(boardId, prev, next);
+    const { boardId, beforeId, afterId } = req.body;
 
-  res.status(200).json(board);
-}
+    
+
+    const board = await BoardService.reorderBoard(workspaceId, {
+      boardId,
+      beforeId,
+      afterId,
+    });
+
+    res.status(200).json(board);
+  }
 }

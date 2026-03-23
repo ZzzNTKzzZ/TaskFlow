@@ -2,7 +2,6 @@ import {
   Prisma,
   type BoardVisibility,
 } from "../../../generated/prisma/index.js";
-import { prisma } from "../../lib/prisma.js";
 import { AppError } from "../../utils/appError.js";
 import BoardRepository from "./board.repository.js";
 
@@ -83,11 +82,36 @@ export default class BoardService {
     return { message: "Delete success" };
   }
 
-  static async reorderBoard(boardId: string, prev: number, next: number) {
-    const newPosition = (prev + next) / 2;
+  static async reorderBoard(
+    workspaceId: string,
+    input: {
+      boardId: string, 
+      beforeId?: string | null,
+      afterId?: string | null
+    }
+  ) {
+    const { boardId, beforeId, afterId} = input
 
-    const board = await BoardRepository.reorder(boardId, newPosition);
+    const [before, after] = await Promise.all([
+      beforeId ? BoardRepository.findBoard(beforeId) : null,
+      afterId ? BoardRepository.findBoard(afterId) : null
+    ])
 
-    return board;
+    let newPosition: number
+    if(before && after) {
+      // In middle
+      newPosition = (before.position + after.position) / 2
+    } else if(before && !after) {
+      // In bottom
+      newPosition = before.position + 1
+    } else if(!before && after) {
+      // In top
+      newPosition = after.position - 1
+    } else {
+      // Empty 
+      newPosition = 1
+    }
+
+    return await BoardRepository.reorder(boardId, newPosition)
   }
 }

@@ -20,6 +20,9 @@ export default class WorkspaceRepository {
           select: { members: true },
         },
       },
+      orderBy: {
+        createdAt: "asc"
+      }
     });
   }
 
@@ -81,6 +84,11 @@ export default class WorkspaceRepository {
         userId: true,
         role: true,
       },
+      orderBy: {
+        user: {
+          name: "asc"
+        }
+      }
     });
   }
 
