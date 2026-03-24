@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import Logo from "../../assets/icons/Logo.svg";
 import { globalStyles } from "@/styles/global";
 import { Manrope_700Bold, useFonts } from "@expo-google-fonts/manrope";

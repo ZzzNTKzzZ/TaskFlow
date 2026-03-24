@@ -17,5 +17,6 @@ export const Colors = {
   secondaryFixed: "#cfe6f2",
   onSecondaryContainer: "#526772",
 
-  strokeContainer: "#DFE0FF"
+  strokeContainer: "#DFE0FF",
+  text: "#000000"
 };
