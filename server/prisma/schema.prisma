@@ -119,6 +119,7 @@ model Card {
   dueDate     DateTime?
   listId      String
   createdAt   DateTime  @default(now())
+  priority    Priority
 
   list       List           @relation(fields: [listId], references: [id], onDelete: Cascade)
   assignees  CardAssignee[]
@@ -222,10 +223,10 @@ model AutomationRule {
 }
 
 model RefreshToken {
-  id String @id @default(uuid())
-  token String @unique
-  userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
 }
