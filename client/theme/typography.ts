@@ -4,7 +4,7 @@ export const Typography = {
     fontSize: 28,
   },
   headlineSm: {
-    fontFamily: "Manrope_600SemiBold",
+    fontFamily: "Manrope_700Bold",
     fontSize: 24,
   },
   titleMd: {
@@ -16,7 +16,7 @@ export const Typography = {
     fontSize: 14,
   },
   labelSm: {
-    fontFamily: "Manrope_400Regular",
+    fontFamily: "Manrope_600SemiBold",
     fontSize: 11,
     textTransform: "uppercase",
   },

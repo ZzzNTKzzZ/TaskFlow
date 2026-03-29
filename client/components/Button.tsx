@@ -5,9 +5,11 @@ import {
   Animated,
   Easing,
   Pressable,
+  StyleProp,
   StyleSheet,
   Text,
   View,
+  ViewStyle,
 } from "react-native";
 
 type ButtonProps = {
@@ -16,12 +18,12 @@ type ButtonProps = {
   rightIcon?: React.ReactNode;
   variant?: "primary" | "ghost" | "secondary";
   onPress?: () => void;
+  styleClass?: StyleProp<ViewStyle>;
 };
 
 const stylesButton = StyleSheet.create({
   base: {
     flexDirection: "row",
-    alignSelf: "flex-start",
     alignItems: "center",
     justifyContent: "center",
     gap: Spacing.sm,
@@ -133,6 +135,7 @@ export default function Button({
   rightIcon,
   variant = "primary",
   onPress,
+  styleClass
 }: ButtonProps) {
   const [loader] = useFonts({
     Manrope_600SemiBold,
@@ -152,7 +155,7 @@ export default function Button({
       onPress={onPress}
       onPressIn={() => animate(0.95, 0.8)}
       onPressOut={() => animate(1, 1)}
-      style={{ alignSelf: "flex-start" }}
+      style={[{ alignSelf: "flex-start" }, styleClass]}
     >
       <Animated.View
         style={[

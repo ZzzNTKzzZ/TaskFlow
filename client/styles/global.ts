@@ -4,8 +4,8 @@ import { StyleSheet } from "react-native";
 export const globalStyles = StyleSheet.create({
     container: {
         backgroundColor: "#fff",
-        paddingLeft: Spacing.xxl,
-        paddingRight: Spacing.xxl
+        paddingHorizontal: Spacing.xxl,
+        flex: 1
     },
     textHeading: {
         color: Colors.primary,
