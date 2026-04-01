@@ -9,23 +9,29 @@ export const authMiddleware = (
 ) => {
   try {
     const authHeader = req.headers.authorization;
-
     if (!authHeader) {
-      throw new AppError("Unauthorized: No authorization header", 401);
+      return next(new AppError("Unauthorized: No authorization header", 401));
     }
 
     const [scheme, token] = authHeader.split(" ");
 
     if (scheme !== "Bearer" || !token) {
-      throw new AppError("Unauthorized: Invalid token format", 401);
+      return next(new AppError("Unauthorized: Invalid token format", 401));
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-
     req.user = decoded;
 
     next();
-  } catch (error) {
-    next(new AppError("Unauthorized: Invalid or expired token", 401));
+  } catch (error: any) {
+    if (error.name === "TokenExpiredError") {
+      return next(new AppError("Token expired", 401)); 
+    }
+    
+    if (error.name === "JsonWebTokenError") {
+      return next(new AppError("Invalid token", 401));
+    }
+
+    next(new AppError("Unauthorized: Access denied", 401));
   }
 };

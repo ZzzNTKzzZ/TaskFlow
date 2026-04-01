@@ -1,6 +1,5 @@
 import type { BoardVisibility, WorkspaceRole } from "../../../generated/prisma/index.js";
 import slugify from "../../helper/slugify.helper.js";
-import { prisma } from "../../lib/prisma.js";
 import { AppError } from "../../utils/appError.js";
 import WorkspaceRepository from "./workspace.repository.js";
 

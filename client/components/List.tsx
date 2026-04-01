@@ -10,6 +10,8 @@ import {
 
 import Card, { CardProps } from "./Card";
 import { Priority } from "@/Types/enum";
+import { useState } from "react";
+import Button from "./Button";
 type ListProps = {
   boardId: string;
   list: {
@@ -18,7 +20,6 @@ type ListProps = {
   };
   quantity: number;
 };
-
 
 export default function List({ boardId, list, quantity }: ListProps) {
   const cards = [
@@ -63,6 +64,7 @@ export default function List({ boardId, list, quantity }: ListProps) {
       priority: "urgent" as Priority,
     },
   ];
+  const [show, setShow] = useState(false);
 
   return (
     <View
@@ -122,10 +124,32 @@ export default function List({ boardId, list, quantity }: ListProps) {
         </View>
       </View>
       <GestureHandlerRootView>
-        {cards.map((card) => (
+        {cards.slice(0, 2).map((card) => (
           <Card key={card.id} card={card} listId={list.id} />
         ))}
+        {show && cards.slice(2, cards.length).map((card) => (
+          <Card key={card.id} card={card} listId={list.id} />
+
+        ))}
       </GestureHandlerRootView>
+        {cards.length > 2 && (
+          <View style={{
+            marginTop: Spacing.md,
+            
+          }}>
+
+            <Button
+              title="Show more"
+              variant="ghost"
+              styleClass={{
+                borderRadius: Rounded.md,
+                alignSelf: "center",
+                // backgroundColor: Colors.onPrimary
+              }}
+              onPress={() => setShow(prev => !prev)}
+              />
+              </View>
+            )}
     </View>
   );
 }

@@ -35,7 +35,17 @@ export default function Board({ id }: BoardProps) {
   ];
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={[globalStyles.container ]}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={[globalStyles.container, { flex: 1 }]}
+      contentContainerStyle={{
+        paddingHorizontal: Spacing.md,
+        gap: Spacing.xxl,
+        flexDirection: "row",
+        alignItems: "flex-start",
+      }}
+    >
       <View
         style={{
           flexDirection: "row",
@@ -44,12 +54,20 @@ export default function Board({ id }: BoardProps) {
         }}
       >
         {lists.map((list) => (
-          <List
+          <View
             key={list.id}
-            boardId={id}
-            list={{ title: list.title, id: list.id }}
-            quantity={lists.length}
-          />
+            style={{
+              alignSelf: "flex-start",
+              borderRadius: Rounded.sm,
+              width: 280,
+            }}
+          >
+            <List
+              boardId={id}
+              list={{ title: list.title, id: list.id }}
+              quantity={lists.length}
+            />
+          </View>
         ))}
       </View>
     </ScrollView>

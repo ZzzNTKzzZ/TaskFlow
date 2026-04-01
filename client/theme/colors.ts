@@ -13,6 +13,7 @@ export const Colors = {
   onSurfaceVariant: "#454652",
 
   tertiary: "#8c000d",
+  
   tertiaryFixed: "#ffdad6",
   tertiary_opa_8: "rgba(140, 0, 13, 0.08) ",
 
@@ -20,6 +21,7 @@ export const Colors = {
   onSecondaryContainer: "#526772",
 
   text: "#000000",
-  description: "#596067"
-
+  description: "#596067",
+  error: "#B42625",
+  unChecked: "#EEEEF0",
 };

@@ -6,15 +6,15 @@ import {
   View,
   Text,
 } from "react-native";
-import { Colors, Spacing } from "@/theme";
+import { Colors, Spacing, Typography } from "@/theme";
 
-// T là Generic, giúp linh hoạt kiểu dữ liệu
 interface CustomInputProps<T> extends Omit<
   TextInputProps,
   "value" | "onChangeText"
 > {
   label?: string;
   value: T;
+  error?: string;
   setValue: (val: T) => void;
   isPassword?: boolean;
 }
@@ -24,13 +24,14 @@ export default function Input<T>({
   value,
   setValue,
   isPassword,
+  error,
   style,
   ...rest
 }: CustomInputProps<T>) {
   return (
     <View style={styles.container}>
       <TextInput
-        style={[styles.input, style]}
+        style={[styles.input, style, error ? styles.error : null]}
         secureTextEntry={isPassword}
         selectionColor={Colors.onSecondaryContainer}
         value={value !== undefined && value !== null ? String(value) : ""}
@@ -43,6 +44,9 @@ export default function Input<T>({
         }}
         {...rest}
       />
+      {error && (
+        <Text style={[styles.errorMsg, Typography.bodyMd]}>{error}</Text>
+      )}
     </View>
   );
 }
@@ -52,10 +56,17 @@ const styles = StyleSheet.create({
     marginVertical: Spacing.xs,
   },
   input: {
-    borderBottomWidth: 1,
+    borderBottomWidth: 2,
     borderBottomColor: Colors.onSecondaryContainer,
     paddingVertical: Spacing.sm,
     fontSize: 16,
     color: Colors.onSurface,
+  },
+  error: {
+    borderBottomColor: Colors.tertiary,
+  },
+  errorMsg: {
+    fontSize: 8,
+    color: Colors.error,
   },
 });

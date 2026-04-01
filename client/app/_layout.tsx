@@ -19,7 +19,12 @@ export default function RootLayout() {
     Manrope_600SemiBold,
     Inter_400Regular,
   });
-
+  useEffect(() => {
+    console.log("Fonts loaded:", loaded); // Kiểm tra log trong Terminal xem có true không
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
   useEffect(() => {
     if (loaded || error) {
       SplashScreen.hideAsync();
@@ -31,17 +36,18 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: "#fff" },
+          // contentStyle: { backgroundColor: "#fff" },
         }}
       >
+        
         <Stack.Screen name="index" />
-        <Stack.Screen name="register"/>
-        <Stack.Screen name="kanban" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="Auth/Register" />
+        <Stack.Screen name="Auth/Login" />
+        <Stack.Screen name="Workspace/Create" />
       </Stack>
-    </SafeAreaProvider>
   );
 }

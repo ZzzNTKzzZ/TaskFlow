@@ -17,9 +17,63 @@ type ButtonProps = {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   variant?: "primary" | "ghost" | "secondary";
+  disabled?: boolean;
   onPress?: () => void;
   styleClass?: StyleProp<ViewStyle>;
 };
+
+export default function Button({
+  title,
+  leftIcon,
+  rightIcon,
+  variant = "primary",
+  onPress,
+  disabled = false,
+  styleClass,
+}: ButtonProps) {
+
+  const scaleValue = useRef(new Animated.Value(1)).current;
+  const opacityValue = useRef(new Animated.Value(1)).current;
+  const animation = animateConfig[variant] || animateConfig.primary;
+  const animate = (toScale: number, toOpacity: number) => {
+    animation.fn(scaleValue, toScale, toOpacity, opacityValue).start();
+  };
+
+  return (
+    <Pressable
+      disabled={disabled}
+      onPress={onPress}
+      onPressIn={() => animate(0.95, 0.8)}
+      onPressOut={() => animate(1, 1)}
+      style={[{ alignSelf: "flex-start" }, styleClass]}
+    >
+      <Animated.View
+        style={[
+          stylesButton.base,
+          stylesButton[variant],
+          {
+            transform: [{ scale: scaleValue }],
+            opacity: opacityValue,
+          },
+          styleClass
+        ]}
+      >
+        {leftIcon && <View style={{ paddingTop: 1 }}>{leftIcon}</View>}
+        <Text
+          style={[
+            Typography.titleMd,
+            variant === "primary" && stylesButton.textPrimary,
+            variant === "secondary" && stylesButton.textSecondary,
+            variant === "ghost" && stylesButton.textGhost,
+          ]}
+        >
+          {title}
+        </Text>
+        {rightIcon && <View style={{ paddingTop: 1 }}>{rightIcon}</View>}
+      </Animated.View>
+    </Pressable>
+  );
+}
 
 const stylesButton = StyleSheet.create({
   base: {
@@ -128,58 +182,3 @@ const animateConfig = {
       ]),
   },
 };
-
-export default function Button({
-  title,
-  leftIcon,
-  rightIcon,
-  variant = "primary",
-  onPress,
-  styleClass
-}: ButtonProps) {
-  const [loader] = useFonts({
-    Manrope_600SemiBold,
-  });
-
-  const scaleValue = useRef(new Animated.Value(1)).current;
-  const opacityValue = useRef(new Animated.Value(1)).current;
-  const animation = animateConfig[variant] || animateConfig.primary;
-  const animate = (toScale: number, toOpacity: number) => {
-    animation.fn(scaleValue, toScale, toOpacity, opacityValue).start();
-  };
-
-  if (!loader) return null;
-
-  return (
-    <Pressable
-      onPress={onPress}
-      onPressIn={() => animate(0.95, 0.8)}
-      onPressOut={() => animate(1, 1)}
-      style={[{ alignSelf: "flex-start" }, styleClass]}
-    >
-      <Animated.View
-        style={[
-          stylesButton.base,
-          stylesButton[variant],
-          {
-            transform: [{ scale: scaleValue }],
-            opacity: opacityValue,
-          },
-        ]}
-      >
-        {leftIcon && <View style={{paddingTop: 1}}>{leftIcon}</View>}
-        <Text
-          style={[
-            Typography.titleMd,
-              variant === "primary" && stylesButton.textPrimary,
-              variant === "secondary" && stylesButton.textSecondary,
-              variant === "ghost" && stylesButton.textGhost,
-          ]}
-        >
-          {title}
-        </Text>
-        {rightIcon && <View style={{paddingTop: 1}}>{rightIcon}</View>}
-      </Animated.View>
-    </Pressable>
-  );
-}

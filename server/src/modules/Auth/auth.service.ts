@@ -1,8 +1,11 @@
-import { generateRefreshToken, generateAccessToken } from './../../utils/token.js';
+import {
+  generateRefreshToken,
+  generateAccessToken,
+} from "./../../utils/token.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { prisma } from '../../lib/prisma.js';
-import { AppError } from '../../utils/appError.js';
+import { prisma } from "../../lib/prisma.js";
+import { AppError } from "../../utils/appError.js";
 export class AuthService {
   static async register(name: string, email: string, password: string) {
     const existingUser = await prisma.user.findUnique({
@@ -81,7 +84,7 @@ export class AuthService {
       where: { token: refreshToken },
     });
 
-    return { message: "Logged out successfully" }
+    return { message: "Logged out successfully" };
   }
 
   static async refreshToken(refreshToken: string) {
@@ -103,22 +106,21 @@ export class AuthService {
     });
 
     if (!storedToken || storedToken.expiresAt < new Date())
-        throw new AppError("Refresh token not found", 401);
+      throw new AppError("Refresh token not found", 401);
     await prisma.refreshToken.delete({
-        where: { token: refreshToken}
-    })
+      where: { token: refreshToken },
+    });
 
     const newAccessToken = generateAccessToken(decode.userId);
     const newRefreshToken = generateRefreshToken(decode.userId);
 
     await prisma.refreshToken.create({
-        data: {
-            userId: decode.userId,
-            token: newRefreshToken,
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-
-        }
-    })
+      data: {
+        userId: decode.userId,
+        token: newRefreshToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
@@ -126,18 +128,18 @@ export class AuthService {
   }
 
   static async getCurrentUser(userId: string) {
-    if(!userId) throw new AppError("No userId provide", 401)
+    if (!userId) throw new AppError("No userId provide", 401);
 
     const user = await prisma.user.findUnique({
-      where: { id: userId }
-    })
+      where: { id: userId },
+    });
 
-    if(!user) throw new AppError("User not found", 404)
-    return  {
+    if (!user) throw new AppError("User not found", 404);
+    return {
       id: user.id,
       name: user.name,
       email: user.email,
-      createdAt: user.createdAt
-    }
+      createdAt: user.createdAt,
+    };
   }
 }

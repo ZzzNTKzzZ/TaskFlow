@@ -8,7 +8,7 @@ export default class WorkspaceController {
     const userId = req.user.userId;
 
     const workspaces = await WorkspaceService.getUserWorkspaces(userId);
-
+    if(!workspaces) throw new AppError("Not found workspaces", 404)
     res.status(200).json(workspaces);
   }
   // POST: /workspaces
