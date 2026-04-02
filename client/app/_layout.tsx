@@ -42,12 +42,10 @@ export default function RootLayout() {
           // contentStyle: { backgroundColor: "#fff" },
         }}
       >
-        
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="Auth/Register" />
         <Stack.Screen name="Auth/Login" />
-        <Stack.Screen name="Workspace/Create" />
       </Stack>
   );
 }

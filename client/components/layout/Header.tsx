@@ -18,7 +18,8 @@ export default function Header({ userAvatar }: HeaderProps) {
         globalStyles.container,
         { 
           paddingTop: inset.top,
-          paddingVertical: Spacing.xxl,
+          marginBottom: Spacing.xxl,
+          paddingHorizontal: 0,
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",

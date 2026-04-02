@@ -59,7 +59,7 @@ export default function Login() {
     try {
       const response = await loginApi(email, password);
       
-      console.log("Login Response:", response);
+      console.log("Login Response:", response.data.user.name);
 
       if (response.status === "success") {
         // 3. Lưu Token vào SecureStore

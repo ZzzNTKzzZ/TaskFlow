@@ -1,8 +1,4 @@
 import type { Request, Response } from "express";
-import type {
-  Prisma,
-  BoardVisibility,
-} from "../../../generated/prisma/index.js";
 import BoardService from "./board.service.js";
 
 export default class BoardController {

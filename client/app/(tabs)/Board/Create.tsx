@@ -6,26 +6,55 @@ import { Colors, Rounded, Spacing, Typography } from "@/theme";
 import { useState } from "react";
 import { ScrollView, Text, View, StyleSheet } from "react-native";
 import RightArrow from "@/assets/icons/RightArrow.svg";
+import { createWorkspace } from "@/service/workspace.service";
+import { workspaceSchema } from "@/utils/validation/workspace.schema";
 
 export default function Create() {
   const [workspaceName, setWorkspaceName] = useState("");
-  const [industry, setIndustry] = useState("");
-  const [selectedSize, setSelectedSize] = useState("1-5");
+  const [loading, setLoading] = useState(false);
+  const [error, setErrors] =useState<{name?: string}>({})
 
-  const selectTeamSizes = [
-    { title: "1-5", min: 1, max: 5, isSelected: true },
-    { title: "6-20", min: 6, max: 20, isSelected: false },
-    { title: "21-50", min: 21, max: 50, isSelected: false },
-    { title: "50+", min: 50, max: null, isSelected: false },
-  ];
+  const handleCreateWorkspace = async () => {
+    setErrors({})
 
-  const handleCreateWorkspace = () => {
-    console.log({
-      workspaceName,
-      industry,
-    });
+    const result = workspaceSchema.safeParse({ name: workspaceName})
+    if (!result.success) {
+      const newErrors: { name?: string } = {};
+      result.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0] as "name";
+        if (!newErrors[fieldName]) {
+          newErrors[fieldName] = issue.message;
+        }
+      });
+      setErrors(newErrors);
+      return;
+    }
+
+    if (!workspaceName.trim()) {
+      alert("Vui lòng nhập tên Workspace");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      console.log("Đang tạo Workspace:", workspaceName);
+
+      const result = await createWorkspace(workspaceName);
+
+      console.log("Tạo thành công:", result);
+      alert("Tạo Workspace thành công!");
+
+      setWorkspaceName("");
+    } catch (error: any) {
+      console.error("Lỗi khi tạo:", error);
+
+      const message =
+        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.";
+      alert(message);
+    } finally {
+      setLoading(false); // Kết thúc load
+    }
   };
-
   return (
     <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
       <Header />
@@ -52,41 +81,15 @@ export default function Create() {
               value={workspaceName}
               setValue={setWorkspaceName}
               placeholder="e.g TaskSpace"
+              error={error.name}
             />
           </View>
-          <View>
-            <Text style={[Typography.labelSm, styles.inputLabel]}>
-              Industry
-            </Text>
-            <Input
-              value={industry}
-              setValue={setIndustry}
-              placeholder="e.g TaskSpace"
-            />
-          </View>
-          <View>
-            <Text style={[Typography.labelSm, styles.inputLabel]}>
-              Team size
-            </Text>
-            <View style={styles.teamSizeWrapper}>
-              {selectTeamSizes.map((size) => (
-                <Button
-                  key={size.title}
-                  title={size.title}
-                  styleClass={styles.teamSizeButton}
-                  onPress={() => setSelectedSize(size.title)}
-                  variant={
-                    selectedSize === size.title ? "primary" : "secondary"
-                  }
-                />
-              ))}
-            </View>
-            <Button
-              title="Create Workspace"
-              rightIcon={<RightArrow />}
-              styleClass={{ alignSelf: "stretch", borderRadius: Rounded.lg }}
-            />
-          </View>
+          <Button
+            onPress={handleCreateWorkspace}
+            title="Create Workspace"
+            rightIcon={<RightArrow />}
+            styleClass={{ alignSelf: "stretch", borderRadius: Rounded.lg }}
+          />
         </View>
       </View>
     </ScrollView>
@@ -96,7 +99,7 @@ export default function Create() {
 const styles = StyleSheet.create({
   scrollView: {
     backgroundColor: "#eeeeee",
-    paddingBottom: 100
+    paddingBottom: 100,
   },
   headingText: {
     color: Colors.primary,

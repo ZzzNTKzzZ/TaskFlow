@@ -9,6 +9,7 @@ export default class WorkspaceController {
 
     const workspaces = await WorkspaceService.getUserWorkspaces(userId);
     if(!workspaces) throw new AppError("Not found workspaces", 404)
+      console.log("Get workspaces success", workspaces)
     res.status(200).json(workspaces);
   }
   // POST: /workspaces
@@ -18,7 +19,7 @@ export default class WorkspaceController {
     const { name } = req.body;
 
     const workspace = await WorkspaceService.createWorkSpace(userId, name);
-
+    console.log("Create workspace success", workspace)
     res.status(201).json(workspace);
   }
 

@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 
 export const globalStyles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surfaceLow,
     paddingHorizontal: Spacing.xxl,
     flex: 1,
   },

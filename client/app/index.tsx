@@ -1,7 +1,6 @@
 import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import Login from "./Auth/Login"; 
-import BoardScreen from "./(tabs)/Board";
 
 export default function Page() {
   return (
