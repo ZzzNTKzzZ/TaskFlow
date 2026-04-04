@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
 import {
+  Manrope_300Light,
   Manrope_600SemiBold,
   Manrope_700Bold,
   Manrope_800ExtraBold,
@@ -17,6 +18,7 @@ export default function RootLayout() {
     Manrope_800ExtraBold,
     Manrope_700Bold,
     Manrope_600SemiBold,
+    Manrope_300Light,
     Inter_400Regular,
   });
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function RootLayout() {
           // contentStyle: { backgroundColor: "#fff" },
         }}
       >
-        <Stack.Screen name="index" />
+        <Stack.Screen name="index"/>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="Auth/Register" />
         <Stack.Screen name="Auth/Login" />

@@ -68,7 +68,7 @@ export default function Login() {
 
         
         // 4. Chuyển hướng vào App
-        router.replace("/(tabs)" as any);
+        router.replace("/(tabs)/Home");
       }
     } catch (error: unknown) {
       // Xử lý lỗi TypeScript an toàn thay vì dùng 'any'

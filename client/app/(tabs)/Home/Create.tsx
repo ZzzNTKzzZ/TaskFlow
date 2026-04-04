@@ -52,13 +52,13 @@ export default function Create() {
         error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.";
       alert(message);
     } finally {
-      setLoading(false); // Kết thúc load
+      setLoading(false);
     }
   };
   return (
-    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[globalStyles.container ,styles.scrollView]} showsVerticalScrollIndicator={false}>
       <Header />
-      <View style={globalStyles.container}>
+      <View >
         <Text
           style={[
             Typography.displayLg,
@@ -72,12 +72,10 @@ export default function Create() {
           Architectural precision starts with a clean foundation. Organize your
           projects, teams, and assets in a unified environment.
         </Text>
-        <View style={styles.formContainer}>
+        <View style={[globalStyles.formSylte]}>
           <View>
-            <Text style={[Typography.labelSm, styles.inputLabel]}>
-              Workspace name
-            </Text>
             <Input
+              label="Workspace name"
               value={workspaceName}
               setValue={setWorkspaceName}
               placeholder="e.g TaskSpace"
@@ -103,17 +101,6 @@ const styles = StyleSheet.create({
   },
   headingText: {
     color: Colors.primary,
-  },
-  formContainer: {
-    backgroundColor: Colors.onPrimary,
-    borderTopColor: Colors.primary,
-    borderTopWidth: 2,
-    borderRadius: Rounded.lg,
-    padding: Spacing.xxl,
-    marginTop: 40,
-    paddingTop: 80,
-    display: "flex",
-    gap: Spacing.md,
   },
   inputLabel: {
     fontSize: 14,

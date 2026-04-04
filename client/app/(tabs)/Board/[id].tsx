@@ -2,16 +2,23 @@ import Button from "@/components/Button";
 import Header from "@/components/layout/Header";
 import { getBoardByWorkspaceIdApi } from "@/service/board.service";
 import { globalStyles } from "@/styles/global";
-import { Colors, Typography } from "@/theme";
-import { useLocalSearchParams } from "expo-router";
+import { Colors, Rounded, Spacing, Typography } from "@/theme";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import Plus from "@/assets/icons/Plus.svg";
-
+import Drafting from "@/assets/icons/Drafting.svg";
+import Filter from "@/assets/icons/Filter.svg";
+import CreateFirstTask from "@/assets/icons/CreateFirstTask.svg";
 export default function Detail() {
   const { id, name } = useLocalSearchParams();
-  const [data, setData] = useState({});
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const handleCreate = () => {
+    router.push("/(tabs)/Board/TaskCreate")
+  }
+
   useEffect(() => {
     const loadBoard = async () => {
       try {
@@ -34,8 +41,65 @@ export default function Detail() {
         <Text>Loading...</Text>
       </View>
     );
+
+  const renderEmptyBoards = () => {
+    return (
+      <View
+        style={{
+          backgroundColor: Colors.surfaceLow,
+          padding: Spacing.xxl,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          borderRadius: Rounded.lg,
+        }}
+      >
+        <Drafting />
+        <Text
+          style={[
+            Typography.displayLg,
+            {
+              textTransform: "uppercase",
+              fontSize: 28,
+              textAlign: "center",
+              letterSpacing: 2.4,
+              width: "60%",
+              marginBottom: Spacing.lg,
+            },
+          ]}
+        >
+          No Active Ledger Entries
+        </Text>
+        <Text
+          style={[
+            Typography.titleMd,
+            globalStyles.textDescription,
+
+            {
+              textAlign: "center",
+              width: "60%",
+              marginBottom: Spacing.lg,
+            },
+          ]}
+        >
+          The architectural workspace is currently clear. Initialize your
+          project ledger to begin drafting development milestones.
+        </Text>
+        <Button
+        onPress={() => handleCreate()}
+          title="Create First Task"
+          leftIcon={<CreateFirstTask />}
+          styleClass={{ alignSelf: "center" }}
+        />
+      </View>
+    );
+  };
+
   return (
-    <ScrollView style={[globalStyles.container]}>
+    <ScrollView
+      style={[globalStyles.container, { backgroundColor: Colors.onPrimary }]}
+    >
       <Header />
       <Text
         style={[
@@ -46,7 +110,26 @@ export default function Detail() {
       >
         {name}
       </Text>
-      <Button title="NEW TASK" leftIcon={<Plus width={14} height={14}/>} styleClass={{alignSelf: "flex-end"}}/>
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          gap: Spacing.lg,
+          marginBottom: 40,
+        }}
+      >
+        <Button
+          title="Filter"
+          leftIcon={<Filter width={14} height={14} />}
+          variant="secondary"
+        />
+        <Button
+          title="New Task"
+          leftIcon={<Plus width={14} height={14} />}
+          styleClass={{ alignSelf: "flex-end" }}
+        />
+      </View>
+      {data.length <= 0 ? renderEmptyBoards() : <Text>b</Text>}
     </ScrollView>
   );
 }

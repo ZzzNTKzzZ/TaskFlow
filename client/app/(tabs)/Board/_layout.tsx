@@ -7,10 +7,11 @@ export default function BoardStackLayout() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="index" options={{ title: "My Workspaces" }}/>
+      <Stack.Screen name="index" options={{ title: "My Boards" }}/>
+      <Stack.Screen name="BoardCreate" options={{ title: "Create Board" }} />
+      <Stack.Screen name="TaskCreate" options={{ title: "Create Task" }} />
 
       {/* Các màn hình phụ: Luôn hiện Tab bar */}
-      <Stack.Screen name="Create" options={{ title: "Create new Workspace" }} />
       <Stack.Screen name="[id]" options={{ title: "Workspace Details" }} />
     </Stack>
   );

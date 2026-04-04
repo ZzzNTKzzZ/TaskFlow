@@ -15,6 +15,10 @@ export const Typography = {
     fontFamily: "Inter_400Regular",
     fontSize: 14,
   },
+  lighterMd: {
+    fontFamily: "Manrope_300Light",
+    fontSize: 18,
+  },
   labelSm: {
     fontFamily: "Manrope_600SemiBold",
     fontSize: 11,

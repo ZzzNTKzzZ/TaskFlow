@@ -9,6 +9,7 @@ import Collaboration from "@/assets/icons/Collaboration.svg";
 import Velocity from "@/assets/icons/Velocity.svg";
 import { router } from "expo-router";
 import { fetchWorkspaceData } from "@/service/workspace.service";
+import FAB from "@/components/ui/FAB";
 
 type WorkspaceProps = {
   id: string;
@@ -45,17 +46,14 @@ export default function Home() {
 
   const handleOpenWorkspace = (id: string, name: string) => {
     router.push({
-      pathname: "/(tabs)/Board/[id]", 
+      pathname: "/(tabs)/Board/[id]",
       params: {
-        id, name
-      }
-    })
-  }
-
-  const handleOpenCreate = () => {
-    // router.push("/Workspace/Create")
+        id,
+        name,
+      },
+    });
   };
-  // Get workspace user data
+
   useEffect(() => {
     const loadWorkspace = async () => {
       try {
@@ -112,7 +110,6 @@ export default function Home() {
             <Button
               title="Create New Workspace"
               styleClass={{ alignSelf: "stretch" }}
-              onPress={() => handleOpenCreate()}
             />
             <Button
               title="Join with Invite Code"
@@ -222,5 +219,10 @@ export default function Home() {
       </View>
     );
   }
-  return workspaces.length > 0 ? renderWorkspaceList() : renderEmptyState();
+  return (
+    <View style={{ flex: 1 }}>
+      {workspaces.length > 0 ? renderWorkspaceList() : renderEmptyState()}
+      <FAB path="/(tabs)/Home/Create" />
+    </View>
+  );
 }
