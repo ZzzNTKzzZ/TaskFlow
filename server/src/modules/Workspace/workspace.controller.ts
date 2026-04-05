@@ -62,7 +62,7 @@ export default class WorkspaceController {
       workspaceId as string,
     );
 
-    res.status(200).json({ message: deletedWorkspace.message });
+    res.status(200).json({ message: deletedWorkspace.message, success: true });
   }
 
   // ========================== WORKSPACE MEMBER ==========================

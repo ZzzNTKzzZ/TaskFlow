@@ -5,9 +5,11 @@ import { globalStyles } from "@/styles/global";
 import { Colors, Rounded, Spacing, Typography } from "@/theme";
 import { useState } from "react";
 import { ScrollView, Text, View, StyleSheet } from "react-native";
-import RightArrow from "@/assets/icons/RightArrow.svg";
 import { createWorkspace } from "@/service/workspace.service";
 import { workspaceSchema } from "@/utils/validation/workspace.schema";
+import { router } from "expo-router";
+import { createBoardApi } from "@/service/board.service";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 export default function Create() {
   const [workspaceName, setWorkspaceName] = useState("");
@@ -40,11 +42,13 @@ export default function Create() {
       console.log("Đang tạo Workspace:", workspaceName);
 
       const result = await createWorkspace(workspaceName);
-
+      const boardCreate = await createBoardApi(result.id, "Task 1", "public", "#fff", result.userId)
       console.log("Tạo thành công:", result);
       alert("Tạo Workspace thành công!");
 
       setWorkspaceName("");
+      
+      router.back()
     } catch (error: any) {
       console.error("Lỗi khi tạo:", error);
 
@@ -85,7 +89,7 @@ export default function Create() {
           <Button
             onPress={handleCreateWorkspace}
             title="Create Workspace"
-            rightIcon={<RightArrow />}
+            rightIcon={<AppIcon name="RightArrow" />}
             styleClass={{ alignSelf: "stretch", borderRadius: Rounded.lg }}
           />
         </View>

@@ -1,5 +1,4 @@
 import { Pressable, Text, View, StyleSheet, Alert } from "react-native";
-import LeftArrow from "@/assets/icons/LeftArrow.svg";
 import { globalStyles } from "@/styles/global";
 import { Colors, Spacing, Typography } from "@/theme";
 import { router } from "expo-router";
@@ -8,6 +7,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/Button";
 import { registerSchema } from "@/utils/validation/auth.schema";
 import { registerApi } from "@/service/auth.service";
+import { AppIcon } from "@/components/ui/AppIcon";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -58,7 +58,7 @@ export default function Register() {
       {/* Header with Back Button */}
       <View style={styles.header}>
         <Pressable onPress={onBack} hitSlop={10}>
-          <LeftArrow />
+          <AppIcon name="LeftArrow" />
         </Pressable>
         <Text style={globalStyles.textHeading}>TaskFlow Pro</Text>
       </View>

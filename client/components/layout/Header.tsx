@@ -1,9 +1,9 @@
 import { Image, Text, View } from "react-native";
-import Logo from "../../assets/icons/Logo.svg";
 import { globalStyles } from "@/styles/global";
 import { Colors, Spacing, Typography } from "@/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+import { AppIcon } from "../ui/AppIcon";
+import Logo from "@/assets/icons/Logo.svg"
 type HeaderProps = {
   userAvatar?: string | null;
 };
@@ -17,6 +17,7 @@ export default function Header({ userAvatar }: HeaderProps) {
       style={[
         globalStyles.container,
         { 
+          backgroundColor: "transparent",
           paddingTop: inset.top,
           marginBottom: Spacing.xxl,
           paddingHorizontal: 0,
@@ -34,7 +35,7 @@ export default function Header({ userAvatar }: HeaderProps) {
           gap: Spacing.lg,
         }}
       >
-        <Logo width={28} height={28}/>
+        <AppIcon name="Logo" size={28}/>
         <Text style={[Typography.displayLg, {color: Colors.primary, marginBottom: Spacing.xs}]}>TaskFlow Pro</Text>
       </View>
       <View

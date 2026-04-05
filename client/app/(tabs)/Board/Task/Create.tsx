@@ -17,11 +17,24 @@ import { Text, View } from "react-native";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import RightArrow from "@/assets/icons/RightArrow.svg";
+import { cardSchema } from "@/utils/validation/card.shema";
+import { createCardApi } from "@/service/card.service";
+import { useLocalSearchParams } from "expo-router";
+import { getListsByBoardIdApi } from "@/service/list.service";
+import { AppIcon } from "@/components/ui/AppIcon";
+
 export default function TaskCreate() {
-  const [taskName, setTaskName] = useState("");
+  const { boardId } = useLocalSearchParams<{ boardId: string }>();
+  const [cardName, setCardName] = useState("");
+  const [loading, setLoading] = useState(false);
   const [priority, setPriority] = useState<Priority>("low");
   const [description, setDescription] = useState("");
+  const [errors, setErrors] = useState<{
+    title?: string;
+    description?: string;
+    dueDate?: string;
+    priority?: string;
+  }>({});
 
   // State cho Due Date (Có thể null nếu là Note)
   const [dueDate, setDueDate] = useState<Date | null>(null);
@@ -52,7 +65,6 @@ export default function TaskCreate() {
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === "ios");
     if (selectedDate) {
-      // Nếu trước đó null, ta lấy selectedDate. Nếu đã có date, giữ nguyên giờ cũ chỉ đổi ngày.
       const newDate = dueDate || new Date();
       newDate.setFullYear(
         selectedDate.getFullYear(),
@@ -69,6 +81,84 @@ export default function TaskCreate() {
       const newDate = dueDate || new Date();
       newDate.setHours(selectedDate.getHours(), selectedDate.getMinutes());
       setDueDate(new Date(newDate));
+    }
+  };
+
+  const handleCreateCard = async () => {
+    setErrors({});
+    const result = cardSchema.safeParse({
+      title: cardName,
+      description,
+      listId: "00000000-0000-0000-0000-000000000000",
+      dueDate,
+      priority,
+    });
+    
+    if (!result.success) {
+      const newErrors: {
+        title?: string;
+        description?: string;
+        dueDate?: string;
+        priority?: string;
+      } = {};
+      result.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0] as keyof typeof newErrors;
+        if (!newErrors[fieldName]) {
+          newErrors[fieldName] = issue.message;
+        }
+      });
+      setErrors(newErrors);
+      console.log(newErrors);
+      return;
+    }
+    
+    if (!cardName.trim()) {
+      alert("Vui lòng nhập tên Task");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      console.log("Đang tạo Task:", cardName);
+      
+      let targetListId = "00000000-0000-0000-0000-000000000000";
+      if (boardId) {
+        try {
+          const lists = await getListsByBoardIdApi(boardId);
+          console.log("Lists fetching:", lists);
+          const todoList = lists.find((l: any) => l.title === "To Do");
+          if (todoList) {
+            targetListId = todoList.id;
+          }
+        } catch (e) {
+          console.error("Failed to fetch lists", e);
+        }
+      }
+
+      const { title, description, dueDate, priority } = result.data;
+      const response = await createCardApi({
+        title,
+        description,
+        listId: targetListId,
+        dueDate: dueDate ? dueDate.toISOString() : null,
+        priority,
+      });
+
+      console.log("Tạo thành công:", response);
+      alert("Tạo Task thành công!");
+
+      setCardName("");
+      setDescription("");
+      setDueDate(null);
+      setPriority("low");
+    } catch (error: any) {
+      console.error("Lỗi khi tạo:", error);
+
+      const message =
+        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.";
+      alert(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -110,10 +200,11 @@ export default function TaskCreate() {
       <View style={[globalStyles.formSylte]}>
         {/* Task Name */}
         <Input
-          value={taskName}
-          setValue={setTaskName}
+          value={cardName}
+          setValue={setCardName}
           placeholder="Task specification..."
           label="Title"
+          error={errors.title}
         />
 
         {/* Priority Tier */}
@@ -216,11 +307,9 @@ export default function TaskCreate() {
         >
           <Button title="Cancel" variant="secondary" />
           <Button
-            title="Create Card"
-            onPress={() =>
-              console.log({ taskName, priority, description, dueDate })
-            }
-            rightIcon={<RightArrow />}
+            title="Create New Card"
+            onPress={() => handleCreateCard()}
+            rightIcon={<AppIcon name="RightArrow" />}
           />
         </View>
       </View>

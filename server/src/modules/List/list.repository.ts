@@ -2,21 +2,14 @@ import { prisma } from "../../lib/prisma.js";
 
 export default class ListRepository {
   static async findLists(boardId: string) {
-    return await prisma.board.findMany({
-      where: { id: boardId },
+    return await prisma.list.findMany({
+      where: { boardId },
       orderBy: { position: "asc"},
       include: {
-        lists: {
-          select: {
-            title: true,
-          },
-        },
-        _count: {
-          select: {
-            lists: true,
-          },
-        },
-      },
+        cards: {
+          orderBy: { position: "asc" }
+        }
+      }
     });
   }
 

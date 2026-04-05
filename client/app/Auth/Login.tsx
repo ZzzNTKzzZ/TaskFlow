@@ -6,12 +6,11 @@ import {
   StyleSheet, 
   Alert, 
   ScrollView, 
-  ActivityIndicator 
 } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SecureStore from "expo-secure-store";
-import axios from "axios"; // Import thêm axios để dùng isAxiosError
+import axios from "axios";
 
 // Styles & Theme
 import { globalStyles } from "@/styles/global";

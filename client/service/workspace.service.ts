@@ -36,6 +36,16 @@ export const createWorkspace = async (workspaceName: string) => {
     throw error; // Throw để UI có thể bắt được lỗi và hiển thị thông báo
   }
 };
+export const deleteWorkspaceApi = async (workspaceId: string) => {
+    try {
+        const response = await api.delete(`/workspaces/${workspaceId}`);
+        console.log(response.data)
+        return response.data
+    } catch (error) {
+        console.error(error)
+        throw error
+    }
+}
 export const fetchWorkspaceData = async () => {
   try {
     let accessToken = await SecureStore.getItemAsync("accessToken");

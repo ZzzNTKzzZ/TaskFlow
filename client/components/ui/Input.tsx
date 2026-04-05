@@ -30,6 +30,11 @@ export default function Input<T>({
 }: CustomInputProps<T>) {
   return (
     <View style={styles.container}>
+      <Text
+        style={[Typography.labelSm, { fontSize: 14, marginBottom: Spacing.xs }]}
+      >
+        {label}
+      </Text>
       <TextInput
         style={[styles.input, style, error ? styles.error : null]}
         secureTextEntry={isPassword}
@@ -56,9 +61,8 @@ const styles = StyleSheet.create({
     marginVertical: Spacing.xs,
   },
   input: {
-    borderBottomWidth: 2,
+    borderBottomWidth: 0.5,
     borderBottomColor: Colors.onSecondaryContainer,
-    paddingVertical: Spacing.sm,
     fontSize: 16,
     color: Colors.onSurface,
   },

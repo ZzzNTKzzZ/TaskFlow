@@ -1,7 +1,11 @@
-import type { BoardVisibility, WorkspaceRole } from "../../../generated/prisma/index.js";
+import type {
+  BoardVisibility,
+  WorkspaceRole,
+} from "../../../generated/prisma/index.js";
 import slugify from "../../helper/slugify.helper.js";
 import { AppError } from "../../utils/appError.js";
 import WorkspaceRepository from "./workspace.repository.js";
+import { prisma } from "../../lib/prisma.js";
 
 export class WorkspaceService {
   static async getUserWorkspaces(userId: string) {
@@ -102,7 +106,7 @@ export class WorkspaceService {
 
   static async getBoards(workspaceId: string) {
     const boards = await WorkspaceRepository.findBoards(workspaceId);
-    return boards ;
+    return boards;
   }
 
   static async createBoard(
@@ -110,13 +114,32 @@ export class WorkspaceService {
     title: string,
     visibility: BoardVisibility,
     background: string,
-    userId: string
+    userId: string,
   ) {
-    const existing = await WorkspaceRepository.findWorkspace(workspaceId)
-    if(!existing) throw new AppError("Board not found", 404)
+    const existing = await WorkspaceRepository.findWorkspace(workspaceId);
+    if (!existing) throw new AppError("Board not found", 404);
 
-    const board = await WorkspaceRepository.createBoard(workspaceId, title, visibility, background, userId)
-    return board
+    const board = await WorkspaceRepository.createBoard(
+      workspaceId,
+      title,
+      visibility,
+      background,
+      userId,
+    );
+    
+    const defaultLists = ["To Do", "Doing", "Done"];
+    let i = 0;
+    for (const title of defaultLists) {
+      await prisma.list.create({
+        data: {
+          title,
+          position: i,
+          boardId: board.id!,
+        },
+      });
+      i++;
+    }
+
+    return board;
   }
-  
 }

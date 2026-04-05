@@ -1,9 +1,11 @@
 import { Colors, Rounded, Spacing, Typography } from "@/theme";
 import { Priority } from "@/Types/enum";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type PriorityTagProps = {
   priority: Priority;
+  onPress?: () => void;
+  isActive?: boolean;
 };
 
 const sytles = StyleSheet.create({
@@ -33,7 +35,7 @@ const textStyles = StyleSheet.create({
     letterSpacing: 1,
   },
   low: {
-    color: Colors.onSecondaryContainer
+    color: Colors.onSecondaryContainer,
   },
   medium: {
     color: Colors.primary,
@@ -46,9 +48,24 @@ const textStyles = StyleSheet.create({
   },
 });
 
-export default function PriorityTag({ priority = "low" }: PriorityTagProps) {
+export default function PriorityTag({
+  priority = "low",
+  onPress,
+  isActive,
+}: PriorityTagProps) {
   return (
-    <View style={[sytles.base, sytles[priority]]}>
+    <Pressable
+      style={[
+        sytles.base,
+        sytles[priority],
+        isActive && {
+          borderWidth: 2,
+          borderColor: textStyles[priority].color,
+          transform: [{ scale: 1.1 }],
+        },
+      ]}
+      onPress={onPress}
+    >
       <View>
         <Text
           style={[
@@ -56,11 +73,12 @@ export default function PriorityTag({ priority = "low" }: PriorityTagProps) {
             textStyles[priority],
             Typography.displayLg,
             { fontSize: 10 },
+            isActive && { fontWeight: "800" },
           ]}
         >
           {priority}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 }

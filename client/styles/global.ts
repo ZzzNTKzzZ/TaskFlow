@@ -1,4 +1,4 @@
-import { Colors, Spacing } from "@/theme";
+import { Colors, Rounded, Spacing, Typography } from "@/theme";
 import { StyleSheet } from "react-native";
 
 export const globalStyles = StyleSheet.create({
@@ -16,5 +16,19 @@ export const globalStyles = StyleSheet.create({
   textDescription: {
     fontSize: 16,
     color: Colors.description,
+  },
+  formSylte: {
+    backgroundColor: Colors.onPrimary,
+    borderTopColor: Colors.primary,
+    borderTopWidth: 2,
+    borderRadius: Rounded.lg,
+    padding: Spacing.xxl,
+    marginTop: 40,
+    display: "flex",
+    gap: Spacing.lg,
+  },
+  subHeader: { 
+    letterSpacing: 1, 
+    ...Typography.labelSm,
   },
 });

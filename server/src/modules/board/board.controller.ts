@@ -31,7 +31,7 @@ export default class BoardController {
   // DELETE /boards/:boardId
   static async deleteBoard(req: Request, res: Response) {
     const boardId = req.params.boardId as string;
-
+    console.log(boardId)
     await BoardService.deleteBoard(boardId);
 
     res.status(200).json({ message: "Board deleted successfully" });
@@ -68,11 +68,7 @@ export default class BoardController {
   // PATCH /workspaces/:workspaceId/boards/reorder
   static async reorder(req: Request, res: Response) {
     const workspaceId = req.params.workspaceId as string;
-
     const { boardId, beforeId, afterId } = req.body;
-
-    
-
     const board = await BoardService.reorderBoard(workspaceId, {
       boardId,
       beforeId,
