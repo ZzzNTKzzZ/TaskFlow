@@ -6,6 +6,7 @@ export const errorMiddleware = (
   next: NextFunction,
 ) => {
     const status = err.status || 500
+    console.error("Status: ", status, " ", err)
     res.status(status).json({
         success: false,
         message: err.message || "Internal Server Error"

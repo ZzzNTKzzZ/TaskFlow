@@ -1,8 +1,8 @@
 import React from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { router, Href } from "expo-router";
-import Plus from "@/assets/icons/Plus.svg";
 import { Colors, Rounded, Spacing } from "@/theme";
+import { AppIcon } from "./AppIcon";
 
 type FABProps = {
   path: Href; 
@@ -18,7 +18,7 @@ export default function FAB({ path }: FABProps) {
       onPress={handlePress} 
       style={styles.container}
     >
-      <Plus width={24} height={24} fill={Colors.onPrimary || "white"} />
+      <AppIcon name="Plus" size={24} />
     </Pressable>
   );
 }

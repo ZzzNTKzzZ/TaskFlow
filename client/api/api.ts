@@ -13,7 +13,7 @@ const api = axios.create({
 // --- 1. REQUEST INTERCEPTOR ---
 api.interceptors.request.use(
   async (config) => {
-    // getValidAccessToken đã lo việc check hạn và tự refresh rồi
+    // getValidAccessToken nên trả về null nếu hoàn toàn không thể lấy được token
     const token = await getValidAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -27,17 +27,27 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response, 
   async (error) => {
-    const originalRequest = error.config;
+    // Kiểm tra nếu lỗi không phải do mạng (ví dụ server sập hoặc sai URL)
+    if (!error.response) {
+      console.error("Lỗi kết nối mạng hoặc Server không phản hồi");
+      return Promise.reject(error);
+    }
 
-    // Nếu server vẫn báo 401 (nghĩa là refresh token cũng đã chết)
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+    const { status, config } = error.response;
+
+    // Nếu server báo 401 (Unauthorized)
+    if (status === 401) {
+      // Tránh lặp lại điều hướng nếu đã đang ở trang login
+      // Hoặc nếu endpoint chính là endpoint login/refresh thì không chặn ở đây
+      console.warn("Phiên đăng nhập hết hạn hoặc không hợp lệ.");
       
-      console.log("Phiên đăng nhập đã kết thúc hoàn toàn.");
       await clearTokens();
       
-      // Điều hướng về Login
-      router.replace("/Auth/Login");
+      // Sử dụng setTimeout để đảm bảo quá trình reject request hoàn tất trước khi chuyển trang
+      setTimeout(() => {
+        if (router.canGoBack()) router.dismissAll(); // Dọn dẹp stack cũ nếu cần
+        router.replace("/Auth/Login");
+      }, 0);
     }
     
     return Promise.reject(error);

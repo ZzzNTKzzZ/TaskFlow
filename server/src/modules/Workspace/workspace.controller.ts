@@ -6,32 +6,24 @@ export default class WorkspaceController {
   // GET: /workspaces
   static async getWorkspaces(req: Request, res: Response) {
     const userId = req.user.userId;
-
-    const workspaces = await WorkspaceService.getUserWorkspaces(userId);
-    if(!workspaces) throw new AppError("Not found workspaces", 404)
-      console.log("Get workspaces success", workspaces)
+    const workspaces = await WorkspaceService.getUserWorkspaces({ userId });
     res.status(200).json(workspaces);
   }
   // POST: /workspaces
   static async createWorkspace(req: Request, res: Response) {
     const userId = req.user.userId;
-
     const { name } = req.body;
-
-    const workspace = await WorkspaceService.createWorkSpace(userId, name);
-    console.log("Create workspace success", workspace)
+    const workspace = await WorkspaceService.createWorkSpace({ userId, name });
     res.status(201).json(workspace);
   }
 
   // GET: /workspaces/:workspaceId
   static async getWorkspace(req: Request, res: Response) {
     const { workspaceId } = req.params;
-    if (!workspaceId) throw new AppError("Workspace id not provided", 400);
 
-    const workspace = await WorkspaceService.getWorkspace(
-      workspaceId as string,
-    );
-    if (!workspace) throw new AppError("Not found workspace with id", 404);
+    const workspace = await WorkspaceService.getWorkspace({
+      workspaceId: workspaceId as string,
+    });
 
     res.status(200).json(workspace);
   }
@@ -40,28 +32,19 @@ export default class WorkspaceController {
   static async editWorkspace(req: Request, res: Response) {
     const { workspaceId } = req.params;
     const { name } = req.body;
-    if (!workspaceId) throw new AppError("Workspace id not provided", 400);
-
-    const workspace = await WorkspaceService.editWorkspace(
-      workspaceId as string,
+    const workspace = await WorkspaceService.editWorkspace({
+      workspaceId: workspaceId as string,
       name,
-    );
-
-    if (!workspace) throw new AppError("Forbidden", 500);
-
+    });
     res.status(200).json(workspace);
   }
 
   // DELETE: /workspaces/:workspaceId
   static async deleteWorkspace(req: Request, res: Response) {
     const { workspaceId } = req.params;
-
-    if (!workspaceId) throw new AppError("Workspace id not provided", 400);
-
-    const deletedWorkspace = await WorkspaceService.deleteWorkspace(
-      workspaceId as string,
-    );
-
+    const deletedWorkspace = await WorkspaceService.deleteWorkspace({
+      workspaceId: workspaceId as string,
+    });
     res.status(200).json({ message: deletedWorkspace.message, success: true });
   }
 
@@ -70,10 +53,7 @@ export default class WorkspaceController {
   // GET /workspaces/:workspaceId/members
   static async getMembers(req: Request, res: Response) {
     const workspaceId = req.params.workspaceId as string;
-
-    if (!workspaceId) throw new AppError("Workspace id not provided", 400);
-    const members = await WorkspaceService.getMembers(workspaceId);
-
+    const members = await WorkspaceService.getMembers({ workspaceId });
     res.status(200).json(members);
   }
 
@@ -81,9 +61,11 @@ export default class WorkspaceController {
   static async addMember(req: Request, res: Response) {
     const workspaceId = req.params.workspaceId as string;
     const { userId, role } = req.body;
-    if (!workspaceId) throw new AppError("Workspace id not provided", 400);
-
-    const member = await WorkspaceService.addMember(workspaceId, userId, role);
+    const member = await WorkspaceService.addMember({
+      workspaceId,
+      userId,
+      role,
+    });
 
     res.status(201).json(member);
   }
@@ -93,13 +75,13 @@ export default class WorkspaceController {
     const { workspaceId, memberId } = req.params;
     const { role } = req.body;
 
-    if(!workspaceId || !memberId) throw new AppError("Missing params", 400)
+    if (!workspaceId || !memberId) throw new AppError("Missing params", 400);
 
-    const member = await WorkspaceService.editMember(
-      workspaceId as string,
-      memberId as string,
+    const member = await WorkspaceService.editMember({
+      workspaceId: workspaceId as string,
+      userId: memberId as string,
       role,
-    );
+    });
 
     res.status(200).json(member);
   }
@@ -107,33 +89,59 @@ export default class WorkspaceController {
   // DELETE /workspaces/:workspaceId/members/:memberId
   static async deleteMember(req: Request, res: Response) {
     const { workspaceId, memberId } = req.params;
-    if(!workspaceId || !memberId) throw new AppError("Missing params", 400)
+    if (!workspaceId || !memberId) throw new AppError("Missing params", 400);
 
-    await WorkspaceService.deleteMember(
-      workspaceId as string,
-      memberId as string,
-    );
+    await WorkspaceService.deleteMember({
+      workspaceId: workspaceId as string,
+      userId: memberId as string,
+    });
 
     res.status(200).json({ message: "Member removed" });
   }
+
+  // ========================== BOARD ==========================
 
   // GET /workspaces/:workspaceId/boards
   static async getBoards(req: Request, res: Response) {
     const workspaceId = req.params.workspaceId as string;
 
-    const boards = await WorkspaceService.getBoards(workspaceId);
+    const boards = await WorkspaceService.getBoards({ workspaceId });
 
     res.status(200).json(boards);
   }
 
   // POST /workspaces/:workspaceId/boards
   static async createBoard(req: Request, res: Response) {
-    const workspaceId = req.params.workspaceId as string
-    const { title, visibility, background } = req.body
-    const userId = req.user.id
-    
-    const board = await WorkspaceService.createBoard(workspaceId, title, visibility, background, userId)
+    const workspaceId = req.params.workspaceId as string;
+    const { title, visibility, background } = req.body;
 
-    res.status(200).json()
+    const board = await WorkspaceService.createBoard({
+      workspaceId,
+      title,
+      visibility,
+      background,
+      userId: req.user.userId,
+    });
+
+    res.status(201).json(board);
+  }
+
+    // PATCH /workspaces/:workspaceId/boards/reorder
+  static async reorder(req: Request, res: Response) {
+    const { workspaceId } = req.params;
+    const { boardId, beforeId, afterId } = req.body;
+
+    if (!workspaceId || !boardId) {
+      throw new AppError("Workspace id and board id are required", 400);
+    }
+
+    const board = await WorkspaceService.reorderBoard({
+      workspaceId: workspaceId as string,
+      boardId,
+      beforeId,
+      afterId,
+    });
+
+    res.status(200).json(board);
   }
 }

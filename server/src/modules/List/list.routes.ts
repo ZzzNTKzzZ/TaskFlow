@@ -2,21 +2,16 @@ import { Router } from "express";
 import ListController from "./list.controller.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { validateMiddleware } from "../../middleware/validate.middleware.js";
-import { listSchema } from "../../validators/list.schema.js";
+import { updateListSchema } from "../../validators/list.schema.js";
 
 const listRoutes = Router();
-
-listRoutes.get("/:boardId/lists", asyncHandler(ListController.getLists));
-listRoutes.post(
-  "/:boardId/lists",
-  validateMiddleware(listSchema),
-  asyncHandler(ListController.createList),
-);
-listRoutes.patch("/lists/:listsId", asyncHandler(ListController.editList));
-listRoutes.delete("/lists/:listsId", asyncHandler(ListController.deleteList));
-listRoutes.delete(
-  "/:boardId/lists/reorder",
-  asyncHandler(ListController.reorder),
-);
+// PATCH  /lists/:listId
+listRoutes.patch('/:listId', validateMiddleware(updateListSchema), asyncHandler(ListController.editList));
+// DELETE /lists/:listId
+listRoutes.delete('/:listId', asyncHandler(ListController.deleteList));
+// GET  /lists/:listId/cards
+listRoutes.get('/:listId/cards', asyncHandler(ListController.getCards));
+// POST /lists/:listId/cards
+listRoutes.post('/:listId/cards', asyncHandler(ListController.createCard));
 
 export default listRoutes;

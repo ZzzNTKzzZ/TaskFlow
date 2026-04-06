@@ -1,17 +1,6 @@
 import { prisma } from "../../lib/prisma.js";
 
 export default class ListRepository {
-  static async findLists(boardId: string) {
-    return await prisma.list.findMany({
-      where: { boardId },
-      orderBy: { position: "asc"},
-      include: {
-        cards: {
-          orderBy: { position: "asc" }
-        }
-      }
-    });
-  }
 
   static async findList(listId: string) {
     return await prisma.list.findUnique({
@@ -19,23 +8,45 @@ export default class ListRepository {
     });
   }
 
-  static async createList(boardId: string, title: string) {
+  static async createList(input: { boardId: string; title: string }) {
+    const { boardId, title } = input;
     return await prisma.list.create({
       data: {
+        boardId,
         title,
         position: 0,
-        boardId,
       },
     });
   }
 
-  static async updateList(listId: string, title: string, position: number) {
+  static async createLists({
+    boardId,
+    data,
+  }: {
+    boardId: string;
+    data: { title: string; position: number }[];
+  }) {
+    return await prisma.list.createMany({
+      data: data.map((item) => ({
+        title: item.title,
+        position: item.position,
+        boardId: boardId,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  static async updateList(input: {
+    listId: string;
+    data: Partial<{
+      title: string;
+      position: number;
+    }>;
+  }) {
+    const { listId, data } = input;
     return await prisma.list.update({
       where: { id: listId },
-      data: {
-        title,
-        position,
-      },
+      data,
     });
   }
 
@@ -50,6 +61,17 @@ export default class ListRepository {
       where: { id: listId },
       data: {
         position,
+      },
+    });
+  }
+
+  static async findCards({ listId }: { listId: string }) {
+    return prisma.card.findMany({
+      where: { listId },
+      orderBy: { position: "asc" },
+      include: {
+        labels: { include: { label: true } },
+        assignees: { include: { user: { select: { id: true, name: true, email: true } } } },
       },
     });
   }

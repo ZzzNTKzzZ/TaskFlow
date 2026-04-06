@@ -5,7 +5,7 @@ export class AuthController {
   // POST: /auth/register
   static async register(req: Request, res: Response) {
     const { name, email, password } = req.body;
-    const { user, accessToken, refreshToken } = await AuthService.register(name, email, password);
+    const { user, accessToken, refreshToken } = await AuthService.register({name, email, password});
 
     // Trả về JSON để Mobile lưu vào Secure Storage
     res.status(201).json({
@@ -17,7 +17,7 @@ export class AuthController {
   // POST: /auth/login
   static async login(req: Request, res: Response) {
     const { email, password } = req.body;
-    const { user, accessToken, refreshToken } = await AuthService.login(email, password);
+    const { user, accessToken, refreshToken } = await AuthService.login({email, password});
 
     res.status(200).json({
       status: "success",

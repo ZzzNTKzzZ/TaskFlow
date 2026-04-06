@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../../lib/prisma.js";
 import { AppError } from "../../utils/appError.js";
 export class AuthService {
-  static async register(name: string, email: string, password: string) {
+  static async register({ name, email, password }: {name: string, email: string, password: string}) {
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -46,7 +46,7 @@ export class AuthService {
     };
   }
 
-  static async login(email: string, password: string) {
+  static async login({email, password} :{email: string, password: string}) {
     const user = await prisma.user.findUnique({
       where: { email },
     });

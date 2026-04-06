@@ -20,7 +20,8 @@ import Todo from "./Todo.svg";
 import Velocity from "./Velocity.svg";
 import Warn from "./Warn.svg";
 import Workspace from "./Workspace.svg";
-
+import Sort from "./Sort.svg"
+import List from "./List.svg"
 export const IconMap = {
   Calendar,
   ChevronDown,
@@ -44,6 +45,8 @@ export const IconMap = {
   Velocity,
   Warn,
   Workspace,
+  Sort,
+  List
 };
 
 export type IconName = keyof typeof IconMap;

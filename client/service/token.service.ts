@@ -1,8 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
-import axios from "axios"; // Dùng axios thuần để tránh Require Cycle
+import axios from "axios";
 
-// Biến lưu trữ Promise đang chạy
 let refreshPromise: Promise<string | null> | null = null;
 
 export const clearTokens = async () => {

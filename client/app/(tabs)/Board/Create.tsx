@@ -1,20 +1,30 @@
+import React, { useState } from "react";
+import { Text, View, ScrollView, Pressable, StyleSheet } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+
+// Layout & UI Components
 import Header from "@/components/layout/Header";
-import { globalStyles } from "@/styles/global";
-import { Colors, Spacing, Typography } from "@/theme";
-import { Pressable, ScrollView } from "react-native";
-import { Text, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
 import Input from "@/components/ui/Input";
-import { useState } from "react";
 import Select from "@/components/ui/Select";
-import { Visibility } from "@/Types/enum";
 import { AppIcon } from "@/components/ui/AppIcon";
+
+// Theme & Styles
+import { globalStyles } from "@/styles/global";
+import { Colors, Rounded, Spacing, Typography } from "@/theme";
+import { Visibility } from "@/Types/enum";
+import Button from "@/components/Button";
+import { boardSchema } from "@/utils/validation/board.schema";
+import { validateData } from "@/helper/validateData";
+import { createBoardApi } from "@/service/board.service";
+
 const VISIBILITY_OPTIONS: Visibility[] = ["workspace", "private", "public"];
+
 export default function Create() {
   const { workspaceId } = useLocalSearchParams();
   const [name, setName] = useState("");
   const [visibility, setVisibility] = useState<Visibility>("workspace");
-  const [template, setTemplate] = useState("Kanban")
+  const [template, setTemplate] = useState("Kanban");
+  const [errors, setErrors] = useState<{ title?: string }>({});
   const templates = [
     {
       name: "Kanban",
@@ -33,69 +43,246 @@ export default function Create() {
     },
     {
       name: "Custom Matrix",
-      icon: <AppIcon name="Logo" color={"#767683"}/>,
+      icon: <AppIcon name="Logo" />,
       description: "Architect your own grid of work streams.",
     },
   ];
 
+  const handleCreateBoard = async () => {
+    const { isValid, errors } = validateData(boardSchema, { 
+      workspaceId,
+    title: name, 
+    visibility 
+  });
+
+  if (!isValid) {
+    console.log(errors)
+    setErrors(errors);
+    return;
+  }
+
+  try {
+    setErrors({}); // Reset lỗi trước khi gọi API
+    const response = await createBoardApi(workspaceId as string, name, visibility);
+    router.back()
+    alert("Tạo board thành công")
+  } catch (apiError) {
+    console.error("Lỗi API:", apiError);
+    // Có thể set lỗi từ Server trả về vào setErrors ở đây
+  }
+};
+
   return (
-    <ScrollView style={[globalStyles.container]}>
+    <ScrollView
+      style={[globalStyles.container]}
+      showsVerticalScrollIndicator={false}
+    >
       <Header />
-      <View>
-        <View>
-          <Text
-            style={[
-              Typography.displayLg,
-              globalStyles.textHeading,
-              { color: Colors.primary },
-            ]}
-          >
-            Create Board
-          </Text>
-          <Text
-            style={[
-              Typography.titleMd,
-              globalStyles.textDescription,
-              { width: "70%" },
-            ]}
-          >
+
+      <View style={styles.content}>
+        {/* Header Section */}
+        <View style={styles.headerTextContainer}>
+          <Text style={[Typography.displayLg, styles.title]}>Create Board</Text>
+          <Text style={[Typography.titleMd, styles.description]}>
             Architecture is a visual language. Define yours below.
           </Text>
         </View>
-        <View style={[globalStyles.formSylte]}>
+
+        {/* Form Section */}
+        <View style={[globalStyles.formSylte, { gap: Spacing.xl }]}>
           <Input
             label="Board Name"
             placeholder="Enter board name"
             value={name}
             setValue={setName}
           />
+
           <View>
-            <Text
-              style={[
-                Typography.labelSm,
-                { fontSize: 14, marginBottom: Spacing.xs },
-              ]}
-            >
-              Structural Templete
+            <Text style={[Typography.labelSm, styles.label]}>
+              Structural Template
             </Text>
-            <View>
-              {templates.map((t) => (
-                <Pressable key={t.name} onPress={() => setTemplate(t.name)}>
-                  <View>{t.icon}</View>
-                  <Text>{t.name}</Text>
-                  <Text>{t.description}</Text>
-                </Pressable>
-              ))}
+
+            <View style={styles.templateList}>
+              {templates.map((t) => {
+                const isActive = t.name === template;
+
+                return (
+                  <Pressable
+                    key={t.name}
+                    // onPress={() => setTemplate(t.name)}
+                    style={({ pressed }) => [
+                      styles.templateCard,
+                      {
+                        backgroundColor: isActive
+                          ? Colors.surface
+                          : Colors.surfaceLow,
+                        borderLeftColor: isActive
+                          ? Colors.primary
+                          : "transparent",
+                        // Hiệu ứng phản hồi khi nhấn (Mochi Effect)
+                        transform: [{ scale: pressed ? 0.97 : 1 }],
+                        opacity: pressed ? 0.9 : 1,
+                      },
+                      isActive && styles.activeShadow,
+                    ]}
+                  >
+                    <View style={styles.cardHeader}>
+                      <View style={styles.iconWrapper}>
+                        {React.cloneElement(t.icon, {
+                          color: isActive ? Colors.primary : "#767683",
+                          size: 26,
+                        })}
+                      </View>
+
+                      {isActive && (
+                        <View style={styles.badge}>
+                          <Text style={styles.badgeText}>Selected</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    <Text
+                      style={[
+                        Typography.headlineSm,
+                        styles.templateName,
+                        { color: isActive ? Colors.primary : Colors.text },
+                      ]}
+                    >
+                      {t.name}
+                    </Text>
+
+                    <Text
+                      style={[
+                        Typography.lighterMd,
+                        styles.templateDesc,
+                        { color: isActive ? Colors.text : "#767683" },
+                      ]}
+                    >
+                      {t.description}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
+
           <Select
             label="Visibility"
             value={visibility}
             setValue={(val) => setVisibility(val as Visibility)}
             options={VISIBILITY_OPTIONS}
           />
+
+          {/* Nút bấm giả định để hoàn tất */}
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: Spacing.lg,
+              justifyContent: "space-between",
+            }}
+          >
+            <Button
+              title="Cancel"
+              styleClass={{ borderRadius: Rounded.sm }}
+              variant="secondary"
+            />
+            <Button
+            onPress={handleCreateBoard}
+              title="Create Board"
+              styleClass={{ borderRadius: Rounded.sm, flex: 1 }}
+              leftIcon={<AppIcon name="Plus" />}
+            />
+          </View>
         </View>
       </View>
+
+      {/* Khoảng trống cuối để Scroll thoải mái */}
+      <View style={{ height: 40 }} />
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  content: {
+    paddingBottom: Spacing.xxl,
+  },
+  headerTextContainer: {
+    marginBottom: Spacing.lg,
+  },
+  title: {
+    color: Colors.primary,
+    letterSpacing: -1,
+  },
+  description: {
+    color: "#767683",
+    width: "80%",
+    marginTop: Spacing.xs,
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: Spacing.sm,
+    color: Colors.text,
+    fontWeight: "600",
+  },
+  templateList: {
+    gap: Spacing.md,
+  },
+  templateCard: {
+    padding: Spacing.lg,
+    borderRadius: Rounded.sm,
+    borderLeftWidth: 5,
+    // Smooth transition simulation
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.02)",
+  },
+  activeShadow: {
+    elevation: 3,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.sm,
+  },
+  iconWrapper: {
+    padding: 4,
+  },
+  templateName: {
+    fontSize: 20,
+    lineHeight: 24,
+    marginBottom: 4,
+  },
+  templateDesc: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  badge: {
+    backgroundColor: "rgba(43, 56, 150, 0.1)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+  },
+  badgeText: {
+    fontSize: 10,
+    color: Colors.primary,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+  },
+  submitButton: {
+    backgroundColor: Colors.primary,
+    padding: Spacing.lg,
+    borderRadius: Rounded.md,
+    alignItems: "center",
+    marginTop: Spacing.lg,
+  },
+  submitText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+});

@@ -42,7 +42,6 @@ export default function Create() {
       console.log("Đang tạo Workspace:", workspaceName);
 
       const result = await createWorkspace(workspaceName);
-      const boardCreate = await createBoardApi(result.id, "Task 1", "public", "#fff", result.userId)
       console.log("Tạo thành công:", result);
       alert("Tạo Workspace thành công!");
 

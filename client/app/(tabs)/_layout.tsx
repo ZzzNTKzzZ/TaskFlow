@@ -10,6 +10,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/manrope";
 import { Inter_400Regular } from "@expo-google-fonts/inter";
+import { AppIcon } from "@/components/ui/AppIcon";
 export default function TabLayout() {
   const [loaded, error] = useFonts({
     Manrope_800ExtraBold,
@@ -34,7 +35,7 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
-            <Home fill={color} width={24} height={24} />
+            <AppIcon name="Home" color={color} size={24} />
           ),
         }}
       />
@@ -43,7 +44,7 @@ export default function TabLayout() {
         options={{
           title: "Board",
           tabBarIcon: ({ color }) => (
-            <Workspace fill={color} width={24} height={24} />
+            <AppIcon name="Workspace" color={color} size={24} />
           ),
         }}
       />
@@ -52,7 +53,7 @@ export default function TabLayout() {
         options={{
           title: "Todo",
           tabBarIcon: ({ color }) => (
-            <Todo fill={color} width={24} height={24} />
+            <AppIcon name="Todo" color={color} size={24} />
           ),
         }}
       />

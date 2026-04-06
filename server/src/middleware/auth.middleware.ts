@@ -21,7 +21,6 @@ export const authMiddleware = (
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
     req.user = decoded;
-
     next();
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {

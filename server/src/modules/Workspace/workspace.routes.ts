@@ -80,8 +80,16 @@ workspaceRoutes.get(
   asyncHandler(WorkspaceController.getBoards)
 );
 
+// POST boards
+workspaceRoutes.post(
+  "/:workspaceId/boards",
+  workspaceAccess,
+  permissionMiddleware("board:create"),
+  asyncHandler(WorkspaceController.createBoard)
+)
+
 workspaceRoutes.patch(
   "/:workspaceId/boards/reorder",
-  asyncHandler(BoardController.reorder)
+  asyncHandler(WorkspaceController.reorder)
 );
 export default workspaceRoutes;
