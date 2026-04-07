@@ -8,7 +8,6 @@ export const boardAccessMiddleware = async (
   next: NextFunction,
 ) => {
   const { boardId } = req.params;
-
   if(!boardId) return next();
   const board = await prisma.board.findUnique({
     where: { id: boardId as string },
@@ -20,12 +19,11 @@ export const boardAccessMiddleware = async (
   const member = await prisma.workspaceMember.findUnique({
     where: {
       userId_workspaceId: {
-        userId: req.user.id,
+        userId: req.user.userId,
         workspaceId: board.workspaceId,
       },
     },
   });
-
   if (!member) throw new AppError("Forbidden", 403);
 
   req.workspaceMember = member;

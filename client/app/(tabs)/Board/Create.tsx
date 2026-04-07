@@ -18,12 +18,13 @@ import { validateData } from "@/helper/validateData";
 import { createBoardApi } from "@/service/board.service";
 
 const VISIBILITY_OPTIONS: Visibility[] = ["workspace", "private", "public"];
+type TEMPLATE = "Kanban" | "Scrum Sprint" | "Task List" | "Custom Matrix"
 
 export default function Create() {
   const { workspaceId } = useLocalSearchParams();
   const [name, setName] = useState("");
   const [visibility, setVisibility] = useState<Visibility>("workspace");
-  const [template, setTemplate] = useState("Kanban");
+  const [template, setTemplate] = useState<TEMPLATE>("Kanban");
   const [errors, setErrors] = useState<{ title?: string }>({});
   const templates = [
     {
@@ -63,7 +64,7 @@ export default function Create() {
 
   try {
     setErrors({}); // Reset lỗi trước khi gọi API
-    const response = await createBoardApi(workspaceId as string, name, visibility);
+    const response = await createBoardApi({workspaceId: workspaceId as string, title: name, visibility, template });
     router.back()
     alert("Tạo board thành công")
   } catch (apiError) {

@@ -62,8 +62,8 @@ export default function Board() {
   const handleCreateBoard = () => {
     router.push(`/Board/Create?workspaceId=${workspaceId}`);
   };
-  const handleOpenBoard = (boardId: string) => {
-    router.push(`/Board/Task/Create?boardId=${boardId}`)
+  const handleOpenBoard = (boardId: string, name: string) => {
+    router.push(`/Board/Task?boardId=${boardId}&name=${name}`)
   }
   if (loading) {
     return (
@@ -97,7 +97,7 @@ export default function Board() {
 
         <View style={styles.boardListContainer}>
           {data.map((item) => (
-            <Pressable onPress={() => handleOpenBoard(item.id)} key={item.id} style={styles.boardItem}>
+            <Pressable onPress={() => handleOpenBoard(item.id, item.title)} key={item.id} style={styles.boardItem}>
               <Text style={Typography.titleMd}>{item.title}</Text>
             </Pressable>
           ))}

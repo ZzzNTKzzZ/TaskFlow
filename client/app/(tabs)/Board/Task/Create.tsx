@@ -25,7 +25,7 @@ import { AppIcon } from "@/components/ui/AppIcon";
 
 export default function TaskCreate() {
   const { boardId } = useLocalSearchParams<{ boardId: string }>();
-  const [cardName, setCardName] = useState("");
+  const [cardName, setCardName] = useState("Task 1");
   const [loading, setLoading] = useState(false);
   const [priority, setPriority] = useState<Priority>("low");
   const [description, setDescription] = useState("");

@@ -1,26 +1,27 @@
 import Button from "@/components/Button";
 import Header from "@/components/layout/Header";
-import { getBoardByWorkspaceIdApi } from "@/service/board.service";
+import { getBoardByWorkspaceIdApi, getListsApi } from "@/service/board.service";
 import { globalStyles } from "@/styles/global";
 import { Colors, Rounded, Spacing, Typography } from "@/theme";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { AppIcon } from "@/components/ui/AppIcon";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 export default function Detail() {
-  const { id, name } = useLocalSearchParams();
+  const { boardId, name } = useLocalSearchParams();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleCreate = () => {
-    router.push(`/(tabs)/Board/TaskCreate?boardId=${id}`)
+    router.push(`/Board/Task/Create?boardId=${boardId}`)
   }
 
   useEffect(() => {
     const loadBoard = async () => {
       try {
         setLoading(true);
-        const data = await getBoardByWorkspaceIdApi(id as string);
+        const data = await getListsApi({boardId: boardId as string});
         setData(data);
       } catch (error) {
         console.error(error);
@@ -37,6 +38,67 @@ export default function Detail() {
         <Text>Loading...</Text>
       </View>
     );
+
+    const renderBoards = () => {
+      return <View
+      style={{
+        minWidth: 280,
+        backgroundColor: Colors.surfaceLow,
+        paddingHorizontal: Spacing.xxl,
+        paddingVertical: Spacing.xxl,
+        borderRadius: Rounded.md,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: Spacing.md,
+          }}
+        >
+          <View
+            style={{
+              width: 8,
+              height: 8,
+              backgroundColor: Colors.onSurfaceVariant,
+              borderRadius: Rounded.full,
+            }}
+          ></View>
+          <Text style={[Typography.labelSm, { fontSize: 14 }]}>
+            {/* {list.title} */}
+          </Text>
+          <View
+            style={{
+              aspectRatio: 1,
+              backgroundColor: Colors.surfaceHighest,
+              borderRadius: Rounded.full,
+              justifyContent: "center",
+              alignItems: "center",
+              minWidth: 20,
+            }}
+          >
+            <Text style={{ fontSize: 12, fontFamily: "Manrope_600SemiBold" }}>
+              {/* {quantity} */}
+            </Text>
+          </View>
+        </View>
+        <View>
+          <Pressable>
+            <AppIcon name="MeatBall" />
+          </Pressable>
+        </View>
+      </View>
+  
+    </View>
+    }
 
   const renderEmptyBoards = () => {
     return (
@@ -126,7 +188,7 @@ export default function Detail() {
           styleClass={{ alignSelf: "flex-end" }}
         />
       </View>
-      {data.length <= 0 ? renderEmptyBoards() : <Text>b</Text>}
+      {data.length <= 0 ? renderEmptyBoards() : renderBoards()}
     </ScrollView>
   );
 }

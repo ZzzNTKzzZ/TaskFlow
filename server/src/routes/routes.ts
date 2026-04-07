@@ -14,8 +14,6 @@ export const routes = (app: Express) => {
   app.use(
     "/boards",
     authMiddleware,
-    boardAccessMiddleware,
-    permissionMiddleware,
     boardRoutes,
   );
   app.use(

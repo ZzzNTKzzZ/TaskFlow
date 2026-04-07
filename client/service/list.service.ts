@@ -9,13 +9,3 @@ export const getListsByBoardIdApi = async (boardId: string) => {
         throw error;
     }
 };
-
-export const createListApi = async (boardId: string, title: string) => {
-    try {
-        const response = await api.post(`/lists/${boardId}/lists`, { title });
-        return response.data;
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
-};

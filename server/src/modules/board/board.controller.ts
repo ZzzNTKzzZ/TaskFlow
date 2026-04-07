@@ -88,6 +88,7 @@ export default class BoardController {
   static async createList(req: Request, res: Response) {
     const boardId = req.params.boardId as string;
     const { title } = req.body;
+    console.log("Đang tạo List:", title)
     const list = await BoardService.createList({ boardId, title });
 
     res.status(201).json(list);

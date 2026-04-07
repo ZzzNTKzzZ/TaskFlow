@@ -12,9 +12,8 @@ export const permissionMiddleware = (action: PermissionAction) => {
     if (!allowedRoles) {
       throw new AppError("Permission not defined", 500);
     }
-
     if (!allowedRoles.includes(role)) {
-      throw new AppError("Permission denied", 500);
+      throw new AppError("Permission denied", 403);
     }
     next();
   };

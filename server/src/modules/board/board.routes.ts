@@ -4,6 +4,8 @@ import { validateMiddleware } from "../../middleware/validate.middleware.js";
 import { updateBoardSchema } from "../../validators/board.schema.js";
 import BoardController from "./board.controller.js";
 import { listSchema } from "../../validators/list.schema.js";
+import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
+import { boardAccessMiddleware } from "../../middleware/boardAccess.middleware.js";
 
 const boardRoutes = Router();
 
@@ -13,10 +15,15 @@ boardRoutes.get("/:boardId", asyncHandler(BoardController.getBoard));
 boardRoutes.patch(
   "/:boardId",
   validateMiddleware(updateBoardSchema),
+  permissionMiddleware("board:create"),
   asyncHandler(BoardController.editBoard),
 );
 // DELETE /boards/:boardId
-boardRoutes.delete("/:boardId", asyncHandler(BoardController.deleteBoard));
+boardRoutes.delete(
+  "/:boardId",
+  permissionMiddleware("board:delete"),
+  asyncHandler(BoardController.deleteBoard),
+);
 
 // GET    /boards/:boardId/members
 boardRoutes.get("/:boardId/members", asyncHandler(BoardController.getMembers));
@@ -33,7 +40,9 @@ boardRoutes.get("/:boardId/lists", asyncHandler(BoardController.getLists));
 boardRoutes.post(
   "/:boardId/lists",
   validateMiddleware(listSchema),
-  asyncHandler(BoardController.createList),
+  boardAccessMiddleware,
+  permissionMiddleware("list:create"),
+  asyncHandler(BoardController.createList)
 );
 // PATCH /boards/:boardId/lists/reorder
 boardRoutes.patch("/reorder", asyncHandler(BoardController.reorderList));

@@ -5,7 +5,7 @@ export default class CardRepository {
 
 
   static async findCard({ cardId }: { cardId: string }) {
-    return prisma.card.findUnique({
+    return await prisma.card.findUnique({
       where: { id: cardId },
     });
   }
@@ -22,7 +22,7 @@ export default class CardRepository {
       dueDate?: Date | null;
     };
   }) {
-    return prisma.card.create({
+    return await prisma.card.create({
       data,
     });
   }
@@ -41,14 +41,14 @@ export default class CardRepository {
       position: number;
     }>;
   }) {
-    return prisma.card.update({
+    return await prisma.card.update({
       where: { id: cardId },
       data,
     });
   }
 
   static async deleteCard({ cardId }: { cardId: string }) {
-    return prisma.card.delete({
+    return await prisma.card.delete({
       where: { id: cardId },
     });
   }
@@ -58,6 +58,44 @@ export default class CardRepository {
       where: { listId },
       orderBy: { position: "desc" },
     });
-    return card?.position || 0;
+    return card?.position ?? 0;
+  }
+
+  static async getAssigneesCard({ cardId }: { cardId: string }) {
+  return await prisma.cardAssignee.findMany({
+    where: {
+      cardId
+    },
+    include: {
+      user: true
+    }
+  })
+}
+
+static async createAssigneesCard({
+  cardId,
+  userIds,
+}: {
+  cardId: string;
+  userIds: string[];
+}) {
+  return await prisma.cardAssignee.createMany({
+    data: userIds.map((userId) => ({
+      userId,
+      cardId,
+    })),
+    skipDuplicates: true,
+  });
+}
+
+  static async deleteAssigneesCard({cardId, userId} : {cardId: string, userId: string}) {
+    return await prisma.cardAssignee.delete({
+      where: {
+        userId_cardId: {
+          userId, 
+          cardId
+        }
+      }
+    })
   }
 }
