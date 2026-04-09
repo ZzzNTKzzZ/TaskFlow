@@ -20,9 +20,10 @@ export default class WorkspaceController {
   // GET: /workspaces/:workspaceId
   static async getWorkspace(req: Request, res: Response) {
     const { workspaceId } = req.params;
-
+    const userId = req.user.userId;
     const workspace = await WorkspaceService.getWorkspace({
       workspaceId: workspaceId as string,
+      userId
     });
 
     res.status(200).json(workspace);
@@ -31,9 +32,11 @@ export default class WorkspaceController {
   // PATCH: /workspaces/:workspaceId
   static async editWorkspace(req: Request, res: Response) {
     const { workspaceId } = req.params;
+    const userId = req.user.userId
     const { name } = req.body;
     const workspace = await WorkspaceService.editWorkspace({
       workspaceId: workspaceId as string,
+      userId,
       name,
     });
     res.status(200).json(workspace);
@@ -42,7 +45,9 @@ export default class WorkspaceController {
   // DELETE: /workspaces/:workspaceId
   static async deleteWorkspace(req: Request, res: Response) {
     const { workspaceId } = req.params;
-    const deletedWorkspace = await WorkspaceService.deleteWorkspace({
+        const userId = req.user.userId
+        const deletedWorkspace = await WorkspaceService.deleteWorkspace({
+      userId,
       workspaceId: workspaceId as string,
     });
     res.status(200).json({ message: deletedWorkspace.message, success: true });
@@ -113,16 +118,15 @@ export default class WorkspaceController {
   // POST /workspaces/:workspaceId/boards
   static async createBoard(req: Request, res: Response) {
     const workspaceId = req.params.workspaceId as string;
-    const { title, visibility, background } = req.body;
+    const { name, visibility, background } = req.body;
 
     const board = await WorkspaceService.createBoard({
       workspaceId,
-      title,
+      name,
       visibility,
       background,
       userId: req.user.userId,
     });
-
     res.status(201).json(board);
   }
 

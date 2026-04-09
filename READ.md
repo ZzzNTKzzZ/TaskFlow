@@ -331,230 +331,243 @@ Performance optimization
 
 ```prisma
 // datasource
-
-datasource db {
- provider = "postgresql"
- url      = env("DATABASE_URL")
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
-// generator
-
-generator client {
- provider = "prisma-client-js"
+datasource db {
+  provider = "postgresql"
 }
 
 // ENUMS
 
 enum TodoStatus {
- todo
- doing
- done
+  todo
+  doing
+  done
 }
 
 enum Priority {
- low
- medium
- high
- urgent
+  low
+  medium
+  high
+  urgent
 }
 
 enum BoardVisibility {
- private
- workspace
- public
+  private
+  workspace
+  public
 }
 
 enum WorkspaceRole {
- OWNER
- ADMIN
- MEMBER
- VIEWER
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
 }
 
 // MODELS
 
 model User {
- id        String   @id @default(uuid())
- email     String   @unique
- name      String?
- password  String
- createdAt DateTime @default(now())
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
 
- workspaces WorkspaceMember[]
- boards     BoardMember[]
- cards      CardAssignee[]
- todos      Todo[]
- comments   Comment[]
- notifications Notification[]
+  workspaces    WorkspaceMember[]
+  boards        BoardMember[]
+  cards         CardAssignee[]
+  todos         Todo[]
+  comments      Comment[]
+  notifications Notification[]
+  refreshtoken  RefreshToken[]
 }
 
 model Workspace {
- id        String   @id @default(uuid())
- name      String
- slug      String   @unique
- createdAt DateTime @default(now())
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
 
- members WorkspaceMember[]
- boards  Board[]
+  members WorkspaceMember[]
+  boards  Board[]
 }
 
 model WorkspaceMember {
- id          String        @id @default(uuid())
- userId      String
- workspaceId String
- role        WorkspaceRole
+  id          String        @id @default(uuid())
+  userId      String
+  workspaceId String
+  role        WorkspaceRole
 
- user      User      @relation(fields: [userId], references: [id])
- workspace Workspace @relation(fields: [workspaceId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
- @@unique([userId, workspaceId])
+  @@unique([userId, workspaceId])
 }
 
 model Board {
- id          String          @id @default(uuid())
- title       String
- background  String?
- visibility  BoardVisibility
- workspaceId String
- position    Float
- createdAt   DateTime        @default(now())
+  id          String          @id @default(uuid())
+  name        String
+  background  String?
+  visibility  BoardVisibility
+  workspaceId String
+  position    Float
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
- workspace Workspace @relation(fields: [workspaceId], references: [id])
- lists     List[]
- members   BoardMember[]
- rules     AutomationRule[]
+  workspace Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  lists     List[]
+  members   BoardMember[]
+  rules     AutomationRule[]
 }
 
 model BoardMember {
- id      String @id @default(uuid())
- userId  String
- boardId String
+  id      String @id @default(uuid())
+  userId  String
+  boardId String
 
- user  User  @relation(fields: [userId], references: [id])
- board Board @relation(fields: [boardId], references: [id])
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
- @@unique([userId, boardId])
+  @@unique([userId, boardId])
 }
 
 model List {
- id       String  @id @default(uuid())
- title    String
- position Float
- boardId  String
+  id        String   @id @default(uuid())
+  name      String
+  position  Float
+  boardId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
- board Board @relation(fields: [boardId], references: [id])
- cards Card[]
+  board Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards Card[]
 }
 
 model Card {
- id          String   @id @default(uuid())
- title       String
- description String?
- position    Float
- dueDate     DateTime?
- listId      String
- createdAt   DateTime @default(now())
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  position    Float
+  dueDate     DateTime?
+  listId      String
+  priority    Priority
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
- list        List            @relation(fields: [listId], references: [id])
- assignees   CardAssignee[]
- comments    Comment[]
- checklists  Checklist[]
- labels      LabelOnCard[]
+  list       List           @relation(fields: [listId], references: [id], onDelete: Cascade)
+  assignees  CardAssignee[]
+  comments   Comment[]
+  checklists Checklist[]
+  labels     LabelOnCard[]
 }
 
 model CardAssignee {
- id     String @id @default(uuid())
- userId String
- cardId String
+  id     String @id @default(uuid())
+  userId String
+  cardId String
 
- user User @relation(fields: [userId], references: [id])
- card Card @relation(fields: [cardId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
- @@unique([userId, cardId])
+  @@unique([userId, cardId])
 }
 
 model Comment {
- id        String   @id @default(uuid())
- cardId    String
- authorId  String
- content   String
- createdAt DateTime @default(now())
+  id        String   @id @default(uuid())
+  cardId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
 
- card   Card @relation(fields: [cardId], references: [id])
- author User @relation(fields: [authorId], references: [id])
+  card   Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model Checklist {
- id     String @id @default(uuid())
- title  String
- cardId String
+  id     String @id @default(uuid())
+  title  String
+  cardId String
 
- card  Card           @relation(fields: [cardId], references: [id])
- items ChecklistItem[]
+  card  Card            @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  items ChecklistItem[]
 }
 
 model ChecklistItem {
- id          String  @id @default(uuid())
- title       String
- isCompleted Boolean @default(false)
- checklistId String
+  id          String  @id @default(uuid())
+  title       String
+  isCompleted Boolean @default(false)
+  checklistId String
 
- checklist Checklist @relation(fields: [checklistId], references: [id])
+  checklist Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
 }
 
 model Todo {
- id          String     @id @default(uuid())
- title       String
- description String?
- status      TodoStatus
- priority    Priority
- dueDate     DateTime?
- userId      String
- createdAt   DateTime   @default(now())
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TodoStatus
+  priority    Priority
+  dueDate     DateTime?
+  userId      String
+  createdAt   DateTime   @default(now())
 
- user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Label {
- id    String @id @default(uuid())
- name  String
- color String
+  id    String @id @default(uuid())
+  name  String
+  color String
 
- cards LabelOnCard[]
+  cards LabelOnCard[]
 }
 
 model LabelOnCard {
- id      String @id @default(uuid())
- cardId  String
- labelId String
+  id      String @id @default(uuid())
+  cardId  String
+  labelId String
 
- card  Card  @relation(fields: [cardId], references: [id])
- label Label @relation(fields: [labelId], references: [id])
+  card  Card  @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
 
- @@unique([cardId, labelId])
+  @@unique([cardId, labelId])
 }
 
 model Notification {
- id        String   @id @default(uuid())
- userId    String
- title     String
- message   String
- isRead    Boolean  @default(false)
- createdAt DateTime @default(now())
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 
- user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AutomationRule {
- id        String   @id @default(uuid())
- boardId   String
- trigger   String
- condition Json
- action    Json
- createdAt DateTime @default(now())
+  id        String   @id @default(uuid())
+  boardId   String
+  trigger   String
+  condition Json
+  action    Json
+  createdAt DateTime @default(now())
 
- board Board @relation(fields: [boardId], references: [id])
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
 ```
 
 ---

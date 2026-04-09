@@ -28,6 +28,13 @@ workspaceRoutes.get(
   asyncHandler(WorkspaceController.getWorkspace)
 );
 
+// PATCH  /workspaces/:workspaceId
+workspaceRoutes.patch(
+  "/:workspaceId",
+  workspaceAccess,
+  asyncHandler(WorkspaceController.editWorkspace)
+)
+
 // DELETE /workspaces/:workspaceId
 workspaceRoutes.delete(
   "/:workspaceId",

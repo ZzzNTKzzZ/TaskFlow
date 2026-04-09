@@ -7,22 +7,35 @@ import { prisma } from "../../lib/prisma.js";
 export default class WorkspaceRepository {
   static async findUserWorkspaces({ userId }: { userId: string }) {
     return await prisma.workspace.findMany({
-      where: {
-        members: { some: { userId } },
+    where: {
+      members: {
+        some: { userId },
       },
-      include: {
-        members: {
-          where: { userId },
-          select: { role: true },
+    },
+    include: {
+      _count: {
+        select: {
+          members: true,
+          boards: true,
         },
-        _count: {
-          select: { members: true },
+      },
+      members: {
+        where: { userId },
+        select: { role: true },
+      },
+      boards: {
+        select: {
+          lists: {
+            select: {
+              cards: {
+                select: { id: true },
+              },
+            },
+          },
         },
       },
-      orderBy: {
-        createdAt: "asc",
-      },
-    });
+    },
+  });
   }
 
   static async createWorkspace({
@@ -50,9 +63,12 @@ export default class WorkspaceRepository {
     });
   }
 
-  static async findWorkspace({ workspaceId }: { workspaceId: string }) {
+  static async findWorkspace({ workspaceId, userId }: { workspaceId: string, userId: string }) {
     return await prisma.workspace.findUnique({
       where: { id: workspaceId },
+      include: {
+        members: true,
+      }
     });
   }
 
@@ -91,9 +107,14 @@ export default class WorkspaceRepository {
     return await prisma.workspaceMember.findMany({
       where: { workspaceId },
       select: {
-        id: true,
-        userId: true,
-        role: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          }
+        },
+        role: true
       },
       orderBy: {
         user: {
@@ -136,9 +157,14 @@ export default class WorkspaceRepository {
         role: role || "MEMBER",
       },
       select: {
-        id: true,
-        userId: true,
-        role: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          }
+        },
+        role: true
       },
     });
   }
@@ -161,6 +187,16 @@ export default class WorkspaceRepository {
       },
       data: {
         role,
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          }
+        },
+        role: true
       },
     });
   }
@@ -191,22 +227,22 @@ export default class WorkspaceRepository {
 
   static async createBoard({
     workspaceId,
-    title,
+    name,
     visibility,
     background,
     userId,
   }: {
     workspaceId: string;
-    title: string;
+    name: string;
     visibility: BoardVisibility;
-    background: string;
+    background: string | null;
     userId: string;
   }) {
     return await prisma.$transaction(async (tx) => {
       const board = await tx.board.create({
         data: {
           workspaceId,
-          title,
+          name,
           visibility,
           background,
           position: 0,

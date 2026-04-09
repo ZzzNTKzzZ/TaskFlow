@@ -1,35 +1,73 @@
-import type {
-  BoardVisibility,
+import {
   WorkspaceRole,
+  type BoardVisibility,
 } from "../../../generated/prisma/index.js";
 import slugify from "../../helper/slugify.helper.js";
+import type { BoardResponse, CreateBoard, CreateBoardResponse } from "../../types/board.js";
+import type {
+  AddMember,
+  CreateWorkspace,
+  CreateWorkspaceResponse,
+  MemberResponse,
+  UpdateMember,
+  UpdateWorkspace,
+  UpdateWorkspaceResponse,
+  WorkspaceDetailRespone,
+  WorkspaceResponse,
+} from "../../types/workspace.js";
 import { AppError } from "../../utils/appError.js";
 import BoardRepository from "../Board/board.repository.js";
 import WorkspaceRepository from "./workspace.repository.js";
 
 export class WorkspaceService {
-  static async getUserWorkspaces({ userId }: { userId: string }) {
+  static async getUserWorkspaces({
+    userId,
+  }: {
+    userId: string;
+  }): Promise<WorkspaceResponse[]> {
     if (!userId) throw new AppError("Unauthorized", 401);
 
     const workspaces = await WorkspaceRepository.findUserWorkspaces({ userId });
 
-    return workspaces.map((ws) => ({
-      id: ws.id,
-      name: ws.name,
-      slug: ws.slug,
-      createdAt: ws.createdAt,
-      role: ws.members[0]?.role,
-      memberCount: ws._count.members,
-    }));
+    return workspaces.map((ws) => {
+      const role = ws.members[0]!.role;
+
+      if (!role) {
+        throw new AppError("Invalid workspace role", 500);
+      }
+
+      const cardCount = ws.boards.reduce((total, board) => {
+        return (
+          total +
+          board.lists.reduce((listTotal, list) => {
+            return listTotal + list.cards.length;
+          }, 0)
+        );
+      }, 0);
+
+      return {
+        id: ws.id,
+        name: ws.name,
+        slug: ws.slug,
+        createdAt: ws.createdAt,
+
+        stats: {
+          memberCount: ws._count.members,
+          boardCount: ws._count.boards,
+          cardCount,
+        },
+
+        currentUser: {
+          role,
+        },
+      };
+    });
   }
 
   static async createWorkSpace({
     userId,
     name,
-  }: {
-    userId: string;
-    name: string;
-  }) {
+  }: CreateWorkspace): Promise<CreateWorkspaceResponse> {
     if (!userId) throw new AppError("Unauthorized", 401);
     if (!name) throw new AppError("Workspace name is required", 400);
 
@@ -45,30 +83,49 @@ export class WorkspaceService {
 
     if (!workspace) throw new AppError("Failed to create workspace", 500);
 
-    return workspace;
+    return { ...workspace, role: WorkspaceRole.OWNER };
   }
 
-  static async getWorkspace({ workspaceId }: { workspaceId: string }) {
+  static async getWorkspace({
+    workspaceId,
+    userId,
+  }: {
+    workspaceId: string;
+    userId: string;
+  }): Promise<WorkspaceDetailRespone> {
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
 
-    const workspace = await WorkspaceRepository.findWorkspace({ workspaceId });
+    const workspace = await WorkspaceRepository.findWorkspace({
+      workspaceId,
+      userId,
+    });
 
     if (!workspace) throw new AppError("Workspace not found", 404);
 
-    return workspace;
+    return {
+      id: workspace.id,
+      name: workspace.name,
+      slug: workspace.slug,
+      createdAt: workspace.createdAt,
+
+      currentUser: {
+        role: workspace.members[0]!.role,
+      },
+    };
   }
 
   static async editWorkspace({
     workspaceId,
+    userId,
     name,
-  }: {
-    workspaceId: string;
-    name: string;
-  }) {
+  }: UpdateWorkspace): Promise<UpdateWorkspaceResponse> {
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
     if (!name) throw new AppError("Workspace name is required", 400);
 
-    const existing = await WorkspaceRepository.findWorkspace({ workspaceId });
+    const existing = await WorkspaceRepository.findWorkspace({
+      workspaceId,
+      userId,
+    });
     if (!existing) throw new AppError("Workspace not found", 404);
 
     const slug = slugify(name);
@@ -78,14 +135,22 @@ export class WorkspaceService {
       name,
       slug,
     });
-
     return workspace;
   }
 
-  static async deleteWorkspace({ workspaceId }: { workspaceId: string }) {
+  static async deleteWorkspace({
+    workspaceId,
+    userId,
+  }: {
+    workspaceId: string;
+    userId: string;
+  }) {
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
 
-    const workspace = await WorkspaceRepository.findWorkspace({ workspaceId });
+    const workspace = await WorkspaceRepository.findWorkspace({
+      workspaceId,
+      userId,
+    });
     if (!workspace) throw new AppError("Workspace not found", 404);
 
     await WorkspaceRepository.deleteWorkspace({ workspaceId });
@@ -95,28 +160,35 @@ export class WorkspaceService {
 
   // ========================== MEMBER ==========================
 
-  static async getMembers({ workspaceId }: { workspaceId: string }) {
+  static async getMembers({
+    workspaceId,
+  }: {
+    workspaceId: string;
+  }): Promise<MemberResponse[]> {
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
 
     const members = await WorkspaceRepository.findMembers({ workspaceId });
-
-    return { members };
+    return members.map((m) => ({
+      id: m.user.id,
+      name: m.user.name,
+      email: m.user.email,
+      role: m.role,
+    }));
   }
 
   static async addMember({
     workspaceId,
     userId,
     role,
-  }: {
-    workspaceId: string;
-    userId: string;
-    role: WorkspaceRole;
-  }) {
+  }: AddMember): Promise<MemberResponse> {
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
     if (!userId) throw new AppError("User id is required", 400);
     if (!role) throw new AppError("Role is required", 400);
 
-    const workspace = await WorkspaceRepository.findWorkspace({ workspaceId });
+    const workspace = await WorkspaceRepository.findWorkspace({
+      workspaceId,
+      userId,
+    });
     if (!workspace) throw new AppError("Workspace not found", 404);
 
     const existing = await WorkspaceRepository.findMember({
@@ -126,22 +198,24 @@ export class WorkspaceService {
 
     if (existing) throw new AppError("User already a member", 409);
 
-    return WorkspaceRepository.addMember({
+    const member = await WorkspaceRepository.addMember({
       workspaceId,
       userId,
       role,
     });
+    return {
+      id: member.user.id,
+      name: member.user.name,
+      email: member.user.email,
+      role: member.role,
+    };
   }
 
   static async editMember({
     workspaceId,
     userId,
     role,
-  }: {
-    workspaceId: string;
-    userId: string;
-    role: WorkspaceRole;
-  }) {
+  }: UpdateMember): Promise<MemberResponse> {
     if (!workspaceId || !userId || !role) {
       throw new AppError("Missing required fields", 400);
     }
@@ -153,11 +227,17 @@ export class WorkspaceService {
 
     if (!existing) throw new AppError("Member not found", 404);
 
-    return WorkspaceRepository.updateMember({
+    const member = await WorkspaceRepository.updateMember({
       workspaceId,
       userId,
       role,
     });
+    return {
+      id: member.user.id,
+      name: member.user.name,
+      email: member.user.email,
+      role: member.role,
+    };
   }
 
   static async deleteMember({
@@ -185,35 +265,32 @@ export class WorkspaceService {
 
   // ========================== BOARD ==========================
 
-  static async getBoards({ workspaceId }: { workspaceId: string }) {
+  static async getBoards({ workspaceId }: { workspaceId: string }): Promise<BoardResponse[]> {
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
 
-    return WorkspaceRepository.findBoards({ workspaceId });
+    return await WorkspaceRepository.findBoards({ workspaceId });
+    
   }
 
   static async createBoard({
     workspaceId,
-    title,
+    name,
     visibility,
     background,
     userId,
-  }: {
-    workspaceId: string;
-    title: string;
-    visibility: BoardVisibility;
-    background: string;
-    userId: string;
-  }) {
+  }: CreateBoard): Promise<CreateBoardResponse> {
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
-    if (!title) throw new AppError("Board title is required", 400);
+    if (!name) throw new AppError("Board name is required", 400);
     if (!userId) throw new AppError("Unauthorized", 401);
 
-    const workspace = await WorkspaceRepository.findWorkspace({ workspaceId });
-    if (!workspace) throw new AppError("Workspace not found", 404);
-
-    return WorkspaceRepository.createBoard({
+    const workspace = await WorkspaceRepository.findWorkspace({
       workspaceId,
-      title,
+      userId,
+    });
+    if (!workspace) throw new AppError("Workspace not found", 404);
+    return await WorkspaceRepository.createBoard({
+      workspaceId,
+      name,
       visibility,
       background,
       userId,
