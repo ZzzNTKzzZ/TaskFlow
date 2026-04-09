@@ -9,6 +9,7 @@ export const workspaceAccess = async (
 ) => {
     const workspaceId = req.params.workspaceId as string
     const userId = req.user.userId
+
     const member = await prisma.workspaceMember.findUnique({
         where: {
             userId_workspaceId: {
@@ -17,7 +18,6 @@ export const workspaceAccess = async (
             }
         }
     })
-
     if(!member) throw new AppError("Access denied", 403)
 
     req.workspaceMember = member

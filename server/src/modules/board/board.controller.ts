@@ -29,11 +29,13 @@ export default class BoardController {
   static async deleteBoard(req: Request, res: Response) {
     const { boardId } = req.params;
 
-    const result = await BoardService.deleteBoard({
+    await BoardService.deleteBoard({
       boardId: boardId as string,
     });
 
-    res.status(200).json(result);
+    res
+      .status(200)
+      .json({ success: true, message: "Board deleted successfully" });
   }
 
   // ========================== MEMBERS ==========================
@@ -88,7 +90,7 @@ export default class BoardController {
   static async createList(req: Request, res: Response) {
     const boardId = req.params.boardId as string;
     const { title } = req.body;
-    console.log("Đang tạo List:", title)
+    console.log("Đang tạo List:", title);
     const list = await BoardService.createList({ boardId, title });
 
     res.status(201).json(list);

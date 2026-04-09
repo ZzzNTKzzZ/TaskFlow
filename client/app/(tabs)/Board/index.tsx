@@ -6,11 +6,12 @@ import {
   View,
   ActivityIndicator,
   StyleSheet,
+  Modal,
 } from "react-native";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 
 import Header from "@/components/layout/Header";
-import { getBoardByWorkspaceIdApi } from "@/service/board.service";
+import { deleteBoardApi, getBoardByWorkspaceIdApi } from "@/service/board.service";
 import { globalStyles } from "@/styles/global";
 import { Colors, Rounded, Spacing, Typography } from "@/theme";
 import EmptyBoard from "@/assets/icons/EmptyBoard.svg";
@@ -18,6 +19,7 @@ import Button from "@/components/Button";
 import { AppIcon } from "@/components/ui/AppIcon";
 import FAB from "@/components/ui/FAB";
 import { Visibility } from "@/Types/enum";
+import { BlurView } from "expo-blur";
 
 // Types & Constants
 const BOARD_OPTIONS = [
@@ -39,6 +41,8 @@ export default function Board() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<BoardProps[]>([]);
   const { workspaceId, name } = useLocalSearchParams();
+  const [selectedBoard, setSelectedBoard] = useState<BoardProps | null>(null)
+  const [visible, setVisible] = useState(false)
 
   const loadBoardData = useCallback(async () => {
     if (!workspaceId) return;
@@ -56,8 +60,27 @@ export default function Board() {
   useFocusEffect(
     useCallback(() => {
       loadBoardData();
-    }, [loadBoardData])
+    }, [])
   );
+
+  const handleDeleteBoard = async (id: string) => {
+    try {
+      const response = await deleteBoardApi(id)
+      if(response.success) {
+        alert("Xóa board thành công")
+        setVisible(false)
+        setSelectedBoard(null)
+        setData((prevData) => prevData.filter(board => board.id !== id))
+      }
+      console.log(id)
+    } catch (error) {
+      console.error("Lỗi API",error)
+    }
+  }
+  const handleLongPress = (board: BoardProps) => {
+    setSelectedBoard(board)
+    setVisible(true)
+  }
 
   const handleCreateBoard = () => {
     router.push(`/Board/Create?workspaceId=${workspaceId}`);
@@ -75,6 +98,41 @@ export default function Board() {
 
   const renderBoards = () => (
     <View>
+      <Modal visible={visible} 
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => setVisible(false)}
+      >
+         <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill}>
+                    <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
+                      <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>
+                          Board: {selectedBoard?.title}
+                        </Text>
+                        
+                        <Pressable 
+                          style={styles.menuItem} 
+                          onPress={() => {
+                            setVisible(false);
+                          }}
+                        >
+                          <Text style={styles.menuText}>Sửa Workspace</Text>
+                        </Pressable>
+                        
+                        <Pressable 
+                          style={[styles.menuItem, { borderBottomWidth: 0 }]} 
+                          onPress={() => {
+                            setVisible(false);
+                            handleDeleteBoard(selectedBoard?.id!)
+                          }}
+                        >
+                          <Text style={[styles.menuText, { color: 'red' }]}>Xóa Workspace</Text>
+                        </Pressable>
+                      </View>
+                    </Pressable>
+                  </BlurView>
+      </Modal>
+
       <View style={styles.statsCard}>
         <Text style={globalStyles.subHeader}>Total board</Text>
         <Text style={[globalStyles.textHeading, Typography.displayLg, styles.statsCount]}>
@@ -97,7 +155,8 @@ export default function Board() {
 
         <View style={styles.boardListContainer}>
           {data.map((item) => (
-            <Pressable onPress={() => handleOpenBoard(item.id, item.title)} key={item.id} style={styles.boardItem}>
+            <Pressable onLongPress={() => handleLongPress(item)}
+            delayLongPress={500} onPress={() => handleOpenBoard(item.id, item.title)} key={item.id} style={styles.boardItem}>
               <Text style={Typography.titleMd}>{item.title}</Text>
             </Pressable>
           ))}
@@ -154,6 +213,35 @@ const styles = StyleSheet.create({
   },
   headerTitleWrapper: {
     marginBottom: Spacing.xl,
+  },
+    overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    width: "100%",
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#666",
+  },  
+    menuItem: {
+    paddingVertical: 15,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#eee",
+    alignItems: "center",
+  },
+  menuText: {
+    fontSize: 18,
+    fontWeight: "500",
   },
   mainTitle: {
     fontSize: 32,

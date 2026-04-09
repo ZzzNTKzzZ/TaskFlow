@@ -6,6 +6,7 @@ import BoardController from "./board.controller.js";
 import { listSchema } from "../../validators/list.schema.js";
 import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
 import { boardAccessMiddleware } from "../../middleware/boardAccess.middleware.js";
+import { workspaceAccess } from "../../middleware/workspaceAccess.middleware.js";
 
 const boardRoutes = Router();
 
@@ -21,6 +22,7 @@ boardRoutes.patch(
 // DELETE /boards/:boardId
 boardRoutes.delete(
   "/:boardId",
+  boardAccessMiddleware,
   permissionMiddleware("board:delete"),
   asyncHandler(BoardController.deleteBoard),
 );

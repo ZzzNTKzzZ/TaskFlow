@@ -19,7 +19,7 @@ import Button from "@/components/Button";
 import FAB from "@/components/ui/FAB";
 
 // Service
-import { deleteWorkspaceApi, fetchWorkspaceData } from "@/service/workspace.service";
+import WorkspaceApi from "@/service/workspace.service";
 import { AppIcon } from "@/components/ui/AppIcon";
 
 type WorkspaceProps = {
@@ -58,7 +58,7 @@ export default function Home() {
   const loadWorkspace = async () => {
   try {
     setLoading(true);
-    const data = await fetchWorkspaceData();
+    const data = await WorkspaceApi.getWorkspaces();
     setWorkspaces(data || []);
   } catch (error) {
     console.error(error);
@@ -67,7 +67,6 @@ export default function Home() {
   }
 };
 
-  // Lấy dữ liệu mỗi khi màn hình được focus
   useFocusEffect(
     useCallback(() => {
     loadWorkspace();
@@ -83,8 +82,7 @@ export default function Home() {
 
   const handleDeleteWorkspace = async (id: string) => {
     try {
-      const response = await deleteWorkspaceApi(id)
-      console.log(response)
+      const response = await WorkspaceApi.deleteWorkspace(id)
       if (response.success) {
         alert("Xóa Workspace thành công!")
         setVisible(false)

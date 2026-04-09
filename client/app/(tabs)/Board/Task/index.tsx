@@ -8,20 +8,28 @@ import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+type ListProps = {
+  boardId: string;
+  id: string;
+  position: number;
+  title: string;
+};
 export default function Detail() {
   const { boardId, name } = useLocalSearchParams();
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<ListProps[]>([]);
   const [loading, setLoading] = useState(true);
 
   const handleCreate = () => {
-    router.push(`/Board/Task/Create?boardId=${boardId}`)
-  }
+    router.push(`/Board/Task/Create?boardId=${boardId}`);
+  };
 
   useEffect(() => {
     const loadBoard = async () => {
       try {
         setLoading(true);
-        const data = await getListsApi({boardId: boardId as string});
+        const data = await getListsApi({ boardId: boardId as string });
+        console.log("data", data);
         setData(data);
       } catch (error) {
         console.error(error);
@@ -39,66 +47,74 @@ export default function Detail() {
       </View>
     );
 
-    const renderBoards = () => {
-      return <View
-      style={{
-        minWidth: 280,
-        backgroundColor: Colors.surfaceLow,
-        paddingHorizontal: Spacing.xxl,
-        paddingVertical: Spacing.xxl,
-        borderRadius: Rounded.md,
-      }}
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            gap: Spacing.md,
-          }}
-        >
+  const renderBoards = () => {
+    return (
+      <View>
+        {data.map((d) => (
           <View
+            key={d.id}
             style={{
-              width: 8,
-              height: 8,
-              backgroundColor: Colors.onSurfaceVariant,
-              borderRadius: Rounded.full,
-            }}
-          ></View>
-          <Text style={[Typography.labelSm, { fontSize: 14 }]}>
-            {/* {list.title} */}
-          </Text>
-          <View
-            style={{
-              aspectRatio: 1,
-              backgroundColor: Colors.surfaceHighest,
-              borderRadius: Rounded.full,
-              justifyContent: "center",
-              alignItems: "center",
-              minWidth: 20,
+              minWidth: 280,
+              backgroundColor: Colors.surfaceLow,
+              paddingHorizontal: Spacing.xxl,
+              paddingVertical: Spacing.xxl,
+              borderRadius: Rounded.md,
             }}
           >
-            <Text style={{ fontSize: 12, fontFamily: "Manrope_600SemiBold" }}>
-              {/* {quantity} */}
-            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: Spacing.md,
+                }}
+              >
+                <View
+                  style={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: Colors.onSurfaceVariant,
+                    borderRadius: Rounded.full,
+                  }}
+                ></View>
+                <Text style={[Typography.labelSm, { fontSize: 14 }]}>
+                  {d.title}
+                </Text>
+                <View
+                  style={{
+                    aspectRatio: 1,
+                    backgroundColor: Colors.surfaceHighest,
+                    borderRadius: Rounded.full,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    minWidth: 20,
+                  }}
+                >
+                  <Text
+                    style={{ fontSize: 12, fontFamily: "Manrope_600SemiBold" }}
+                  >
+                    {/* {quantity} */}
+                  </Text>
+                </View>
+              </View>
+              <View>
+                <Pressable>
+                  <AppIcon name="MeatBall" />
+                </Pressable>
+              </View>
+            </View>
           </View>
-        </View>
-        <View>
-          <Pressable>
-            <AppIcon name="MeatBall" />
-          </Pressable>
-        </View>
+        ))}
       </View>
-  
-    </View>
-    }
+    );
+  };
 
   const renderEmptyBoards = () => {
     return (
@@ -145,7 +161,7 @@ export default function Detail() {
           project ledger to begin drafting development milestones.
         </Text>
         <Button
-        onPress={() => handleCreate()}
+          onPress={() => handleCreate()}
           title="Create First Task"
           leftIcon={<AppIcon name="CreateFirstTask" />}
           styleClass={{ alignSelf: "center" }}

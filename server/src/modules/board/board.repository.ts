@@ -149,23 +149,32 @@ export default class BoardRepository {
 
   // ========================== LIST ==========================
 
-  static async getLists({ boardId }: { boardId: string }) {
-    return await prisma.list.findMany({
-      where: { boardId: boardId },
-    });
-  }
-
+static async getLists({ boardId }: { boardId: string }) {
+  return await prisma.list.findMany({
+    where: { boardId },
+    include: {
+      _count: {
+        select: { cards: true },
+      },
+    },
+    orderBy:{ 
+      position: "asc"
+    }
+  });
+}
   static async createList({
     boardId,
     title,
+    position
   }: {
     boardId: string;
     title: string;
+    position: number
   }) {
     return await prisma.list.create({
       data: {
         title,
-        position: 0,
+        position,
         boardId,
       },
     });

@@ -1,6 +1,4 @@
-import {
-  type BoardVisibility,
-} from "../../../generated/prisma/index.js";
+import { type BoardVisibility } from "../../../generated/prisma/index.js";
 import { AppError } from "../../utils/appError.js";
 import { removeUndefined } from "../../utils/removeUndefined.js";
 import ListRepository from "../List/list.repository.js";
@@ -136,7 +134,6 @@ export default class BoardService {
     return { message: "Member removed" };
   }
 
-
   // ========================== LIST ==========================
 
   static async getLists({ boardId }: { boardId: string }) {
@@ -145,29 +142,29 @@ export default class BoardService {
     const board = await BoardRepository.findBoard({ boardId });
     if (!board) throw new AppError("Board not found", 404);
 
-    return BoardRepository.getLists({ boardId });
+    const lists = await BoardRepository.getLists({ boardId });
+    return lists.map(({_count,...list}) => ({
+      ...list,
+      cardCount: _count.cards,
+    }));
   }
 
-  
-    static async createList(input: { boardId: string; title: string }) {
+  static async createList(input: { boardId: string; title: string }) {
     const { boardId, title } = input;
     if (!title) throw new AppError("List title is required", 400);
 
     const board = await BoardRepository.findBoard({ boardId });
     if (!board) throw new AppError("Board not found", 404);
-
+    
     return ListRepository.createList({ boardId, title });
   }
-  
 
-  static async reorderList(
-    input: {
-      boardId: string;
-      listId: string;
-      beforeId?: string | null;
-      afterId?: string | null;
-    },
-  ) {
+  static async reorderList(input: {
+    boardId: string;
+    listId: string;
+    beforeId?: string | null;
+    afterId?: string | null;
+  }) {
     const { boardId, listId, beforeId, afterId } = input;
 
     const board = await BoardRepository.findBoard({ boardId });
@@ -199,5 +196,4 @@ export default class BoardService {
 
     return await ListRepository.reorder(listId, newPosition);
   }
-
 }
