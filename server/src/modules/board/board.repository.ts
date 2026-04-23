@@ -14,7 +14,7 @@ export default class BoardRepository {
   }: {
     boardId: string;
     data: Partial<{
-      title: string;
+      name: string;
       visibility: BoardVisibility;
       background: string;
       position: number;
@@ -164,16 +164,16 @@ static async getLists({ boardId }: { boardId: string }) {
 }
   static async createList({
     boardId,
-    title,
+    name,
     position
   }: {
     boardId: string;
-    title: string;
+    name: string;
     position: number
   }) {
     return await prisma.list.create({
       data: {
-        title,
+        name,
         position,
         boardId,
       },

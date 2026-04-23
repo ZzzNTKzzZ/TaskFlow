@@ -8,12 +8,12 @@ export default class ListRepository {
     });
   }
 
-  static async createList(input: { boardId: string; title: string }) {
-    const { boardId, title } = input;
+  static async createList(input: { boardId: string; name: string }) {
+    const { boardId, name } = input;
     return await prisma.list.create({
       data: {
         boardId,
-        title,
+        name,
         position: 0,
       },
     });
@@ -24,11 +24,11 @@ export default class ListRepository {
     data,
   }: {
     boardId: string;
-    data: { title: string; position: number }[];
+    data: { name: string; position: number }[];
   }) {
     return await prisma.list.createMany({
       data: data.map((item) => ({
-        title: item.title,
+        name: item.name,
         position: item.position,
         boardId: boardId,
       })),
@@ -39,7 +39,7 @@ export default class ListRepository {
   static async updateList(input: {
     listId: string;
     data: Partial<{
-      title: string;
+      name: string;
       position: number;
     }>;
   }) {

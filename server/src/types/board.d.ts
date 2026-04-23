@@ -29,3 +29,11 @@ interface CreateBoardResponse extends BaseItem {
   createdAt: Date;
   updatedAt: Date;
 }
+
+interface UpdateBoard {
+   boardId: string;
+      name?: string;
+      visibility?: BoardVisibility;
+      background?: string;
+      position?: number;
+}

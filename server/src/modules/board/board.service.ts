@@ -1,4 +1,5 @@
 import { type BoardVisibility } from "../../../generated/prisma/index.js";
+import type { BoardResponse, UpdateBoard } from "../../types/board.js";
 import { AppError } from "../../utils/appError.js";
 import { removeUndefined } from "../../utils/removeUndefined.js";
 import ListRepository from "../List/list.repository.js";
@@ -7,7 +8,11 @@ import BoardRepository from "./board.repository.js";
 export default class BoardService {
   // ========================== BOARD ==========================
 
-  static async getBoard({ boardId }: { boardId: string }) {
+  static async getBoard({
+    boardId,
+  }: {
+    boardId: string;
+  }): Promise<BoardResponse> {
     if (!boardId) throw new AppError("Board id is required", 400);
 
     const board = await BoardRepository.findBoard({ boardId });
@@ -18,22 +23,16 @@ export default class BoardService {
 
   static async editBoard({
     boardId,
-    title,
+    name,
     visibility,
     background,
     position,
-  }: {
-    boardId: string;
-    title?: string;
-    visibility?: BoardVisibility;
-    background?: string;
-    position?: number;
-  }) {
+  }: UpdateBoard): Promise<BoardResponse> {
     const existing = await BoardRepository.findBoard({ boardId });
     if (!existing) throw new AppError("Board not found", 404);
 
     const payload = removeUndefined({
-      title,
+      name,
       visibility,
       background,
       position,
@@ -43,7 +42,7 @@ export default class BoardService {
       throw new AppError("No fields provided for update", 400);
     }
 
-    return BoardRepository.updateBoard({ boardId, data: payload });
+    return await BoardRepository.updateBoard({ boardId, data: payload });
   }
 
   static async deleteBoard({ boardId }: { boardId: string }) {
@@ -143,20 +142,20 @@ export default class BoardService {
     if (!board) throw new AppError("Board not found", 404);
 
     const lists = await BoardRepository.getLists({ boardId });
-    return lists.map(({_count,...list}) => ({
+    return lists.map(({ _count, ...list }) => ({
       ...list,
       cardCount: _count.cards,
     }));
   }
 
-  static async createList(input: { boardId: string; title: string }) {
-    const { boardId, title } = input;
-    if (!title) throw new AppError("List title is required", 400);
+  static async createList(input: { boardId: string; name: string }) {
+    const { boardId, name } = input;
+    if (!name) throw new AppError("List name is required", 400);
 
     const board = await BoardRepository.findBoard({ boardId });
     if (!board) throw new AppError("Board not found", 404);
-    
-    return ListRepository.createList({ boardId, title });
+
+    return ListRepository.createList({ boardId, name });
   }
 
   static async reorderList(input: {
