@@ -4,7 +4,7 @@ import CardService from "./card.service.js";
 export default class CardController {
   // PATCH /cards/:cardId
   static async updateCard(req: Request, res: Response) {
-    const cardId = req.params.cardId;
+    const { cardId }= req.params;
     const card = await CardService.updateCard(cardId as string, req.body);
     res.status(200).json(card);
   }
@@ -24,7 +24,7 @@ export default class CardController {
   // POST /cards/:cardId/assignees
   static async assigneessUser(req: Request, res: Response) {
     const cardId = req.params.cardId as string;
-    const { userIds } = req.body.userIds
+    const { userIds } = req.body
     const assignees = await CardService.assignUsersToCard({ cardId, userIds})
     res.status(200).json(assignees)
   }

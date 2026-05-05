@@ -6,14 +6,14 @@ import ListRepository from "./list.repository.js";
 export default class ListService {
   static async editList(input: {
     listId: string;
-    title?: string;
+    name?: string;
     position?: number;
   }) {
-    const { listId, title, position } = input;
+    const { listId, name, position } = input;
     const existing = await ListRepository.findList(listId);
     if (!existing) throw new AppError("List not found", 404);
 
-    const payload = removeUndefined({ title, position });
+    const payload = removeUndefined({ name, position });
     if (Object.keys(payload).length === 0) {
       throw new AppError("No fields provided for update", 400);
     }
@@ -34,14 +34,14 @@ export default class ListService {
   }
 
   static async createCard(data: {
-    title: string;
+    name: string;
     description?: string;
     listId: string;
     priority?: "low" | "medium" | "high" | "urgent";
     dueDate?: string | Date | null;
   }) {
-    if (!data.title || !data.listId) {
-      throw new AppError("Title and listId are required", 400);
+    if (!data.name || !data.listId) {
+      throw new AppError("Name and listId are required", 400);
     }
 
     const priority = data.priority || "low";
@@ -50,7 +50,7 @@ export default class ListService {
 
     const card = await CardRepository.createCard({
       data: {
-        title: data.title,
+        name: data.name,
         description: data.description ?? null,
         listId: data.listId,
         position,
@@ -58,7 +58,6 @@ export default class ListService {
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
       },
     });
-
     return card;
   }
 }

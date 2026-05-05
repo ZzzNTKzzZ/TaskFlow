@@ -6,7 +6,12 @@ export const validateMiddleware =
   (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req.body);
 
-    if(!result.success) return res.status(400).json(result.error)
+    if(!result.success) {
+      return next(new AppError(
+        `Validation Error: ${result.error.issues[0]?.message}`,
+        400
+      ))
+    }
 
     req.body = result.data
     next()

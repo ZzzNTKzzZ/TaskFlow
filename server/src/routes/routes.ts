@@ -7,6 +7,7 @@ import { boardAccessMiddleware } from "../middleware/boardAccess.middleware.js";
 import { permissionMiddleware } from "../middleware/permissions.middleware.js";
 import listRoutes from "../modules/List/list.routes.js";
 import cardRoutes from "../modules/Card/card.routes.js";
+import { workspaceAccess } from "../middleware/workspaceAccess.middleware.js";
 
 export const routes = (app: Express) => {
   app.use("/auth", authRoutes);
@@ -17,15 +18,15 @@ export const routes = (app: Express) => {
     boardRoutes,
   );
   app.use(
-    "/lists",
+    "/:boardId/lists",
     authMiddleware,
     boardAccessMiddleware,
-    permissionMiddleware,
     listRoutes,
   );
   app.use(
-    "/cards",
+    "/:boardId/cards",
     authMiddleware,
+    boardAccessMiddleware,
     cardRoutes,
   );
 };

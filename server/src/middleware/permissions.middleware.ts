@@ -3,7 +3,7 @@ import permissions from "../permissions/permissions.map.js";
 import type { PermissionAction } from "../permissions/permissions.map.js";
 import { AppError } from "../utils/appError.js";
 
-export const permissionMiddleware = (action: PermissionAction) => {
+export const  permissionMiddleware = (action: PermissionAction) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const role = req.workspaceMember?.role;
     if (!role) throw new AppError("Role not defined", 500);

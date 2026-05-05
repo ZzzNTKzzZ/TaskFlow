@@ -96,6 +96,7 @@ workspaceRoutes.post(
 
 workspaceRoutes.patch(
   "/:workspaceId/boards/reorder",
+  workspaceAccess,
   asyncHandler(WorkspaceController.reorder)
 );
 export default workspaceRoutes;

@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
+import { responseHandler } from "../utils/responseHandler.js";
 export const errorMiddleware = (
   err: any,
   req: Request,
@@ -7,8 +8,5 @@ export const errorMiddleware = (
 ) => {
     const status = err.status || 500
     console.error("Status: ", status, " ", err)
-    res.status(status).json({
-        success: false,
-        message: err.message || "Internal Server Error"
-    })
+    res.status(status).json(responseHandler.error(err.message))
 };

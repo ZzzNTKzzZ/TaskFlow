@@ -1,28 +1,29 @@
 import type { Request, Response } from "express";
 import BoardService from "./board.service.js";
+import { responseHandler } from "../../utils/responseHandler.js";
 
 export default class BoardController {
   // GET /boards/:boardId
   static async getBoard(req: Request, res: Response) {
     const { boardId } = req.params;
     const board = await BoardService.getBoard({ boardId: boardId as string });
-    res.status(200).json(board);
+    res.status(200).json(responseHandler.success(board));
   }
 
   // PATCH /boards/:boardId
   static async editBoard(req: Request, res: Response) {
     const { boardId } = req.params;
-    const { title, background, visibility, position } = req.body;
+    const { name, background, visibility, position } = req.body;
 
     const board = await BoardService.editBoard({
       boardId: boardId as string,
-      title,
+      name,
       visibility,
       background,
       position,
     });
 
-    res.status(200).json(board);
+    res.status(200).json(responseHandler.success(board));
   }
 
   // DELETE /boards/:boardId
@@ -33,9 +34,7 @@ export default class BoardController {
       boardId: boardId as string,
     });
 
-    res
-      .status(200)
-      .json({ success: true, message: "Board deleted successfully" });
+    res.status(200).json(responseHandler.success(boardId));
   }
 
   // ========================== MEMBERS ==========================
@@ -48,7 +47,7 @@ export default class BoardController {
       boardId: boardId as string,
     });
 
-    res.status(200).json(members);
+    res.status(200).json(responseHandler.success(members));
   }
 
   // POST /boards/:boardId/members
@@ -61,7 +60,7 @@ export default class BoardController {
       memberIds,
     });
 
-    res.status(201).json(result);
+    res.status(201).json(responseHandler.success(result));
   }
 
   // DELETE /boards/:boardId/members/:userId
@@ -73,7 +72,7 @@ export default class BoardController {
 
     const result = await BoardService.deleteMember({ boardId, userId });
 
-    res.status(200).json(result);
+    res.status(200).json(responseHandler.success(result));
   }
 
   // ========================== LIST ==========================
@@ -84,16 +83,15 @@ export default class BoardController {
 
     const lists = await BoardService.getLists({ boardId: boardId as string });
 
-    res.status(200).json(lists);
+    res.status(200).json(responseHandler.success(lists));
   }
   // POST /boards/:boardId/lists
   static async createList(req: Request, res: Response) {
     const boardId = req.params.boardId as string;
-    const { title } = req.body;
-    console.log("Đang tạo List:", title);
-    const list = await BoardService.createList({ boardId, title });
+    const { name } = req.body;
+    const list = await BoardService.createList({ boardId, name });
 
-    res.status(201).json(list);
+    res.status(201).json(responseHandler.success(list));
   }
 
   // PATCH /boards/:boardId/lists/reorder
@@ -108,6 +106,6 @@ export default class BoardController {
       afterId,
     });
 
-    res.status(200).json(list);
+    res.status(200).json(responseHandler.success(list));
   }
 }

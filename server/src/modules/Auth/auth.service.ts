@@ -80,6 +80,7 @@ export class AuthService {
   }
 
   static async logout(refreshToken: string) {
+    if(!refreshToken) throw new AppError("No refresh token provided", 401)
     await prisma.refreshToken.delete({
       where: { token: refreshToken },
     });

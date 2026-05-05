@@ -14,7 +14,7 @@ export default class CardRepository {
     data,
   }: {
     data: {
-      title: string;
+      name: string;
       description?: string | null;
       listId: string;
       position: number;

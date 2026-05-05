@@ -4,3 +4,7 @@ node_modules
 *.md
 
 /generated/prisma
+
+*.bat
+Trello_API_Postman_Collection.json
+Trello_API_Postman_Environment.postman_environment.json

@@ -8,7 +8,7 @@ export const boardAccessMiddleware = async (
   next: NextFunction,
 ) => {
   const { boardId } = req.params;
-  if(!boardId) return next();
+  if(!boardId) return next(new AppError("Board id not found", 404));
   const board = await prisma.board.findUnique({
     where: { id: boardId as string },
     select: { workspaceId: true },

@@ -31,9 +31,9 @@ interface CreateBoardResponse extends BaseItem {
 }
 
 interface UpdateBoard {
-   boardId: string;
-      name?: string;
-      visibility?: BoardVisibility;
-      background?: string;
-      position?: number;
+  boardId: string;
+  name?: string;
+  visibility?: BoardVisibility;
+  background?: string;
+  position?: number;
 }

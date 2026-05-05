@@ -16,7 +16,8 @@ boardRoutes.get("/:boardId", asyncHandler(BoardController.getBoard));
 boardRoutes.patch(
   "/:boardId",
   validateMiddleware(updateBoardSchema),
-  permissionMiddleware("board:create"),
+  boardAccessMiddleware,
+  permissionMiddleware("board:update"),
   asyncHandler(BoardController.editBoard),
 );
 // DELETE /boards/:boardId

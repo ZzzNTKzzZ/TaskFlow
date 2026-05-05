@@ -2,7 +2,7 @@ import { Router } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import CardController from "./card.controller.js";
 import { validateMiddleware } from "../../middleware/validate.middleware.js";
-import { cardSchema } from "../../validators/card.schema.js";
+import { cardSchema, updateCardSchema } from "../../validators/card.schema.js";
 import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
 
 const cardRoutes = Router();
@@ -10,7 +10,7 @@ const cardRoutes = Router();
 cardRoutes.patch("/reorder", asyncHandler(CardController.reorderCard));
 cardRoutes.patch(
   "/:cardId",
-  validateMiddleware(cardSchema),
+  validateMiddleware(updateCardSchema),
   permissionMiddleware("card:update"),
   asyncHandler(CardController.updateCard),
 );

@@ -8,7 +8,7 @@ export default class CardService {
 
   // ================= CREATE =================
   static async createCard(data: {
-    title: string;
+    name: string;
     description?: string;
     listId: string;
     priority: "low" | "medium" | "high" | "urgent";
@@ -112,7 +112,7 @@ export default class CardService {
         data: validUserIds.map((userId) => ({
           userId,
           title: "Assigned to card",
-          message: `You were assigned to card ${card.title}`,
+          message: `You were assigned to card ${card.name}`,
         })),
       });
 

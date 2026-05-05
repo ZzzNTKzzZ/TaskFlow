@@ -4,6 +4,8 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { validateMiddleware } from "../../middleware/validate.middleware.js";
 import { updateListSchema } from "../../validators/list.schema.js";
 import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
+import { boardAccessMiddleware } from "../../middleware/boardAccess.middleware.js";
+import { workspaceAccess } from "../../middleware/workspaceAccess.middleware.js";
 
 const listRoutes = Router();
 // PATCH  /lists/:listId
@@ -18,6 +20,6 @@ listRoutes.delete("/:listId", permissionMiddleware("list:delete"),asyncHandler(L
 // GET  /lists/:listId/cards
 listRoutes.get("/:listId/cards",asyncHandler(ListController.getCards));
 // POST /lists/:listId/cards
-listRoutes.post("/:listId/cards", permissionMiddleware("card:create"),asyncHandler(ListController.createCard));
+listRoutes.post("/:listId/cards" ,permissionMiddleware("card:create"),asyncHandler(ListController.createCard));
 
 export default listRoutes;
