@@ -8,7 +8,7 @@ export const validateMiddleware =
 
     if(!result.success) {
       return next(new AppError(
-        `Validation Error: ${result.error.issues[0]?.message}`,
+        `${result.error.issues[0]?.message}`,
         400
       ))
     }

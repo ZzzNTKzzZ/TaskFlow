@@ -4,10 +4,12 @@ import { routes } from "./routes/routes.js"
 import { errorMiddleware } from "./middleware/error.middleware.js"
 import cookieParser from "cookie-parser"
 import cors from "cors"
+import morgan from "morgan"
 
 dotenv.config()
 
 const app = express()
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
@@ -21,16 +23,6 @@ app.get('/api/check-connection', (req, res) => {
     message: "Kết nối thành công từ Backend!",
     timestamp: new Date().toLocaleString()
   });
-});
-app.use((req, res, next) => {
-  console.log("=== 📥 Incoming Request ===");
-  console.log("Method:", req.method);
-  console.log("URL:", req.originalUrl);
-  console.log("Params:", req.params);
-  console.log("Query:", req.query);
-  console.log("Body:", req.body);
-  console.log("===========================");
-  next();
 });
 routes(app)
 app.use(errorMiddleware)
