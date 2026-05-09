@@ -1,6 +1,6 @@
 import { Screen } from "@/components/layout/Screen";
 import Button from "@/components/ui/Button";
-import BackIcon from "@/components/icons/BackIcon";
+import BackButton from "@/components/navigation/BackButton";
 import Input from "@/components/ui/Input";
 import { useAuth } from "@/modules/auth/hook/useAuth";
 import { SignUpData } from "@/modules/auth/types/auth";
@@ -62,7 +62,7 @@ export default function SignUp() {
     <Screen>
       <View style={styles.container}>
         <View style={styles.headline}>
-          <BackIcon />
+          <BackButton />
           <View>
             <Text style={Typography.heading}>Sign Up</Text>
             <Text style={styles.caption}>Create an account to continue!</Text>

@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-export default function BackIcon() {
+export default function BackButton() {
   const handleBack = () => {
     // Kiểm tra xem có thể back không trước khi gọi để tránh lỗi điều hướng
     if (router.canGoBack()) {

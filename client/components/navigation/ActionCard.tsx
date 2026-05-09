@@ -2,7 +2,7 @@ import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
 
 interface ActionCardProps {
@@ -16,7 +16,7 @@ export default function ActionCard({ type, onPress }: ActionCardProps) {
       icon: (
         <Svg width="28" height="28" viewBox="0 0 18 18" fill="none">
           <Path
-            d="M0 2.5C0 1.83696 0.263392 1.20107 0.732233 0.732233C1.20107 0.263392 1.83696 0 2.5 0H9.5C10.163 0 10.7989 0.263392 11.2678 0.732233C11.7366 1.20107 12 1.83696 12 2.5V9.5C12 10.163 11.7366 10.7989 11.2678 11.2678C10.7989 11.7366 10.163 12 9.5 12H2.5C1.83696 12 1.20107 11.7366 0.732233 11.2678C0.263392 10.7989 0 10.163 0 9.5V2.5ZM2.5 1C2.10218 1 1.72064 1.15804 1.43934 1.43934C1.15804 1.72064 1 2.10218 1 2.5V3H5.5V1H2.5ZM6.5 1V8H11V2.5C11 2.10218 10.842 1.72064 10.5607 1.43934C10.2794 1.15804 9.89782 1 9.5 1H6.5ZM11 9H6.5V11H9.5C9.89782 11 10.2794 10.842 10.5607 10.5607C10.842 10.2794 11 9.89782 11 9.5V9ZM5.5 11V4H1V9.5C1 9.89782 1.15804 10.2794 1.43934 10.5607C1.72064 10.842 2.10218 11 2.5 11H5.5Z"
+            d="M2 4.5C2 3.83696 2.26339 3.20107 2.73223 2.73223C3.20107 2.26339 3.83696 2 4.5 2H11.5C12.163 2 12.7989 2.26339 13.2678 2.73223C13.7366 3.20107 14 3.83696 14 4.5V11.5C14 12.163 13.7366 12.7989 13.2678 13.2678C12.7989 13.7366 12.163 14 11.5 14H4.5C3.83696 14 3.20107 13.7366 2.73223 13.2678C2.26339 12.7989 2 12.163 2 11.5V4.5ZM4.5 3C4.10218 3 3.72064 3.15804 3.43934 3.43934C3.15804 3.72064 3 4.10218 3 4.5V5H7.5V3H4.5ZM8.5 3V10H13V4.5C13 4.10218 12.842 3.72064 12.5607 3.43934C12.2794 3.15804 11.8978 3 11.5 3H8.5ZM13 11H8.5V13H11.5C11.8978 13 12.2794 12.842 12.5607 12.5607C12.842 12.2794 13 11.8978 13 11.5V11ZM7.5 13V6H3V11.5C3 11.8978 3.15804 12.2794 3.43934 12.5607C3.72064 12.842 4.10218 13 4.5 13H7.5Z"
             fill="#3B82F6"
           />
         </Svg>
@@ -62,7 +62,7 @@ export default function ActionCard({ type, onPress }: ActionCardProps) {
           </Defs>
         </Svg>
       ),
-      title: "Invite Members",
+      title: "Add Member",
       caption: "Invite people to workspace",
     },
     automation: {
@@ -81,10 +81,8 @@ export default function ActionCard({ type, onPress }: ActionCardProps) {
   const currentCard = card[type];
 
   return (
-    <Pressable onPress={onPress} style={[styles.base, styles[type]]}>
-      <View style={styles.iconContainer}>
-  {currentCard.icon}
-</View>
+    <TouchableOpacity activeOpacity={0.7} onPress={onPress} style={[styles.base, styles[type]]}>
+      <View style={styles.iconContainer}>{currentCard.icon}</View>
       <Text
         numberOfLines={2}
         style={[
@@ -94,38 +92,36 @@ export default function ActionCard({ type, onPress }: ActionCardProps) {
             alignItems: "center",
             textAlign: "center",
             fontSize: 10,
-            letterSpacing: 0.5,
+            letterSpacing: 0.3,
             color: Colors.gray[500],
           },
         ]}
       >
         {currentCard.title}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   base: {
-    flex: 1,
+    width: "23%",
     alignItems: "center",
     justifyContent: "center",
 
     borderWidth: 2,
-    borderRadius: 20,
+    borderRadius: 12,
 
-    paddingTop: 18,
-    paddingBottom: 14,
-    paddingHorizontal: Spacing[1],
-    gap: Spacing[1]
+    paddingTop: Spacing[2],
+    gap: Spacing[1],
   },
   iconContainer: {
-  width: 32,
-  height: 32,
+    width: 32,
+    height: 32,
 
-  alignItems: "center",
-  justifyContent: "center",
-},
+    alignItems: "center",
+    justifyContent: "center",
+  },
   newBoard: {
     backgroundColor: "#EFF6FF",
     borderColor: "#BFDBFE",

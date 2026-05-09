@@ -37,3 +37,11 @@ export const signupApi = async (data: SignUpData) => {
     };
   }
 };
+
+export const refreshTokenApi = async () => {
+  try {
+    const response = await api.post("/auth/")
+  } catch (error) {
+    
+  }
+}
