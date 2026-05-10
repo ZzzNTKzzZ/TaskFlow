@@ -1,9 +1,9 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 
 export function Screen({ children, padding = Spacing[6] }: { children: any, padding?: number }) {
-  return <View style={[styles.container, {paddingHorizontal: padding}]}>{children}</View>;
+  return <ScrollView style={[styles.container, {paddingHorizontal: padding}]}>{children}</ScrollView>;
 }
 
 const styles = StyleSheet.create({

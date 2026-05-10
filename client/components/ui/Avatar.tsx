@@ -1,10 +1,12 @@
 import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
 import { Image, StyleSheet, View } from "react-native";
 
-export default function Avatar({ size = 42 }) {
-  const user = useCurrentUser();
+export default function Avatar({ size = 42, name }: {size?: number, name?: string}) {
+const currentUser = useCurrentUser();
 
-  const urlAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random&color=fff&format=png`;
+  const displayName = name || currentUser?.name || "User";
+
+  const urlAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random&color=fff&format=png`;
   return (
     <View style={{ width: size, height: size}}>
       <Image

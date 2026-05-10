@@ -34,4 +34,16 @@ export const Colors = {
   error: "#EF4444",
   warning: "#F59E0B",
   info: "#3B82F6",
+
+  pLowBg: "#DCFCE7",
+  pLowText: "#15803D",
+
+  pMdBg: "#FEF3C7",
+  pMdText: "#D97706",
+
+  pHighBg: "#FEE2E2",
+  pHighText: "#DC2626",
+
+  pUrgentBg: "#7F1D1D",
+  pUrgentText: "#FFFFFF",
 };
