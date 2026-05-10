@@ -4,7 +4,6 @@ import { Theme } from "@/theme/theme";
 
 interface CheckedProps {
   isChecked: boolean;
-  setChecked: () => void;
 }
 
 export default function Checked({

@@ -10,6 +10,8 @@ import SymbolIcon, {
 } from "@/components/icons/SymbolIcon";
 import { BackgroundColor } from "@/components/illustrations/BackgroundCard";
 import { Screen } from "@/components/layout/Screen";
+import SectionCard from "@/components/layout/SectionCard";
+import SectionHeader from "@/components/layout/SectionHeader";
 import ActionCard from "@/components/navigation/ActionCard";
 import DropDown from "@/components/overlays/DropDown";
 import TodoCard, { Priority } from "@/components/todo/TodoCard";
@@ -22,12 +24,13 @@ import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import { RoleWorkspace } from "@/types/workspaces";
 import React, { ReactNode, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
   const user = useCurrentUser();
 
-  const [selected, setSelected] = useState<string>("WS 1");
+  const [selected, setSelected] = useState("WS 1");
+
   const workspaces = [
     {
       value: "WS 1",
@@ -37,7 +40,6 @@ export default function HomeScreen() {
       icon: "Company",
       color: "Primary",
     },
-
     {
       value: "WS 2",
       label: "WS 2",
@@ -119,112 +121,64 @@ export default function HomeScreen() {
       <View style={styles.container}>
         <View style={styles.headline}>
           <Avatar />
+
           <View style={{ flex: 1 }}>
             <Text style={[Typography.title, { fontSize: 16 }]}>
               Hello, {user?.name || "User"}
             </Text>
-            <Text style={[Typography.label]}>Let's get things done</Text>
+            <Text style={Typography.label}>
+              Let's get things done
+            </Text>
           </View>
+
           <TouchableOpacity
             onPress={() => {}}
             activeOpacity={0.7}
-            style={{
-              backgroundColor: Theme.surface,
-              borderRadius: 16,
-              padding: 12,
-              shadowColor: "#000",
-              shadowOffset: {
-                width: 0,
-                height: 4,
-              },
-              shadowOpacity: 0.3,
-              shadowRadius: 4.65,
-
-              elevation: 8,
-            }}
+            style={styles.searchButton}
           >
             <SearchIcon />
           </TouchableOpacity>
         </View>
 
-        {/* Quick Action */}
-        <View
-          style={{
-            backgroundColor: Theme.surface,
-            paddingVertical: Spacing[4],
-            borderRadius: 16,
-
-            marginTop: Spacing[4],
-
-            shadowColor: Colors.gray[400],
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 16,
-
-            // Shadow for Android
-            elevation: 8,
-          }}
-        >
+        <SectionCard style={{ paddingVertical: Spacing[4] }}>
           <Text
             style={[
               Typography.heading,
-              { fontSize: 16, paddingHorizontal: Spacing[4] },
+              {
+                fontSize: 16,
+                paddingHorizontal: Spacing[4],
+              },
             ]}
           >
             Quick Action
           </Text>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              paddingTop: Spacing[4],
-              paddingHorizontal: Spacing[3],
-            }}
-          >
+
+          <View style={styles.quickAction}>
             <ActionCard type="newBoard" onPress={() => {}} />
             <ActionCard type="newTodo" onPress={() => {}} />
             <ActionCard type="inviteMembers" onPress={() => {}} />
             <ActionCard type="automation" onPress={() => {}} />
           </View>
-        </View>
+        </SectionCard>
 
-        {/* DropDown Board */}
-
-        <View
+        <SectionCard
           style={{
-            backgroundColor: Theme.surface,
             paddingTop: Spacing[4],
             paddingHorizontal: Spacing[4],
-            borderRadius: 16,
-            marginTop: Spacing[4],
-
-            shadowColor: Colors.gray[400],
-
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.7,
-            shadowRadius: 16,
-
-            // Shadow for Android
-            elevation: 8,
           }}
         >
           <DropDown
             icon={((): ReactNode => {
-              const wsSelected =
-                workspaces.find((ws) => ws.value === selected) ?? workspaces[0];
-              if (!wsSelected?.icon) return null;
+              const ws =
+                workspaces.find(
+                  (w) => w.value === selected
+                ) ?? workspaces[0];
+
               return (
                 <SymbolIcon
-                  name={wsSelected.icon as SymbolName}
+                  name={ws.icon as SymbolName}
                   size={28}
-                  color={wsSelected.color as SymbolColor}
+                  color={ws.color as SymbolColor}
                 />
               );
             })()}
@@ -248,45 +202,32 @@ export default function HomeScreen() {
               />
             )}
           />
-        </View>
+        </SectionCard>
 
-        {/* Your Board */}
-
-        <View style={{ flexDirection: "column" }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: Spacing[4],
-            }}
-          >
+        <View>
+          <View style={styles.boardHeader}>
             <Text style={[Typography.title, { fontSize: 16 }]}>
               Your Boards
             </Text>
-            <TouchableOpacity activeOpacity={0.7} onPress={() => {}}>
-              <Text
-                style={[
-                  Typography.title,
-                  { fontSize: 14, color: Colors.primary[700] },
-                ]}
-              >
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => {}}
+            >
+              <Text style={styles.viewAll}>
                 View all
               </Text>
             </TouchableOpacity>
           </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
+
+          <View style={styles.boardList}>
             {boards.map((b) => (
               <BoardCard
                 key={b.name}
                 name={b.name}
-                background={b.background as BackgroundColor}
+                background={
+                  b.background as BackgroundColor
+                }
                 member={b.member}
                 styleCard={{ width: "32%" }}
               />
@@ -294,146 +235,60 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Recent Activity */}
-
-        <View
+        <SectionCard
           style={{
-            backgroundColor: Theme.surface,
             paddingTop: Spacing[4],
             paddingHorizontal: Spacing[4],
-            borderRadius: 16,
-            marginTop: Spacing[4],
-
-            shadowColor: Colors.gray[400],
-
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.7,
-            shadowRadius: 16,
-
-            // Shadow for Android
-            elevation: 8,
           }}
         >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              backgroundColor: Theme.surface,
-              marginBottom: Spacing[2],
-            }}
-          >
-            <Text style={[Typography.title, { fontSize: 16 }]}>
-              Recent Activity
-            </Text>
-            <TouchableOpacity activeOpacity={0.7} onPress={() => {}}>
-              <Text
-                style={[
-                  Typography.title,
-                  { fontSize: 14, color: Colors.primary[700] },
-                ]}
-              >
-                View all
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              gap: Spacing[1],
-              justifyContent: "space-between",
-              marginBottom: Spacing[2],
-            }}
-          >
+          <SectionHeader
+            title="Recent Activity"
+            onPress={() => {}}
+          />
+
+          <View style={styles.list}>
             {activitys.map((a, index) => (
-              <>
-                <ActivityCard
-                  name={a.name}
-                  boardName={a.boardName}
-                  time={a.time}
-                  action={a.action}
-                />
+              <React.Fragment key={index}>
+                <ActivityCard {...a} />
                 {activitys.length !== index + 1 && (
-                  <View
-                    style={{ borderWidth: 0.5, borderColor: Theme.border }}
-                  />
+                  <View style={styles.divider} />
                 )}
-              </>
+              </React.Fragment>
             ))}
           </View>
-        </View>
+        </SectionCard>
 
-        {/* My Todo */}
-
-        <View
+        <SectionCard
           style={{
-            backgroundColor: Theme.surface,
             paddingTop: Spacing[4],
             paddingHorizontal: Spacing[4],
-            borderRadius: 16,
-            marginTop: Spacing[4],
-
-            shadowColor: Colors.gray[400],
-
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.7,
-            shadowRadius: 16,
-
-            // Shadow for Android
-            elevation: 8,
           }}
         >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              backgroundColor: Theme.surface,
-              marginBottom: Spacing[3],
-            }}
-          >
-            <Text style={[Typography.title, { fontSize: 16 }]}>My Todo</Text>
-            <TouchableOpacity activeOpacity={0.7} onPress={() => {}}>
-              <Text
-                style={[
-                  Typography.title,
-                  { fontSize: 14, color: Colors.primary[700] },
-                ]}
-              >
-                View all
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{ borderWidth: 0.5, borderColor: Theme.border }} />
-          <View
-            style={{
-              justifyContent: "space-between",
-              marginBottom: Spacing[2],
-              paddingHorizontal: Spacing[3],
-            }}
-          >
+          <SectionHeader
+            title="My Todo"
+            onPress={() => {}}
+          />
+
+          <View style={styles.divider} />
+
+          <View style={styles.todoList}>
             {todos.map((t, index) => (
-              <>
+              <React.Fragment key={index}>
                 <TodoCard
                   isChecked={t.check}
                   dueDate={t.dueDate}
                   name={t.name}
-                  priority={t.priority as Priority}
+                  priority={
+                    t.priority as Priority
+                  }
                 />
                 {todos.length !== index + 1 && (
-                  <View
-                    style={{ borderWidth: 0.5, borderColor: Theme.border }}
-                  />
+                  <View style={styles.divider} />
                 )}
-              </>
+              </React.Fragment>
             ))}
           </View>
-        </View>
+        </SectionCard>
       </View>
     </Screen>
   );
@@ -442,12 +297,71 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Spacing[6],
+    marginVertical: Spacing[6],
   },
+
   headline: {
-    display: "flex",
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing[3],
+  },
+
+  searchButton: {
+    backgroundColor: Theme.surface,
+    borderRadius: 16,
+    padding: 12,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
+  },
+
+  quickAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingTop: Spacing[4],
+    paddingHorizontal: Spacing[3],
+  },
+
+  boardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: Spacing[4],
+  },
+
+  boardList: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  viewAll: {
+    ...Typography.title,
+    fontSize: 14,
+    color: Colors.primary[700],
+  },
+
+  list: {
+    gap: Spacing[1],
+    justifyContent: "space-between",
+    marginBottom: Spacing[2],
+  },
+
+  todoList: {
+    justifyContent: "space-between",
+    marginBottom: Spacing[2],
+    paddingHorizontal: Spacing[3],
+  },
+
+  divider: {
+    borderWidth: 0.5,
+    borderColor: Theme.border,
   },
 });

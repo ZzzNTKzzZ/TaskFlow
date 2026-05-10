@@ -45,7 +45,7 @@ export default function TodoCard({
   };
   const backgroundColor = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ["transparent", Colors.gray[200]],
+    outputRange: ["rgba(229, 231, 235, 0)", Colors.gray[200]]
   });
   return (
     <Pressable
@@ -64,7 +64,6 @@ export default function TodoCard({
         }}>
         <Checked
           isChecked={checked}
-          setChecked={() => setChecked((prev) => !prev)}
         />
         <View
           style={{
