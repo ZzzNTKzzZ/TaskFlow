@@ -3,7 +3,11 @@ import {
   type BoardVisibility,
 } from "../../../generated/prisma/index.js";
 import slugify from "../../helper/slugify.helper.js";
-import type { BoardResponse, CreateBoard, CreateBoardResponse } from "../../types/board.js";
+import type {
+  BoardResponse,
+  CreateBoard,
+  CreateBoardResponse,
+} from "../../types/board.js";
 import type {
   AddMember,
   CreateWorkspace,
@@ -22,8 +26,10 @@ import WorkspaceRepository from "./workspace.repository.js";
 export class WorkspaceService {
   static async getUserWorkspaces({
     userId,
+    limit,
   }: {
     userId: string;
+    limit?: number;
   }): Promise<WorkspaceResponse[]> {
     if (!userId) throw new AppError("Unauthorized", 401);
 
@@ -265,11 +271,21 @@ export class WorkspaceService {
 
   // ========================== BOARD ==========================
 
-  static async getBoards({ workspaceId }: { workspaceId: string }): Promise<BoardResponse[]> {
+  static async getBoards({
+    workspaceId,
+    limit,
+  }: {
+    workspaceId: string;
+    limit?: number;
+  }): Promise<BoardResponse[]> {
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
+    const parsedLimit = limit ? Number(limit) : undefined
+    const boards = await WorkspaceRepository.findBoards({ workspaceId, limit: parsedLimit });
 
-    return await WorkspaceRepository.findBoards({ workspaceId });
-    
+    return boards.map(({ _count, ...board }) => ({
+      ...board,
+      memberCount: _count.members,
+    }));
   }
 
   static async createBoard({

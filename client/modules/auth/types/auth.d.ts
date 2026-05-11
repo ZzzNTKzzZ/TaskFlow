@@ -10,8 +10,9 @@ interface SignUpData {
 }
 
 interface LoginResponse {
-    user?: User
-    accessToken?: string
+    user: User
+    accessToken: string
+    refreshToken: string
     success: boolean
     errMsg?: string
 }

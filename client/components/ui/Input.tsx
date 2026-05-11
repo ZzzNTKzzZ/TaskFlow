@@ -8,8 +8,12 @@ import {
   View,
   Text,
   TouchableOpacity,
+  StyleProp,
+  ViewStyle,
 } from "react-native";
 import EyeIcon from "../icons/EyeIcon";
+import Icons from "../icons/Icons";
+import { Colors } from "@/theme/colors";
 
 interface InputProps {
   value: string;
@@ -17,10 +21,12 @@ interface InputProps {
   editable?: boolean;
   placeholder?: string;
   label?: string;
+  isSearch?: boolean
   isPassword?: boolean;
   showPassword?: boolean;
   onPressIcon?: () => void;
   error?: boolean;
+  stylesInput?: StyleProp<ViewStyle>
 }
 
 export default function Input({
@@ -29,10 +35,12 @@ export default function Input({
   placeholder,
   editable = true,
   label,
+  isSearch = false,
   isPassword = false,
   showPassword,
   onPressIcon,
-  error
+  error,
+  stylesInput
 }: InputProps) {
 
   const handleFocusError = () => {
@@ -42,10 +50,15 @@ export default function Input({
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, stylesInput]}>
       {label && <Text style={[Typography.label, error && { color: Theme.error}]}>{label}</Text>}
       
-      <View style={[styles.inputContainer, error && styles.error]}>
+      <View style={[styles.inputContainer, error && styles.error, isSearch && styles.search]}>
+        {isSearch && (
+          <View style={{flexDirection: "row", alignItems: "center", paddingRight: Spacing[2]}}>
+            <Icons name="Search" size={16}/>
+          </View>
+        )}
         <TextInput
           style={styles.input}
           value={value}
@@ -85,7 +98,7 @@ const styles = StyleSheet.create({
     borderColor: Theme.border,
     borderWidth: 1,
     borderRadius: 16,
-    paddingHorizontal: 14,
+    paddingHorizontal: Spacing[4],
     paddingVertical: Spacing[1]
   },
   input: {
@@ -100,5 +113,10 @@ const styles = StyleSheet.create({
   error: {
     borderColor: Theme.error,
     borderWidth: 1.5
+  },
+  search: {
+    paddingVertical: Spacing[0],
+    backgroundColor: Colors.gray[100],
+    borderRadius: 8
   }
 });

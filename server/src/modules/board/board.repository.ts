@@ -5,6 +5,13 @@ export default class BoardRepository {
   static async findBoard({ boardId }: { boardId: string }) {
     return await prisma.board.findUnique({
       where: { id: boardId },
+      include: {
+        _count: {
+          select: {
+            members: true
+          }
+        }
+      }
     });
   }
 
@@ -22,6 +29,13 @@ export default class BoardRepository {
   }) {
     return await prisma.board.update({
       where: { id: boardId },
+      include: {
+        _count: {
+          select: {
+            members: true
+          }
+        }
+      },
       data,
     });
   }

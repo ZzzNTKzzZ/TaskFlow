@@ -3,7 +3,7 @@ import {
   ActivityCardProps,
 } from "@/components/activity/ActivityCard";
 import BoardCard from "@/components/boards/BoardCard";
-import SearchIcon from "@/components/icons/SearchIcon";
+import Icons from "@/components/icons/Icons";
 import SymbolIcon, {
   SymbolColor,
   SymbolName,
@@ -18,37 +18,63 @@ import TodoCard, { Priority } from "@/components/todo/TodoCard";
 import Avatar from "@/components/ui/Avatar";
 import CardDropDown from "@/components/workspaces/CardDropDown";
 import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
+import { BoardCardUI } from "@/modules/board/board";
+import { WorkspaceCard } from "@/modules/workspace/workspace";
+import WorkspaceService from "@/modules/workspace/workspace.service";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { RoleWorkspace } from "@/types/workspaces";
-import React, { ReactNode, useState } from "react";
+import { RoleWorkspace } from "@/types/type";
+import React, { ReactNode, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
   const user = useCurrentUser();
 
-  const [selected, setSelected] = useState("WS 1");
+  const [selected, setSelected] = useState<{ name: string; id: string }>({
+    name: "",
+    id: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [workspaces, setWorkspaces] = useState<WorkspaceCard[]>([]);
+  const [boards, setBoards] = useState<BoardCardUI[]>([]);
+  useEffect(() => {
+    const initWorkspaces = async () => {
+      try {
+        setLoading(true);
+        const list = await WorkspaceService.getWorkspaces(4);
+        setWorkspaces(list);
 
-  const workspaces = [
-    {
-      value: "WS 1",
-      label: "WS 1",
-      memberSize: 9,
-      role: "OWNER",
-      icon: "Company",
-      color: "Primary",
-    },
-    {
-      value: "WS 2",
-      label: "WS 2",
-      memberSize: 10,
-      role: "MEMBER",
-      icon: "Company",
-      color: "Primary",
-    },
-  ];
+        if (list.length > 0) {
+          setSelected({
+            id: list[0].id,
+            name: list[0].name,
+          });
+        }
+      } catch (error) {
+        console.error("Lỗi khởi tạo Workspace:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    initWorkspaces();
+  }, []);
+  useEffect(() => {
+    if (!selected.id) return;
+
+    const fetchBoards = async () => {
+      try {
+        const boardList = await WorkspaceService.getWorkspaceBoard(selected.id);
+        setBoards(boardList);
+      } catch (error) {
+        console.error("Lỗi lấy danh sách Board:", error);
+      }
+    };
+
+    fetchBoards();
+  }, [selected.id]);
+  if (loading && !workspaces) return;
 
   const activitys: ActivityCardProps[] = [
     {
@@ -68,24 +94,6 @@ export default function HomeScreen() {
       action: "commented",
       boardName: "Design Tasks",
       time: "2026-04-10T02:45:05.608Z",
-    },
-  ];
-
-  const boards = [
-    {
-      background: "DeepPrussianBlue",
-      name: "Product Roadmap",
-      member: 8,
-    },
-    {
-      background: "Blue",
-      name: "Marketing Plan",
-      member: 5,
-    },
-    {
-      background: "DeepPrussianBlue",
-      name: "Product Roadmap 2",
-      member: 8,
     },
   ];
 
@@ -126,9 +134,7 @@ export default function HomeScreen() {
             <Text style={[Typography.title, { fontSize: 16 }]}>
               Hello, {user?.name || "User"}
             </Text>
-            <Text style={Typography.label}>
-              Let's get things done
-            </Text>
+            <Text style={Typography.label}>Let's get things done</Text>
           </View>
 
           <TouchableOpacity
@@ -136,7 +142,7 @@ export default function HomeScreen() {
             activeOpacity={0.7}
             style={styles.searchButton}
           >
-            <SearchIcon />
+            <Icons name="Search" size={18}/>
           </TouchableOpacity>
         </View>
 
@@ -160,75 +166,64 @@ export default function HomeScreen() {
             <ActionCard type="automation" onPress={() => {}} />
           </View>
         </SectionCard>
+        {workspaces && (
+          <SectionCard
+            style={{
+              paddingTop: Spacing[4],
+              paddingHorizontal: Spacing[4],
+            }}
+          >
+            <DropDown
+              icon={((): ReactNode => {
+                // Sửa lại thành:
+                const ws =
+                  workspaces.find((w) => w.id === selected.id) ?? workspaces[0];
 
-        <SectionCard
-          style={{
-            paddingTop: Spacing[4],
-            paddingHorizontal: Spacing[4],
-          }}
-        >
-          <DropDown
-            icon={((): ReactNode => {
-              const ws =
-                workspaces.find(
-                  (w) => w.value === selected
-                ) ?? workspaces[0];
-
-              return (
-                <SymbolIcon
-                  name={ws.icon as SymbolName}
-                  size={28}
-                  color={ws.color as SymbolColor}
-                />
-              );
-            })()}
-            label="Workspace:"
-            selected={selected}
-            setSelected={setSelected}
-            options={workspaces}
-            renderItem={(item) => (
-              <CardDropDown
-                icon={
+                return (
                   <SymbolIcon
-                    name={item.icon as SymbolName}
+                    name={ws?.icon as SymbolName}
                     size={28}
-                    color={item.color as SymbolColor}
+                    color={ws?.color as SymbolColor}
                   />
-                }
-                name={item.label}
-                memberSize={item.memberSize}
-                role={item.role as RoleWorkspace}
-                selected={selected === item.value}
-              />
-            )}
-          />
-        </SectionCard>
-
+                );
+              })()}
+              label="Workspace:"
+              selected={selected.name}
+              setSelected={setSelected}
+              options={workspaces}
+              renderItem={(item) => (
+                <CardDropDown
+                  icon={
+                    <SymbolIcon name={item.icon} size={28} color={item.color} />
+                  }
+                  name={item.name}
+                  memberSize={item.memberCount}
+                  role={item.role}
+                  selected={selected.id === item.id}
+                />
+              )}
+            />
+          </SectionCard>
+        )}
         <View>
           <View style={styles.boardHeader}>
             <Text style={[Typography.title, { fontSize: 16 }]}>
               Your Boards
             </Text>
 
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={() => {}}
-            >
-              <Text style={styles.viewAll}>
-                View all
-              </Text>
+            <TouchableOpacity activeOpacity={0.7} onPress={() => {}}>
+              <Text style={styles.viewAll}>View all</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.boardList}>
             {boards.map((b) => (
               <BoardCard
-                key={b.name}
+                key={b.id}
+                id={b.id}
                 name={b.name}
-                background={
-                  b.background as BackgroundColor
-                }
-                member={b.member}
+                background={b.background as BackgroundColor}
+                memberCount={b.memberCount}
                 styleCard={{ width: "32%" }}
               />
             ))}
@@ -241,10 +236,7 @@ export default function HomeScreen() {
             paddingHorizontal: Spacing[4],
           }}
         >
-          <SectionHeader
-            title="Recent Activity"
-            onPress={() => {}}
-          />
+          <SectionHeader title="Recent Activity" onPress={() => {}} />
 
           <View style={styles.list}>
             {activitys.map((a, index) => (
@@ -264,10 +256,7 @@ export default function HomeScreen() {
             paddingHorizontal: Spacing[4],
           }}
         >
-          <SectionHeader
-            title="My Todo"
-            onPress={() => {}}
-          />
+          <SectionHeader title="My Todo" onPress={() => {}} />
 
           <View style={styles.divider} />
 
@@ -278,13 +267,9 @@ export default function HomeScreen() {
                   isChecked={t.check}
                   dueDate={t.dueDate}
                   name={t.name}
-                  priority={
-                    t.priority as Priority
-                  }
+                  priority={t.priority as Priority}
                 />
-                {todos.length !== index + 1 && (
-                  <View style={styles.divider} />
-                )}
+                {todos.length !== index + 1 && <View style={styles.divider} />}
               </React.Fragment>
             ))}
           </View>
@@ -309,7 +294,7 @@ const styles = StyleSheet.create({
   searchButton: {
     backgroundColor: Theme.surface,
     borderRadius: 16,
-    padding: 12,
+    padding: Spacing[3],
 
     shadowColor: "#000",
     shadowOffset: {
@@ -339,7 +324,7 @@ const styles = StyleSheet.create({
   boardList: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: Spacing[2],
   },
 
   viewAll: {

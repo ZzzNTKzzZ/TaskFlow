@@ -3,11 +3,10 @@ import Checked from "../ui/Checked";
 import { useRef, useState } from "react";
 import Badges from "../ui/Badges";
 import { Typography } from "@/theme/typography";
-import { Theme } from "@/theme/theme";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
-import CalenderIcon from "../icons/CalenderIcon";
 import { formatMonthDate } from "@/helper/Day";
+import Icons from "../icons/Icons";
 
 export type Priority = "low" | "medium" | "high" | "urgent";
 
@@ -91,7 +90,7 @@ export default function TodoCard({
             alignItems: "center",
           }}
         >
-          <CalenderIcon size={16} />
+          <Icons name="Calender" size={16} />
           <Text style={{ fontSize: 12 }}>{formatMonthDate(dueDate)}</Text>
         </View>
       </Animated.View>

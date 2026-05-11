@@ -6,18 +6,17 @@ import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
 import { Theme } from "@/theme/theme";
 import { Colors } from "@/theme/colors";
+import { BoardCardUI } from "@/modules/board/board";
 
-interface BoardCardProps {
-  background: BackgroundColor;
-  name: string;
-  member: number;
+interface BoardCardProps extends BoardCardUI {
   styleCard?: StyleProp<ViewStyle>;
 }
 
 export default function BoardCard({
+  id,
   background,
   name,
-  member,
+  memberCount,
   styleCard,
 }: BoardCardProps) {
   return (
@@ -48,7 +47,6 @@ export default function BoardCard({
             maxWidth: 300,
             aspectRatio: 16 / 9,
             alignSelf: "center",
-
           }}
         >
           <BackgroundCard background={background} />
@@ -56,12 +54,20 @@ export default function BoardCard({
         <View style={{ padding: Spacing[4] }}>
           <Text
             numberOfLines={2}
-            style={[Typography.heading, { fontSize: 10, textAlign: "left", height: 24, lineHeight: 1.2 * 10 }]}
+            style={[
+              Typography.heading,
+              {
+                fontSize: 10,
+                textAlign: "left",
+                height: 24,
+                lineHeight: 1.2 * 10,
+              },
+            ]}
           >
             {name}
           </Text>
           <Text style={[Typography.caption, { fontSize: 10 }]}>
-            {member} members
+            {memberCount} members
           </Text>
         </View>
       </View>

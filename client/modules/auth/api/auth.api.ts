@@ -3,13 +3,7 @@ import { LoginData, SignUpData } from "../types/auth";
 export const loginApi = async (data: LoginData) => {
   try {
     const response = await api.post("/auth/login", data);
-    const { success, data: payload } = response.data;
-    return {
-      user: payload.user,
-      accessToken: payload.accessToken,
-      refreshToken: payload.refreshToken,
-      success: true,
-    };
+   return response.data
   } catch (error: any) {
     const errorData = error.response?.data;
     return {
@@ -22,13 +16,7 @@ export const loginApi = async (data: LoginData) => {
 export const signupApi = async (data: SignUpData) => {
   try {
     const response = await api.post("/auth/register", data);
-    const { success, data: payload } = response.data;
-    return {
-      user: payload.user,
-      accessToken: payload.accessToken,
-      refreshToken: payload.refreshToken,
-      success: true,
-    };
+    return response.data
   } catch (error: any) {
     const errorData = error.response?.data;
     return {

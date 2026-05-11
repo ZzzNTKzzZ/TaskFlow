@@ -7,7 +7,8 @@ export default class WorkspaceController {
   // GET: /workspaces
   static async getWorkspaces(req: Request, res: Response) {
     const userId = req.user.userId;
-    const workspaces = await WorkspaceService.getUserWorkspaces({ userId });
+    const { limit } = req.query
+    const workspaces = await WorkspaceService.getUserWorkspaces({ userId, limit: Number(limit)  });
     res.status(200).json(responseHandler.success(workspaces));
   }
   // POST: /workspaces
@@ -107,8 +108,8 @@ export default class WorkspaceController {
   // GET /workspaces/:workspaceId/boards
   static async getBoards(req: Request, res: Response) {
     const workspaceId = req.params.workspaceId as string;
-
-    const boards = await WorkspaceService.getBoards({ workspaceId });
+    const { limit } = req.query
+    const boards = await WorkspaceService.getBoards({ workspaceId, limit: Number(limit) });
 
     res.status(200).json(responseHandler.success(boards));
   }

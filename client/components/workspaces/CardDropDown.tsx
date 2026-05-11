@@ -1,7 +1,7 @@
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { RoleWorkspace } from "@/types/workspaces";
+import { RoleWorkspace } from "@/types/type";
 import { ReactNode } from "react";
 import { Text, View } from "react-native";
 import CheckedIcon from "../icons/CheckedIcon";

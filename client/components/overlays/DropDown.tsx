@@ -16,15 +16,15 @@ import SymbolIcon from "../icons/SymbolIcon";
 import { Colors } from "@/theme/colors";
 
 interface Option {
-  value: string;
-  label: string;
+  id: string;
+  name: string
   icon?: ReactNode;
 }
 
 interface DropDownProps<T extends Option> {
   options: T[];
   selected: string;
-  setSelected: (selected: string) => void;
+  setSelected: (item: T) => void;
   label: string;
   icon?: ReactNode;
   renderItem?: (item: T) => ReactNode;
@@ -55,8 +55,8 @@ export default function DropDown<T extends Option>({
     }).start();
   };
 
-  const handleSelected = (value: string) => {
-    setSelected(value);
+  const handleSelected = (item: T) => {
+   setSelected(item);
     Animated.timing(animatedHeight, {
       toValue: 0,
       duration: 300,
@@ -84,7 +84,7 @@ export default function DropDown<T extends Option>({
           <View style={{flexDirection: "row", alignItems: "center", gap: Spacing[4]}}>
             {icon}
             <View style={{ flexDirection: "row", gap: Spacing[1] }}>
-              <Text style={[Typography.title, { fontSize: 14, color: Theme.textSecondary }]}>
+              <Text numberOfLines={1} style={[Typography.title, { fontSize: 14, color: Theme.textSecondary }]}>
                 {label}
               </Text>
               {!isOpen && (
@@ -123,15 +123,18 @@ export default function DropDown<T extends Option>({
             {options.map((o) => (
               <TouchableOpacity
                 style={{ flexDirection: "column" }}
-                key={o.value}
-                onPress={() => handleSelected(o.value)}
+                key={o.id}
+                onPress={() => {
+                  handleSelected(o)
+                  setIsOpen((prev) => !prev)
+                }}
               >
                 {renderItem ? (
                   renderItem(o)
                 ) : (
                   <View>
                     {o.icon}
-                    <Text>{o.label}</Text>
+                    <Text>{o.name}</Text>
                   </View>
                 )}
               </TouchableOpacity>

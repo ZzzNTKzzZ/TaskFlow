@@ -17,8 +17,12 @@ export default class BoardService {
 
     const board = await BoardRepository.findBoard({ boardId });
     if (!board) throw new AppError("Board not found", 404);
+    const { _count, ...rest } = board;
 
-    return board;
+    return {
+      ...rest,
+      memberCount: _count.members,
+    };
   }
 
   static async editBoard({
@@ -42,7 +46,14 @@ export default class BoardService {
       throw new AppError("No fields provided for update", 400);
     }
 
-    return await BoardRepository.updateBoard({ boardId, data: payload });
+    const { _count, ...rest } = await BoardRepository.updateBoard({
+      boardId,
+      data: payload,
+    });
+    return {
+      ...rest,
+      memberCount: _count.members,
+    };
   }
 
   static async deleteBoard({ boardId }: { boardId: string }) {

@@ -13,7 +13,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: {
           paddingTop: 2,
-          height: 56,
+          height: inset.top + 16,
           borderTopWidth: 1,
           borderTopColor: "#F0F0F0",
         },
@@ -34,10 +34,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen 
-        name="board"
+        name="workspace"
         options={{
           tabBarIcon: ({ focused }) => <TabIcon icon="board" active={focused} />,
-          title: "Board"
+          title: "Workspace"
         }}
       />
       <Tabs.Screen 

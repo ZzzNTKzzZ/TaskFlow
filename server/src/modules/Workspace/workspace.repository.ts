@@ -219,9 +219,17 @@ export default class WorkspaceRepository {
   }
 
   // ========================== BOARD ==========================
-  static async findBoards({ workspaceId }: { workspaceId: string }) {
+  static async findBoards({ workspaceId, limit }: { workspaceId: string, limit?: number | undefined }) {
     return await prisma.board.findMany({
       where: { workspaceId },
+      include: {
+        _count: {
+          select: {
+            members: true
+          }
+        }
+      },
+     ...(typeof limit === 'number' ? { take: limit } : {})
     });
   }
 

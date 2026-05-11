@@ -11,6 +11,7 @@ interface BoardResponse extends BaseItem {
   workspaceId: string;
   createdAt: Date;
   updatedAt: Date;
+  memberCount: number;
 }
 
 interface CreateBoard {

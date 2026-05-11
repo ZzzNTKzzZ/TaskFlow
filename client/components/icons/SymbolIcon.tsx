@@ -21,7 +21,7 @@ export default function SymbolIcon({
   const colors = {
     Primary: {
       iconColor: Colors.primary[500],
-      backgroundColor: Colors.primary[50],
+      backgroundColor: Colors.primary[100],
       borderColor: Colors.primary[600],
     },
     None: {

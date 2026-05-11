@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-const hexRegex = /^#?([a-f0-9]{6}|[a-f0-9]{3})$/i;
 const gradientRegex = /^linear-gradient\(.*\)$/i;
 export const boardSchema = z.object({
   title: z.string().min(1),
@@ -11,10 +10,10 @@ export const boardSchema = z.object({
 export const updateBoardSchema = z.object({
   title: z.string().optional(),
   background: z.union([
-    z.string().regex(hexRegex),
+    z.string().optional(),
     z.url().refine((url) => /\.(jpg|jpeg|png|webp|avif)$/i.test(url), {
         message: "must be .jpg .jpeg .png .webp .avif"
     }),
-    z.string().regex(gradientRegex),
+    z.string().regex(gradientRegex).optional()
   ]),
 });

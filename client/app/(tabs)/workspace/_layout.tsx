@@ -8,7 +8,7 @@ export default function BoardLayout() {
             <Stack.Screen 
             name="index"
             options={{
-                title: "Board List"
+                title: "Workspace List"
             }}
             />
         </Stack>
