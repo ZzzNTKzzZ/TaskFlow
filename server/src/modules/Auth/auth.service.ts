@@ -49,6 +49,13 @@ export class AuthService {
   static async login({email, password} :{email: string, password: string}) {
     const user = await prisma.user.findUnique({
       where: { email },
+      include: {
+        _count: {
+          select: {
+            workspaces: true
+          }
+        }
+      }
     });
 
     if (!user) throw new AppError("Invalid email or password", 401);
@@ -73,6 +80,9 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
+        workspaceStats: {
+          workspaceCount: user._count.workspaces
+        }
       },
       accessToken,
       refreshToken,

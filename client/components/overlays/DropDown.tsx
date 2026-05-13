@@ -16,7 +16,7 @@ import SymbolIcon from "../icons/SymbolIcon";
 import { Colors } from "@/theme/colors";
 
 interface Option {
-  id: string;
+  id: string | number;
   name: string
   icon?: ReactNode;
 }
