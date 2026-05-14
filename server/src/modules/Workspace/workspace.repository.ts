@@ -225,7 +225,17 @@ export default class WorkspaceRepository {
       include: {
         _count: {
           select: {
-            members: true
+            members: true,
+            lists: true
+          }
+        },
+        lists: {
+          include: {
+            _count: {
+              select: {
+                cards: true
+              }
+            }
           }
         }
       },

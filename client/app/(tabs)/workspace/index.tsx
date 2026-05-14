@@ -83,7 +83,7 @@ export default function Workspace() {
 
 
   return (
-    <Screen padding={Spacing[6]}>
+    <Screen>
       <View style={{ paddingVertical: Spacing[6] }}>
         <View
           style={{

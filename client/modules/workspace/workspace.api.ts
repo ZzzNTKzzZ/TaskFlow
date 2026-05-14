@@ -3,7 +3,7 @@ import { ResponseApi } from "@/types/api";
 import { WorkspaceResponse } from "./workspace";
 import { BoardResponse } from "../board/board";
 
-export const getWorkspaceApi = async (limit?: number): Promise<ResponseApi<WorkspaceResponse[]>> => {
+export const getWorkspacesApi = async (limit?: number): Promise<ResponseApi<WorkspaceResponse[]>> => {
   try {
     const response = await api.get<ResponseApi<WorkspaceResponse[]>>(`/workspaces`, {
       params: {limit}

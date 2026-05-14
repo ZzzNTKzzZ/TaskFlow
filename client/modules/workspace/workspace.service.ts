@@ -1,13 +1,13 @@
 import { SymbolColor, SymbolName } from "@/components/icons/SymbolIcon";
 import { WorkspaceCard } from "./workspace";
-import { getWorkspaceApi, getWorkspaceBoardApi } from "./workspace.api";
+import { getWorkspacesApi, getWorkspaceBoardApi } from "./workspace.api";
 import { RoleWorkspace } from "@/types/type";
 import { BoardCardUI } from "../board/board";
 import { BackgroundColor } from "@/components/illustrations/BackgroundCard";
 
 export default class WorkspaceService {
   static async getWorkspaces(limit?: number): Promise<WorkspaceCard[]> {
-    const response = await getWorkspaceApi(limit);
+    const response = await getWorkspacesApi(limit);
 
     if (!response || !response.success || !response.data) {
       return [];
@@ -26,6 +26,7 @@ export default class WorkspaceService {
     }));
   }
 
+
   static async getWorkspaceBoard(workspaceId: string): Promise<BoardCardUI[]> {
     const response = await getWorkspaceBoardApi(workspaceId)
 
@@ -39,6 +40,8 @@ export default class WorkspaceService {
       id: pa.id,
       name: pa.name,
       memberCount: pa.memberCount,
+      cardCount: pa.cardCount,
+      listCount: pa.listCount,
       background: pa.background as BackgroundColor || "Blue" 
     }))
   }
