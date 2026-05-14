@@ -1,4 +1,11 @@
-import { Pressable, StyleProp, Text, View, ViewStyle } from "react-native";
+import {
+  Pressable,
+  StyleProp,
+  Text,
+  TextStyle,
+  View,
+  ViewStyle,
+} from "react-native";
 import BackgroundCard, {
   BackgroundColor,
 } from "../illustrations/BackgroundCard";
@@ -7,9 +14,13 @@ import { Typography } from "@/theme/typography";
 import { Theme } from "@/theme/theme";
 import { Colors } from "@/theme/colors";
 import { BoardCardUI } from "@/modules/board/board";
+import { router } from "expo-router";
 
 interface BoardCardProps extends BoardCardUI {
   styleCard?: StyleProp<ViewStyle>;
+  styleText?: StyleProp<TextStyle>;
+  showMembers?: boolean;
+  onPress?: () => void;
 }
 
 export default function BoardCard({
@@ -17,10 +28,16 @@ export default function BoardCard({
   background,
   name,
   memberCount,
+  cardCount,
+  listCount,
   styleCard,
+  styleText,
+  onPress,
+  showMembers = true,
 }: BoardCardProps) {
   return (
     <Pressable
+    onPress={onPress}
       style={[
         {
           borderRadius: 12,
@@ -51,7 +68,7 @@ export default function BoardCard({
         >
           <BackgroundCard background={background} />
         </View>
-        <View style={{ padding: Spacing[4] }}>
+        <View style={{ padding: Spacing[4], gap: Spacing[2] }}>
           <Text
             numberOfLines={2}
             style={[
@@ -59,16 +76,23 @@ export default function BoardCard({
               {
                 fontSize: 10,
                 textAlign: "left",
-                height: 24,
-                lineHeight: 1.2 * 10,
               },
+              styleText,
             ]}
           >
             {name}
           </Text>
-          <Text style={[Typography.caption, { fontSize: 10 }]}>
-            {memberCount} members
-          </Text>
+          {showMembers && listCount === 0 ? (
+            <Text style={[Typography.caption, { fontSize: 10 }, styleText]}>
+              {memberCount} members
+            </Text>
+          ) : (
+            <View>
+              <Text style={[Typography.caption, { fontSize: 12 }, styleText]}>
+                {listCount} list - {cardCount} cards
+              </Text>
+            </View>
+          )}
         </View>
       </View>
     </Pressable>

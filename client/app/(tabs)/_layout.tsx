@@ -5,7 +5,7 @@ import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
-  const inset = useSafeAreaInsets()
+  const inset = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -19,11 +19,11 @@ export default function TabLayout() {
         },
         tabBarLabelStyle: {
           ...Typography.title,
-          fontSize: 14, 
+          fontSize: 14,
           letterSpacing: 0.2,
         },
-        tabBarActiveTintColor: Theme.primary, 
-        tabBarInactiveTintColor: Theme.textSecondary
+        tabBarActiveTintColor: Theme.primary,
+        tabBarInactiveTintColor: Theme.textSecondary,
       }}
     >
       <Tabs.Screen
@@ -33,25 +33,31 @@ export default function TabLayout() {
           title: "Home",
         }}
       />
-      <Tabs.Screen 
-        name="workspace"
+      <Tabs.Screen
+        name="(workspace)"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon="board" active={focused} />,
-          title: "Workspace"
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="board" active={focused} />
+          ),
+          title: "Workspace",
         }}
       />
-      <Tabs.Screen 
-      name="activity"
+      <Tabs.Screen
+        name="activity"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon="activity" active={focused} />,
-          title: "Activity"
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="activity" active={focused} />
+          ),
+          title: "Activity",
         }}
       />
-      <Tabs.Screen 
-      name="setting"
+      <Tabs.Screen
+        name="setting"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon="setting" active={focused} />,
-          title: "Setting"
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="setting" active={focused} />
+          ),
+          title: "Setting",
         }}
       />
     </Tabs>

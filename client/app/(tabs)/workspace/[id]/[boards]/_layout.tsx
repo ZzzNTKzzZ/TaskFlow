@@ -1,13 +1,13 @@
 import { Stack } from "expo-router";
 
-export default function ActivityLayout() {
+export default function BoardDetailLayout() {
   return (
     <Stack
       screenOptions={{
         headerShown: false,
       }}
     >
-      <Stack.Screen name="index" options={{ title: "Activity" }} />
+      <Stack.Screen name="index" options={{ title: "Board" }} />
     </Stack>
   );
 }

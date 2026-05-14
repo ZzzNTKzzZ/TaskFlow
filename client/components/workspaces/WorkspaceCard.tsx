@@ -22,8 +22,8 @@ export default function WorkspaceCardUI({
 }: WorkspaceCardProps) {
   const [checkedCard, setCheckedCard] = useState(checked);
 
-  const handleClick =((id: string) => {
-    router.push(`/(tabs)/workspace/${id}`, )
+  const handleClick =((id: string, name: string, icon:SymbolName) => {
+    router.push(`/(tabs)/workspace/${id}?name=${name}&icon=${icon}&color=${color}`);
   })
   return (
     <View
@@ -46,7 +46,7 @@ export default function WorkspaceCardUI({
         elevation: 8,
       }}
     >
-      <TouchableOpacity style={{ gap: Spacing[2], alignItems: "flex-start"}} onPress={() => handleClick(id)}>
+      <TouchableOpacity style={{ gap: Spacing[2], alignItems: "flex-start"}} onPress={() => handleClick(id, name, icon)}>
         <SymbolIcon name={icon} color={color} />
         <View
           style={{ flexDirection: "column", gap: Spacing[2], maxWidth: 100 }}

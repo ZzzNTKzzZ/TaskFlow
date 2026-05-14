@@ -30,11 +30,10 @@ export default function Icons({
       >
         <Path
           d="M7.99998 3.33333V12.6667M3.33331 7.99999H12.6666"
-          stroke="black"
+          stroke={color}
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
-          fill={color}
         />
       </Svg>
     ),

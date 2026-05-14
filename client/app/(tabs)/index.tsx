@@ -26,6 +26,7 @@ import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import { RoleWorkspace } from "@/types/type";
+import { router } from "expo-router";
 import React, { ReactNode, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -219,11 +220,9 @@ export default function HomeScreen() {
           <View style={styles.boardList}>
             {boards.map((b) => (
               <BoardCard
+                onPress={() => router.push(`/(tabs)/workspace/${selected.id}/${b.id}`)}
                 key={b.id}
-                id={b.id}
-                name={b.name}
-                background={b.background as BackgroundColor}
-                memberCount={b.memberCount}
+                {...b}
                 styleCard={{ width: "32%" }}
               />
             ))}

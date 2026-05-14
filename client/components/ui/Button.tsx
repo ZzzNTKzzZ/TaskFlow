@@ -1,3 +1,4 @@
+import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import React, { ReactNode, useRef } from "react";
 import {
@@ -96,8 +97,8 @@ export default function Button({
 
 const styles = StyleSheet.create({
   base: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: Spacing[3],
+    paddingHorizontal: Spacing[4],
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -106,7 +107,7 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: Spacing[2],
   },
 
   primary: {

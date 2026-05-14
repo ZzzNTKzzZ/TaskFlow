@@ -8,6 +8,8 @@ interface BoardResponse {
     visibility: Visibility,
     workspaceId: string,
     memberCount: number,
+    cardCount: number,
+    listCount: number
     position: number,
     createdAt: string,
     updateedAt: string,
@@ -16,7 +18,9 @@ interface BoardResponse {
 export interface BoardCardUI {
     id: string,
     name: string,
-    memberCount: number,
     background: BackgroundColor
+    memberCount: number,
+    listCount: number,
+    cardCount: number
 }
 
