@@ -4,14 +4,43 @@ import { prisma } from "../../lib/prisma.js";
 export default class BoardRepository {
   static async findBoard({ boardId }: { boardId: string }) {
     return await prisma.board.findUnique({
-      where: { id: boardId },
+      where: {
+        id: boardId,
+      },
       include: {
         _count: {
           select: {
             members: true
           }
-        }
-      }
+        },
+        lists: {
+          orderBy: {
+            position: "asc",
+          },
+          include: {
+            _count: {
+              select: {
+                cards: true
+              }
+            },
+            cards: {
+              orderBy: {
+                position: "asc",
+              },
+              include: {
+                checklists: {
+                  orderBy: {
+                    createdAt: "asc",
+                  },
+                  include: {
+                    items: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -32,9 +61,9 @@ export default class BoardRepository {
       include: {
         _count: {
           select: {
-            members: true
-          }
-        }
+            members: true,
+          },
+        },
       },
       data,
     });
@@ -163,27 +192,27 @@ export default class BoardRepository {
 
   // ========================== LIST ==========================
 
-static async getLists({ boardId }: { boardId: string }) {
-  return await prisma.list.findMany({
-    where: { boardId },
-    include: {
-      _count: {
-        select: { cards: true },
+  static async getLists({ boardId }: { boardId: string }) {
+    return await prisma.list.findMany({
+      where: { boardId },
+      include: {
+        _count: {
+          select: { cards: true },
+        },
       },
-    },
-    orderBy:{ 
-      position: "asc"
-    }
-  });
-}
+      orderBy: {
+        position: "asc",
+      },
+    });
+  }
   static async createList({
     boardId,
     name,
-    position
+    position,
   }: {
     boardId: string;
     name: string;
-    position: number
+    position: number;
   }) {
     return await prisma.list.create({
       data: {

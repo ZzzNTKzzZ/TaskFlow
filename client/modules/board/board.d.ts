@@ -23,4 +23,3 @@ export interface BoardCardUI {
     listCount: number,
     cardCount: number
 }
-

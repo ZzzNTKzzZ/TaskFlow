@@ -24,12 +24,12 @@ const onRequest = async (
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  console.info(`[request] Data: ${JSON.stringify(config.data)}`);
+  // console.info(`[request] Data: ${JSON.stringify(config.data)}`);
   return config;
 };
 
 const onResponse = (response: AxiosResponse): AxiosResponse => {
-  console.info(`[response] [${JSON.stringify(response.data)}]`);
+  // console.info(`[response] [${JSON.stringify(response.data)}]`);
   return response;
 };
 

@@ -25,6 +25,7 @@ export default class ListController {
   // GET /lists/:listId/cards
   static async getCards(req: Request, res: Response) {
     const listId = req.params.listId as string;
+    console.log(listId)
     const cards = await ListService.getCards({ listId });
     res.status(200).json(responseHandler.success(cards));
   }

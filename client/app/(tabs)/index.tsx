@@ -14,7 +14,7 @@ import SectionCard from "@/components/layout/SectionCard";
 import SectionHeader from "@/components/layout/SectionHeader";
 import ActionCard from "@/components/navigation/ActionCard";
 import DropDown from "@/components/overlays/DropDown";
-import TodoCard, { Priority } from "@/components/todo/TodoCard";
+import TodoCard from "@/components/todo/TodoCard";
 import Avatar from "@/components/ui/Avatar";
 import CardDropDown from "@/components/workspaces/CardDropDown";
 import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
@@ -25,7 +25,7 @@ import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { RoleWorkspace } from "@/types/type";
+import { Priority, RoleWorkspace } from "@/types/type";
 import { router } from "expo-router";
 import React, { ReactNode, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -143,7 +143,7 @@ export default function HomeScreen() {
             activeOpacity={0.7}
             style={styles.searchButton}
           >
-            <Icons name="Search" size={18}/>
+            <Icons name="Search" size={18} />
           </TouchableOpacity>
         </View>
 
@@ -220,7 +220,13 @@ export default function HomeScreen() {
           <View style={styles.boardList}>
             {boards.map((b) => (
               <BoardCard
-                onPress={() => router.push(`/(tabs)/workspace/${selected.id}/${b.id}`)}
+                showMembers={true}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/workspace/[id]/[boardId]",
+                    params: { id: selected.id, boardId: b.id },
+                  })
+                }
                 key={b.id}
                 {...b}
                 styleCard={{ width: "32%" }}

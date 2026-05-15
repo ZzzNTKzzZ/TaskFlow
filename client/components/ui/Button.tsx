@@ -7,6 +7,7 @@ import {
   StyleProp,
   StyleSheet,
   Text,
+  TextStyle,
   View,
   ViewStyle,
 } from "react-native";
@@ -21,7 +22,7 @@ interface ButtonProps {
   type?: "ghost" | "primary" | "secondary";
 
   style?: StyleProp<ViewStyle>;
-
+  styleText?: StyleProp<TextStyle>;
   leftIcon?: ReactNode;
 
   rightIcon?: ReactNode;
@@ -33,6 +34,7 @@ export default function Button({
   disable = false,
   type = "primary",
   style,
+  styleText,
   leftIcon,
   rightIcon,
 }: ButtonProps) {
@@ -83,6 +85,7 @@ export default function Button({
               type === "ghost" && {
                 color: Theme.textPrimary,
               },
+              styleText
             ]}
           >
             {children}

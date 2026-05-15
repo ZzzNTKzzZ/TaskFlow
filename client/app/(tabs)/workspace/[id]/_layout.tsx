@@ -1,32 +1,53 @@
-import { Theme } from "@/theme/theme";
-import { Typography } from "@/theme/typography";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { withLayoutContext } from "expo-router";
+import TopBar from "@/components/ui/TopBar";
+import {
+    router,
+  Stack,
+  useGlobalSearchParams,
+  useLocalSearchParams,
+} from "expo-router";
+import { useEffect } from "react";
 
-
-export default function WorkspaceDetailLayout() {
-  const TopTabs = withLayoutContext(
-    createMaterialTopTabNavigator().Navigator
-  );
-
+export default function WorkspaceIdLayout() {
   return (
-    <TopTabs
+    <Stack
       screenOptions={{
-
-        tabBarActiveTintColor: Theme.primary,
-        tabBarInactiveTintColor: Theme.textSecondary,
-        tabBarIndicatorStyle: {
-          backgroundColor: Theme.primary,
-          height: 3,
-        },
-        tabBarLabelStyle: { ...Typography.heading, fontSize: 14 },
-        tabBarStyle: { backgroundColor: Theme.background },
+        headerShown: false,
       }}
     >
-      <TopTabs.Screen name="index" options={{ title: "Boards" }} />
-      <TopTabs.Screen name="members" options={{ title: "Members" }} />
-      <TopTabs.Screen name="activity" options={{ title: "Activity" }} />
-      <TopTabs.Screen name="setting" options={{ title: "Setting" }} />
-    </TopTabs>
+      <Stack.Screen
+        name="(workspace-detail)"
+        options={({ route }) => {
+          const routeParams = route.params as any;
+          return {
+            headerShown: true,
+            header: () => (
+              <TopBar
+              name={routeParams.name}
+              icon={routeParams.icon}
+                color={routeParams.color}
+              />
+            ),
+          };
+        }}
+      />
+      <Stack.Screen
+        name="[boardId]"
+        options={({ route }) => {
+          const routeParams = route.params as any;
+          return {
+            headerShown: true,
+            header: () => (
+              <TopBar
+                onBack={() => router.navigate(`/(tabs)/workspace/${routeParams.id}/(workspace-detail)`)}
+                name={routeParams.name}
+                icon={routeParams.icon}
+                color={routeParams.color}
+                parentName={routeParams.parentName}
+              />
+            ),
+          };
+        }}
+      />
+    </Stack>
   );
 }

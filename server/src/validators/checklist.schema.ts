@@ -1,11 +1,22 @@
-import { z } from "zod"
+import { z } from "zod";
 
-export const checkListSchema = z.object({
+export const createChecklistSchema = z.object({
   title: z.string().min(2),
-  cardId: z.uuid()
-})
+});
 
-export const checkListItemSchema = z.object({
-    title: z.string().optional(),
-    checkListId: z.uuid()
-})
+export const updateChecklistSchema = z.object({
+  title: z.string().min(2).optional(),
+});
+
+export const createChecklistItemSchema = z.object({
+  title: z.string().min(2),
+});
+
+export const updateChecklistItemSchema = z.object({
+  title: z.string().min(2).optional(),
+  isCompleted: z.boolean().optional(),
+});
+
+export const completeChecklistItemSchema = z.object({
+  isCompleted: z.boolean(),
+});

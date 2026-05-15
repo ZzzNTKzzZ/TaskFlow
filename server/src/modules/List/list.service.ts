@@ -30,6 +30,7 @@ export default class ListService {
 
   static async getCards({ listId }: { listId: string }) {
     const cards = await ListRepository.findCards({ listId });
+    if(!cards) throw new AppError("Card not found", 404)
     return cards;
   }
 

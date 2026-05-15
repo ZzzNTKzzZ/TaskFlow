@@ -16,10 +16,18 @@ listRoutes.patch(
   asyncHandler(ListController.editList),
 );
 // DELETE /lists/:listId
-listRoutes.delete("/:listId", permissionMiddleware("list:delete"),asyncHandler(ListController.deleteList));
+listRoutes.delete(
+  "/:listId",
+  permissionMiddleware("list:delete"),
+  asyncHandler(ListController.deleteList),
+);
 // GET  /lists/:listId/cards
-listRoutes.get("/:listId/cards",asyncHandler(ListController.getCards));
+listRoutes.get("/:listId/cards", asyncHandler(ListController.getCards));
 // POST /lists/:listId/cards
-listRoutes.post("/:listId/cards" ,permissionMiddleware("card:create"),asyncHandler(ListController.createCard));
+listRoutes.post(
+  "/:listId/cards",
+  permissionMiddleware("card:create"),
+  asyncHandler(ListController.createCard),
+);
 
 export default listRoutes;

@@ -5,15 +5,23 @@ import Icons from "../icons/Icons";
 import { Theme } from "@/theme/theme";
 import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
-import { router } from "expo-router";
+import {
+  router,
+} from "expo-router";
 
-interface TopBarProps {
-  icon?: SymbolName;
-  color?: SymbolColor;
-  title: string;
-}
-
-export default function TopBar({ icon, color, title }: TopBarProps) {
+export default function TopBar({
+  name,
+  icon,
+  color,
+  parentName,
+  onBack = () => router.push("../"),
+}: {
+  name: string;
+  icon: SymbolName;
+  color: SymbolColor;
+  parentName?: string;
+  onBack?: () => void
+}) {
   return (
     <View
       style={{
@@ -28,11 +36,17 @@ export default function TopBar({ icon, color, title }: TopBarProps) {
       <View
         style={{ flexDirection: "row", gap: Spacing[2], alignItems: "center" }}
       >
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={onBack}>
           <LeftRightIcon direction="left" size={32} />
         </TouchableOpacity>
-        {icon && <SymbolIcon name={icon} color={color} />}
-        <Text style={[Typography.heading, { fontSize: 16 }]}>{title}</Text>
+        {icon && (
+          <SymbolIcon name={icon as SymbolName} color={color as SymbolColor} />
+        )}
+        <View>
+
+        <Text style={[Typography.heading, { fontSize: 16 }]}>{name}</Text>
+        {parentName && <Text style={[Typography.caption ,{fontSize: 12}]}>{parentName}</Text>}
+        </View>
       </View>
       <View>
         <Icons name="Search" />

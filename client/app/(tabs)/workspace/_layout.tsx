@@ -12,20 +12,7 @@ export default function WorkspaceLayout() {
       <Stack.Screen
         name="[id]"
         options={{
-          headerShown: true,
           title: "Workspace Detail",
-          header: (props) => {
-            const params = props.route.params as any;
-
-
-            return (
-              <TopBar
-                title={params?.name || "Workspace"}
-                icon={params?.icon}
-                color={params?.color}
-              />
-            );
-          },
         }}
       />
     </Stack>

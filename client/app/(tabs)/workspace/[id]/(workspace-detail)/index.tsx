@@ -7,11 +7,11 @@ import WorkspaceService from "@/modules/workspace/workspace.service";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 export default function WorkspaceDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, name } = useLocalSearchParams<{ id: string, name: string }>();
 
   const [boards, setBoards] = useState<BoardCardUI[]>([]);
 
@@ -24,6 +24,7 @@ export default function WorkspaceDetail() {
     };
     getWorkspace();
   }, [id]);
+
   return (
     <Screen>
       <View style={{ flexDirection: "column" }}>
@@ -66,6 +67,15 @@ export default function WorkspaceDetail() {
             <BoardCard
               key={b.id}
               {...b}
+              onPress={() => router.push({
+                pathname: "/(tabs)/workspace/[id]/[boardId]",
+                params: {
+                  id: id,
+                  boardId: b.id,
+                  name: b.name,
+                  parentName: name
+                }
+              })}
               styleCard={{ width: "48%" }}
               styleText={{ fontSize: 14 }}
               showMembers={false}

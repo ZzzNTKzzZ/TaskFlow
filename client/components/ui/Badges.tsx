@@ -1,23 +1,24 @@
 import { ReactNode } from "react";
 import { StyleSheet, View, Text, ViewStyle, TextStyle } from "react-native";
-import { Priority } from "../todo/TodoCard";
 import { Colors } from "@/theme/colors";
 import { Theme } from "@/theme/theme";
 import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
 import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
+import { Priority } from "@/types/type";
 
 interface BadgesProps {
   name: string | Priority;
   color?: string;
   icon?: ReactNode;
+  size?: number
 }
 
 function isPriority(value: any): value is Priority {
   return ["low", "medium", "high", "urgent"].includes(value);
 }
 
-export default function Badges({ name, color, icon }: BadgesProps) {
+export default function Badges({ name, color, icon, size =12}: BadgesProps) {
   const priorityConfig = {
     low: {
       backgroundColor: Colors.pLowBg,
@@ -51,7 +52,7 @@ export default function Badges({ name, color, icon }: BadgesProps) {
   return (
     <View style={[styles.badgeContainer, containerStyle]}>
       {icon && <View style={styles.iconWrapper}>{icon}</View>}
-      <Text style={[Typography.title,textStyle, { fontSize: 12, letterSpacing: 1}]}>
+      <Text style={[Typography.title,textStyle, { fontSize: size, letterSpacing: 1}]}>
         {capitalizeFirstLetter(name)}
       </Text>
     </View>
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: Spacing[3],
     paddingVertical: Spacing[1],
-    borderRadius: 14,
+    borderRadius: 8,
     alignSelf: "flex-start",
   },
   iconWrapper: {

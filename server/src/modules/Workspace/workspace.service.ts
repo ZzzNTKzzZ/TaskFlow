@@ -281,7 +281,6 @@ export class WorkspaceService {
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
     const parsedLimit = limit ? Number(limit) : undefined
     const boards = await WorkspaceRepository.findBoards({ workspaceId, limit: parsedLimit });
-    console.log(boards)
     return boards.map(({ _count, lists, ...board }) => ({
       ...board,
       memberCount: _count.members,

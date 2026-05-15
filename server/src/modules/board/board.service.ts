@@ -18,9 +18,13 @@ export default class BoardService {
     const board = await BoardRepository.findBoard({ boardId });
     if (!board) throw new AppError("Board not found", 404);
     const { _count, ...rest } = board;
-
     return {
       ...rest,
+      lists: rest?.lists.map((list) => ({
+        ...list,
+        cardCount: list._count.cards,
+        _count: undefined,
+      })),
       memberCount: _count.members,
     };
   }

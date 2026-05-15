@@ -34,7 +34,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="(workspace)"
+        name="workspace"
         options={{
           tabBarIcon: ({ focused }) => (
             <TabIcon icon="board" active={focused} />

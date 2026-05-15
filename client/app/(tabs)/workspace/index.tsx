@@ -11,13 +11,14 @@ import WorkspaceService from "@/modules/workspace/workspace.service";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function Workspace() {
   const ITEM_ONE_PAGE = 8; // Number workspaces display in 1 page
 
-  const [data, setData] = useState<WorkspaceCard[]>([])
+  const [data, setData] = useState<WorkspaceCard[]>([]);
   const [displayType, setDisplayType] = useState<"Grid" | "List">("Grid");
   const [search, setSearch] = useState<string>("");
   const [sort, setSort] = useState<{ name: string; id: number }>({
@@ -27,7 +28,7 @@ export default function Workspace() {
   const [loading, setLoading] = useState(true);
   const [workspaces, setWorkspaces] = useState<WorkspaceCard[]>([]);
   const [totalPage, setToltalPage] = useState<number>(1);
-  const [page, setPage] = useState(2);
+  const [page, setPage] = useState(3);
   const user = useCurrentUser();
 
   const sorts = [
@@ -54,7 +55,7 @@ export default function Workspace() {
       try {
         setLoading(true);
         const list = await WorkspaceService.getWorkspaces(24);
-        setData(list)
+        setData(list);
         setWorkspaces(
           list.slice(ITEM_ONE_PAGE * (page - 1), ITEM_ONE_PAGE * page),
         );
@@ -75,12 +76,8 @@ export default function Workspace() {
   }, []);
 
   useEffect(() => {
-       setWorkspaces(
-          data.slice(ITEM_ONE_PAGE * (page - 1), ITEM_ONE_PAGE * page),
-        );
-  }, [page])
-
-
+    setWorkspaces(data.slice(ITEM_ONE_PAGE * (page - 1), ITEM_ONE_PAGE * page));
+  }, [page]);
 
   return (
     <Screen>
@@ -143,7 +140,7 @@ export default function Workspace() {
             style={{
               flexDirection: "row",
               alignItems: "center",
-              justifyContent: "flex-end", // Đẩy tất cả sang phải
+              justifyContent: "flex-end",
               gap: Spacing[2],
               position: "relative",
               zIndex: 100,
@@ -210,16 +207,27 @@ export default function Workspace() {
         >
           {workspaces.map((ws) => (
             <WorkspaceCardUI
+              onPress={() => {
+                router.push({
+                  pathname: "/(tabs)/workspace/[id]/(workspace-detail)",
+                  params: {
+                    id: ws.id,
+                    name: ws.name,
+                    icon: ws.icon,
+                    color: ws.color,
+                  },
+                });
+              }}
               key={ws.id}
-              id={ws.id}
-              name={ws.name}
-              memberCount={ws.memberCount}
-              icon={ws.icon}
-              color={ws.color}
+              {...ws}
             />
           ))}
         </View>
-        <Pagination totalPage={totalPage} page={page} setPage={(newPage) => setPage(newPage)} />
+        <Pagination
+          totalPage={totalPage}
+          page={page}
+          setPage={(newPage) => setPage(newPage)}
+        />
       </View>
     </Screen>
   );

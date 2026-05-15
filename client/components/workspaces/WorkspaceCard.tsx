@@ -11,6 +11,7 @@ import { router } from "expo-router";
 
 interface WorkspaceCardProps extends Omit<WorkspaceCard, "role" | "value"> {
   checked?: boolean;
+  onPress?: () => void
 }
 export default function WorkspaceCardUI({
   id,
@@ -19,12 +20,12 @@ export default function WorkspaceCardUI({
   color = "Primary",
   icon,
   checked = false,
+  onPress,
+  
 }: WorkspaceCardProps) {
   const [checkedCard, setCheckedCard] = useState(checked);
 
-  const handleClick =((id: string, name: string, icon:SymbolName) => {
-    router.push(`/(tabs)/workspace/${id}?name=${name}&icon=${icon}&color=${color}`);
-  })
+ 
   return (
     <View
       style={{
@@ -46,7 +47,7 @@ export default function WorkspaceCardUI({
         elevation: 8,
       }}
     >
-      <TouchableOpacity style={{ gap: Spacing[2], alignItems: "flex-start"}} onPress={() => handleClick(id, name, icon)}>
+      <TouchableOpacity style={{ gap: Spacing[2], alignItems: "flex-start"}} onPress={onPress}>
         <SymbolIcon name={icon} color={color} />
         <View
           style={{ flexDirection: "column", gap: Spacing[2], maxWidth: 100 }}

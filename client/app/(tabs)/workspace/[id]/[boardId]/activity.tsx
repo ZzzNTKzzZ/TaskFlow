@@ -1,12 +1,12 @@
 import { Screen } from "@/components/layout/Screen";
-import { Text, View } from "react-native";
+import { Text } from "react-native";
 
-export default function Board() {
+export default function Activity() {
     return (
         <Screen>
             <Text>
-                Board
+                Activity
             </Text>
         </Screen>
     )
-}
+}   

@@ -155,9 +155,10 @@ model Comment {
 }
 
 model Checklist {
-  id     String @id @default(uuid())
-  title  String
-  cardId String
+  id        String   @id @default(uuid())
+  title     String
+  cardId    String
+  createdAt DateTime @default(now())
 
   card  Card            @relation(fields: [cardId], references: [id], onDelete: Cascade)
   items ChecklistItem[]
