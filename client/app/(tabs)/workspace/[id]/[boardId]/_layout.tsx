@@ -12,7 +12,7 @@ export default function WorkspaceDetailLayout() {
   return (
     <TopTabs
       screenOptions={{
-
+        swipeEnabled: false,
         tabBarActiveTintColor: Theme.primary,
         tabBarInactiveTintColor: Theme.textSecondary,
         tabBarIndicatorStyle: {

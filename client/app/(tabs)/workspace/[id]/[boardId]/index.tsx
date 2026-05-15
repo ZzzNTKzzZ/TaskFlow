@@ -6,18 +6,18 @@ import { Spacing } from "@/theme/spacing";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
+import DraggableFlatList from "react-native-draggable-flatlist";
 
 export default function Board() {
   const { boardId } = useLocalSearchParams();
   const [list, setList] = useState<ListCardUI[]>([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const getList = async () => {
       try {
-        setLoading(true);
         const response = await BoardService.getBoard(boardId as string);
         setList(response.lists);
-      } catch (error) {
       } finally {
         setLoading(false);
       }
@@ -29,14 +29,31 @@ export default function Board() {
   if (loading) return <Text>Loading...</Text>;
 
   return (
-    <Screen>
-      <View style={{ flexDirection: "row", gap: Spacing[3] }}>
-        {list.map((l) => (
-          <View>
-            <ListCard key={l.id} {...l} />
+    <Screen isScroll={false} padding={Spacing[4]}>
+      <DraggableFlatList
+        data={list}
+        horizontal
+        nestedScrollEnabled
+        activationDistance={20}
+        keyExtractor={(item) => item.id}
+        onDragEnd={({ data }) => {
+          setList(data);
+
+          // call api save order
+          // BoardService.updateListOrder(data)
+        }}
+        style={{ paddingVertical: Spacing[4] }}
+        renderItem={({ item, drag, isActive }) => (
+          <View
+            style={{
+              opacity: isActive ? 0.7 : 1,
+              marginRight: Spacing[3],
+            }}
+          >
+            <ListCard {...item} onLongPress={drag} />
           </View>
-        ))}
-      </View>
+        )}
+      />
     </Screen>
   );
 }

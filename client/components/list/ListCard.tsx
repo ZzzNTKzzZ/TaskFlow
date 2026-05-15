@@ -1,5 +1,11 @@
 import { ListCardUI } from "@/modules/list/list";
-import { StyleProp, Text, View, ViewStyle } from "react-native";
+import {
+  StyleProp,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 import Badges from "../ui/Badges";
 import { Typography } from "@/theme/typography";
 import { Spacing } from "@/theme/spacing";
@@ -8,9 +14,11 @@ import { Colors } from "@/theme/colors";
 import CardUI from "../card/Card";
 import Button from "../ui/Button";
 import Icons from "../icons/Icons";
+import { FlatList } from "react-native";
 
 interface ListCardProps extends ListCardUI {
   styleList?: StyleProp<ViewStyle>;
+  onLongPress?: () => void;
 }
 
 export default function ListCard({
@@ -18,6 +26,7 @@ export default function ListCard({
   cardCount,
   styleList,
   cards,
+  onLongPress,
 }: ListCardProps) {
   return (
     <View
@@ -31,7 +40,10 @@ export default function ListCard({
         styleList,
       ]}
     >
-      <View style={{ flexDirection: "row", gap: Spacing[2] }}>
+      <TouchableOpacity
+        onLongPress={onLongPress}
+        style={{ flexDirection: "row", gap: Spacing[2] }}
+      >
         <Text style={[Typography.title, { fontSize: 16 }]}>{name}</Text>
         <View
           style={{
@@ -45,11 +57,19 @@ export default function ListCard({
             {cardCount}
           </Text>
         </View>
-      </View>
-      <View style={{ gap: Spacing[3] }}>
-        {cards.map((c) => (
-          <CardUI key={c.id} {...c} />
-        ))}
+      </TouchableOpacity>
+      <View style={{maxHeight: 520}}>
+        <FlatList
+          data={cards}
+          keyExtractor={(item) => item.id}
+          nestedScrollEnabled
+          scrollEnabled
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            gap: Spacing[3],
+          }}
+          renderItem={({ item }) => <CardUI {...item} />}
+        />
       </View>
       <View>
         <Button
@@ -59,10 +79,11 @@ export default function ListCard({
           style={{
             paddingVertical: Spacing[2],
             paddingHorizontal: Spacing[3],
-            borderWidth: 0
-        }}
+            borderRadius: 6,
+            borderWidth: 0,
+          }}
           styleText={{
-            color: Theme.primary
+            color: Theme.primary,
           }}
         >
           Add card

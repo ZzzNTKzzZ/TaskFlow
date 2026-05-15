@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { View, Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as NavigationBar from "expo-navigation-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   useFonts,
   Inter_400Regular,
@@ -47,20 +48,22 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-      <StatusBar style="dark" backgroundColor="#F9FAFB" translucent={true} />
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-        <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: {
-                backgroundColor: "#F9FAFB",
-              },
-            }}
-          />
-        </View>
-      </SafeAreaView>
-    </View>
+    <GestureHandlerRootView>
+      <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+        <StatusBar style="dark" backgroundColor="#F9FAFB" translucent={true} />
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+          <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: {
+                  backgroundColor: "#F9FAFB",
+                },
+              }}
+            />
+          </View>
+        </SafeAreaView>
+      </View>
+    </GestureHandlerRootView>
   );
 }
