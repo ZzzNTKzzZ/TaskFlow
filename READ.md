@@ -330,7 +330,6 @@ Performance optimization
 ## 8. Full Prisma Schema
 
 ```prisma
-// datasource
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -340,7 +339,9 @@ datasource db {
   provider = "postgresql"
 }
 
+//////////////////////////////////////////////////
 // ENUMS
+//////////////////////////////////////////////////
 
 enum TodoStatus {
   todo
@@ -368,7 +369,34 @@ enum WorkspaceRole {
   VIEWER
 }
 
+enum ActivityType {
+  BOARD_CREATED
+  BOARD_UPDATED
+  BOARD_DELETED
+
+  LIST_CREATED
+  LIST_UPDATED
+  LIST_DELETED
+  LIST_MOVED
+
+  CARD_CREATED
+  CARD_UPDATED
+  CARD_DELETED
+  CARD_MOVED
+  CARD_ASSIGNED
+
+  COMMENT_CREATED
+  COMMENT_UPDATED
+  COMMENT_DELETED
+
+  CHECKLIST_CREATED
+  CHECKLIST_UPDATED
+  CHECKLIST_ITEM_COMPLETED
+}
+
+//////////////////////////////////////////////////
 // MODELS
+//////////////////////////////////////////////////
 
 model User {
   id        String   @id @default(uuid())
@@ -384,6 +412,7 @@ model User {
   comments      Comment[]
   notifications Notification[]
   refreshtoken  RefreshToken[]
+  activities    ActivityLog[]
 }
 
 model Workspace {
@@ -418,10 +447,12 @@ model Board {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
-  workspace Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  lists     List[]
-  members   BoardMember[]
-  rules     AutomationRule[]
+  workspace  Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  lists      List[]
+  members    BoardMember[]
+  rules      AutomationRule[]
+  activities ActivityLog[]
+  labels     Label[]
 }
 
 model BoardMember {
@@ -443,8 +474,9 @@ model List {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  board Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  cards Card[]
+  board      Board         @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards      Card[]
+  activities ActivityLog[]
 }
 
 model Card {
@@ -463,6 +495,7 @@ model Card {
   comments   Comment[]
   checklists Checklist[]
   labels     LabelOnCard[]
+  activities ActivityLog[]
 }
 
 model CardAssignee {
@@ -488,9 +521,10 @@ model Comment {
 }
 
 model Checklist {
-  id     String @id @default(uuid())
-  title  String
-  cardId String
+  id        String   @id @default(uuid())
+  title     String
+  cardId    String
+  createdAt DateTime @default(now())
 
   card  Card            @relation(fields: [cardId], references: [id], onDelete: Cascade)
   items ChecklistItem[]
@@ -519,10 +553,12 @@ model Todo {
 }
 
 model Label {
-  id    String @id @default(uuid())
-  name  String
-  color String
+  id      String @id @default(uuid())
+  name    String
+  color   String
+  boardId String
 
+  board Board         @relation(fields: [boardId], references: [id], onDelete: Cascade)
   cards LabelOnCard[]
 }
 
@@ -559,6 +595,28 @@ model AutomationRule {
   board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }
 
+model ActivityLog {
+  id          String       @id @default(uuid())
+  boardId     String
+  userId      String
+  cardId      String?
+  listId      String?
+  action      ActivityType
+  description String
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card  Card? @relation(fields: [cardId], references: [id], onDelete: SetNull)
+  list  List? @relation(fields: [listId], references: [id], onDelete: SetNull)
+
+  @@index([boardId])
+  @@index([userId])
+  @@index([cardId])
+  @@index([listId])
+}
+
 model RefreshToken {
   id        String   @id @default(uuid())
   token     String   @unique
@@ -566,6 +624,8 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 ```
