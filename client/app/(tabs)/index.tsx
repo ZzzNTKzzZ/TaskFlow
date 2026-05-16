@@ -176,7 +176,6 @@ export default function HomeScreen() {
           >
             <DropDown
               icon={((): ReactNode => {
-                // Sửa lại thành:
                 const ws =
                   workspaces.find((w) => w.id === selected.id) ?? workspaces[0];
 
@@ -223,7 +222,7 @@ export default function HomeScreen() {
                 showMembers={true}
                 onPress={() =>
                   router.push({
-                    pathname: "/(tabs)/workspace/[id]/[boardId]",
+                    pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
                     params: { id: selected.id, boardId: b.id },
                   })
                 }

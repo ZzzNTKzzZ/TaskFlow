@@ -11,6 +11,9 @@ export interface CardRespone {
   priority: Priority;
   createdAt: string;
   updatedAt: string;
-  checkListCount: number;
+  stats: {
+    checkListCount: number;
+    checkListCompelete: number
+  }
   checklists: Checklist[];
 }

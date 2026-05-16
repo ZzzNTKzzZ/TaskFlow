@@ -43,7 +43,7 @@ const BoardView = ({
           gap: Spacing[1],
         }}
       >
-        <Icons name="CheckBox" size={16} />
+        <Icons name="CheckList" size={18} />
         <Text style={[Typography.body, { fontSize: 12 }]}>
           {nChecked}/{totalCheckList}
         </Text>

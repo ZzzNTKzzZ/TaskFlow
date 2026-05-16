@@ -30,10 +30,4 @@ export const routes = (app: Express) => {
     boardAccessMiddleware,
     cardRoutes,
   );
-  app.use(
-    "/:boardId/cards/:cardId/checklists/",
-    authMiddleware,
-    boardAccessMiddleware,
-    checklistRoutes,
-  )
 };

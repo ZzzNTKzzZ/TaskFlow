@@ -1,5 +1,4 @@
 import { prisma } from "../../lib/prisma.js";
-import type { Prisma } from "../../../generated/prisma/client.js";
 
 export default class CardRepository {
   static async findCard({ cardId }: { cardId: string }) {
@@ -11,7 +10,13 @@ export default class CardRepository {
             checklists: true,
           },
         },
-        checklists: true,
+        checklists: {
+          include: {
+            items: {
+              orderBy: { isCompleted: "asc"}
+            }
+          }
+        }
       },
     });
   }

@@ -11,7 +11,10 @@ export default class CardService {
     if(!card) throw new AppError("Card not found", 404)
     const { _count, ...rest} = card
     return {
-      checkListCount: _count.checklists,
+      stats: {
+        checkListCount: _count.checklists,
+        checkListCompelete: rest.checklists.reduce((total, item) => total + item.items.filter((v) => v.isCompleted === true).length, 0),
+      },
       ...rest,
     }
   }

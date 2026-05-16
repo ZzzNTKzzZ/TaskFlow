@@ -11,14 +11,15 @@ interface BadgesProps {
   name: string | Priority;
   color?: string;
   icon?: ReactNode;
-  size?: number
+  size?: number,
+  style?: TextStyle
 }
 
 function isPriority(value: any): value is Priority {
   return ["low", "medium", "high", "urgent"].includes(value);
 }
 
-export default function Badges({ name, color, icon, size =12}: BadgesProps) {
+export default function Badges({ name, color, icon, size =12, style}: BadgesProps) {
   const priorityConfig = {
     low: {
       backgroundColor: Colors.pLowBg,
@@ -43,6 +44,8 @@ export default function Badges({ name, color, icon, size =12}: BadgesProps) {
   };
   let textStyle: TextStyle = { color: Theme.textPrimary };
 
+
+
   if (isPriority(name)) {
     const config = priorityConfig[name];
     containerStyle = { backgroundColor: config.backgroundColor };
@@ -50,9 +53,10 @@ export default function Badges({ name, color, icon, size =12}: BadgesProps) {
   }
 
   return (
-    <View style={[styles.badgeContainer, containerStyle]}>
+    
+    <View style={[styles.badgeContainer, containerStyle, !isPriority(name) ? { borderWidth: 1.5, borderColor: Theme.border, borderRadius: 12} : { borderRadius: 8}]}>
       {icon && <View style={styles.iconWrapper}>{icon}</View>}
-      <Text style={[Typography.title,textStyle, { fontSize: size, letterSpacing: 1}]}>
+      <Text style={[Typography.title,textStyle, { fontSize: size, letterSpacing: 1}, style]}>
         {capitalizeFirstLetter(name)}
       </Text>
     </View>
@@ -65,7 +69,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: Spacing[3],
     paddingVertical: Spacing[1],
-    borderRadius: 8,
     alignSelf: "flex-start",
   },
   iconWrapper: {
