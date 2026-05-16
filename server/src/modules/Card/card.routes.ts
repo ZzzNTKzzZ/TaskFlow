@@ -8,6 +8,7 @@ import { permissionMiddleware } from "../../middleware/permissions.middleware.js
 
 const cardRoutes = Router();
 
+cardRoutes.get("/:cardId", asyncHandler(CardController.getCard));
 cardRoutes.patch("/reorder", asyncHandler(CardController.reorderCard));
 cardRoutes.patch(
   "/:cardId",

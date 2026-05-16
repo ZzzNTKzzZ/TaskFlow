@@ -1,6 +1,6 @@
 import TopBar from "@/components/ui/TopBar";
 import {
-    router,
+  router,
   Stack,
   useGlobalSearchParams,
   useLocalSearchParams,
@@ -22,32 +22,15 @@ export default function WorkspaceIdLayout() {
             headerShown: true,
             header: () => (
               <TopBar
-              name={routeParams.name}
-              icon={routeParams.icon}
-                color={routeParams.color}
-              />
-            ),
-          };
-        }}
-      />
-      <Stack.Screen
-        name="[boardId]"
-        options={({ route }) => {
-          const routeParams = route.params as any;
-          return {
-            headerShown: true,
-            header: () => (
-              <TopBar
-                onBack={() => router.navigate(`/(tabs)/workspace/${routeParams.id}/(workspace-detail)`)}
                 name={routeParams.name}
                 icon={routeParams.icon}
                 color={routeParams.color}
-                parentName={routeParams.parentName}
               />
             ),
           };
         }}
       />
+      <Stack.Screen name="[boardId]" />
     </Stack>
   );
 }

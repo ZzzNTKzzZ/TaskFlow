@@ -6,6 +6,16 @@ import CardRepository from "./card.repository.js";
 
 export default class CardService {
 
+  static async getCard(cardId: string) {
+    const card = await CardRepository.findCard({ cardId })
+    if(!card) throw new AppError("Card not found", 404)
+    const { _count, ...rest} = card
+    return {
+      checkListCount: _count.checklists,
+      ...rest,
+    }
+  }
+
   // ================= CREATE =================
   static async createCard(data: {
     name: string;

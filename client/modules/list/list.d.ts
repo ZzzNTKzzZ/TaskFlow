@@ -1,4 +1,4 @@
-import { Card } from "../card/card";
+import { CardRespone } from "../card/card";
 
 export interface ListCardUI {
   id: string;
@@ -7,5 +7,5 @@ export interface ListCardUI {
   updatedAt: string;
   cardCount: number;
   position: number;
-  cards: Card[]
+  cards: CardRespone[]
 }

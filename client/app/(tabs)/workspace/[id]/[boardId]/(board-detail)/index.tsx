@@ -3,9 +3,9 @@ import ListCard from "@/components/list/ListCard";
 import BoardService from "@/modules/board/board.service";
 import { ListCardUI } from "@/modules/list/list";
 import { Spacing } from "@/theme/spacing";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 
 export default function Board() {
@@ -26,6 +26,8 @@ export default function Board() {
     getList();
   }, []);
 
+
+
   if (loading) return <Text>Loading...</Text>;
 
   return (
@@ -44,14 +46,14 @@ export default function Board() {
         }}
         style={{ paddingVertical: Spacing[4] }}
         renderItem={({ item, drag, isActive }) => (
-          <View
+          <TouchableOpacity
+          activeOpacity={0.7}
             style={{
-              opacity: isActive ? 0.7 : 1,
               marginRight: Spacing[3],
             }}
           >
             <ListCard {...item} onLongPress={drag} />
-          </View>
+          </TouchableOpacity>
         )}
       />
     </Screen>

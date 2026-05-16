@@ -1,13 +1,7 @@
 import TopBar from "@/components/ui/TopBar";
-import {
-  router,
-  Stack,
-  useGlobalSearchParams,
-  useLocalSearchParams,
-} from "expo-router";
-import { useEffect } from "react";
+import { Stack } from "expo-router";
 
-export default function WorkspaceIdLayout() {
+export default function CardLayout() {
   return (
     <Stack
       screenOptions={{
@@ -15,22 +9,22 @@ export default function WorkspaceIdLayout() {
       }}
     >
       <Stack.Screen
-        name="(board-detail)"
+        name="index"
         options={({ route }) => {
           const routeParams = route.params as any;
           return {
             headerShown: true,
             header: () => (
               <TopBar
-                name={routeParams.name}
+                name={"Card details"}
                 icon={routeParams.icon}
                 color={routeParams.color}
+                
               />
             ),
           };
         }}
       />
-        <Stack.Screen name="[cardId]"/>
     </Stack>
   );
 }

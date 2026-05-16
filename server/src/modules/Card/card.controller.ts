@@ -1,7 +1,15 @@
 import type { Request, Response } from "express";
 import CardService from "./card.service.js";
+import { responseHandler } from "../../utils/responseHandler.js";
 
 export default class CardController {
+  // GET /cards/:cardId
+  static async getCard(req: Request, res: Response) {
+    const { cardId } = req.params
+    const card = await CardService.getCard(cardId as string)
+    res.status(200).json(responseHandler.success(card))
+  }
+
   // PATCH /cards/:cardId
   static async updateCard(req: Request, res: Response) {
     const { cardId }= req.params;

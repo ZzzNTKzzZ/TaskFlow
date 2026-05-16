@@ -14,11 +14,12 @@ export default function TopBar({
   icon,
   color,
   parentName,
+  
   onBack = () => router.push("../"),
 }: {
   name: string;
-  icon: SymbolName;
-  color: SymbolColor;
+  icon?: SymbolName;
+  color?: SymbolColor;
   parentName?: string;
   onBack?: () => void
 }) {

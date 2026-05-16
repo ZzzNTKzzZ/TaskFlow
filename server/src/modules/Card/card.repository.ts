@@ -2,11 +2,17 @@ import { prisma } from "../../lib/prisma.js";
 import type { Prisma } from "../../../generated/prisma/client.js";
 
 export default class CardRepository {
-
-
   static async findCard({ cardId }: { cardId: string }) {
     return await prisma.card.findUnique({
       where: { id: cardId },
+      include: {
+        _count: {
+          select: {
+            checklists: true,
+          },
+        },
+        checklists: true,
+      },
     });
   }
 
@@ -62,40 +68,46 @@ export default class CardRepository {
   }
 
   static async getAssigneesCard({ cardId }: { cardId: string }) {
-  return await prisma.cardAssignee.findMany({
-    where: {
-      cardId
-    },
-    include: {
-      user: true
-    }
-  })
-}
+    return await prisma.cardAssignee.findMany({
+      where: {
+        cardId,
+      },
+      include: {
+        user: true,
+      },
+    });
+  }
 
-static async createAssigneesCard({
-  cardId,
-  userIds,
-}: {
-  cardId: string;
-  userIds: string[];
-}) {
-  return await prisma.cardAssignee.createMany({
-    data: userIds.map((userId) => ({
-      userId,
-      cardId,
-    })),
-    skipDuplicates: true,
-  });
-}
+  static async createAssigneesCard({
+    cardId,
+    userIds,
+  }: {
+    cardId: string;
+    userIds: string[];
+  }) {
+    return await prisma.cardAssignee.createMany({
+      data: userIds.map((userId) => ({
+        userId,
+        cardId,
+      })),
+      skipDuplicates: true,
+    });
+  }
 
-  static async deleteAssigneesCard({cardId, userId} : {cardId: string, userId: string}) {
+  static async deleteAssigneesCard({
+    cardId,
+    userId,
+  }: {
+    cardId: string;
+    userId: string;
+  }) {
     return await prisma.cardAssignee.delete({
       where: {
         userId_cardId: {
-          userId, 
-          cardId
-        }
-      }
-    })
+          userId,
+          cardId,
+        },
+      },
+    });
   }
 }
