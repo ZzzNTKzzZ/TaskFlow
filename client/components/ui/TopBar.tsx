@@ -45,7 +45,7 @@ export default function TopBar({
         )}
         <View>
 
-        <Text style={[Typography.heading, { fontSize: 16 }]}>{name}</Text>
+        <Text style={[Typography.heading, { fontSize: 20 }]}>{name}</Text>
         {parentName && <Text style={[Typography.caption ,{fontSize: 12}]}>{parentName}</Text>}
         </View>
       </View>

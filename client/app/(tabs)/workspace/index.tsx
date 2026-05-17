@@ -28,7 +28,7 @@ export default function Workspace() {
   const [loading, setLoading] = useState(true);
   const [workspaces, setWorkspaces] = useState<WorkspaceCard[]>([]);
   const [totalPage, setToltalPage] = useState<number>(1);
-  const [page, setPage] = useState(3);
+  const [page, setPage] = useState(1);
   const user = useCurrentUser();
 
   const sorts = [
