@@ -8,13 +8,9 @@ export default function WorkspaceLayout() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="index" options={{ title: "Workspaces" }} />
-      <Stack.Screen
-        name="[id]"
-        options={{
-          title: "Workspace Detail",
-        }}
-      />
+      <Stack.Screen name="index" />
+      <Stack.Screen name="[id]" />
+      <Stack.Screen name="create" />
     </Stack>
   );
 }

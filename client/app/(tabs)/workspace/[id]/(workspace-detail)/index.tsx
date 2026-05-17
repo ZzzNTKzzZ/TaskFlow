@@ -26,7 +26,8 @@ export default function WorkspaceDetail() {
   }, [id]);
 
   return (
-    <Screen>
+    
+    <Screen >
       <View style={{ flexDirection: "column" }}>
         <View
           style={{
@@ -73,7 +74,7 @@ export default function WorkspaceDetail() {
                   id: id,
                   boardId: b.id,
                   name: b.name,
-                  parentName: name
+                  parentName: name,
                 }
               })}
               styleCard={{ width: "48%" }}

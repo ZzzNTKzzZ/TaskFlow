@@ -21,7 +21,7 @@ export default function App() {
       }
     }
     restoreToken() 
-  })
+  }, [user])
   if (user) {
     return <Redirect href="/(tabs)" />;
   }

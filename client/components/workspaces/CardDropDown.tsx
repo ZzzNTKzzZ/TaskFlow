@@ -4,8 +4,8 @@ import { Typography } from "@/theme/typography";
 import { RoleWorkspace } from "@/types/type";
 import { ReactNode } from "react";
 import { Text, View } from "react-native";
-import CheckedIcon from "../icons/CheckedIcon";
 import { Colors } from "@/theme/colors";
+import Icons from "../icons/Icons";
 
 interface CardDropDownProps {
   icon?: ReactNode;
@@ -43,7 +43,7 @@ export default function CardDropDown({
         </View>
       </View>
       <View style={{ flex: 1 }} />
-      {selected && <CheckedIcon color={Theme.primary} />}
+      {selected && <Icons name="Checked" color={Theme.primary} />}
     </View>
   );
 }

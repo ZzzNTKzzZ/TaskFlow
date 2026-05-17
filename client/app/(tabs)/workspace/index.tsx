@@ -96,7 +96,7 @@ export default function Workspace() {
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => {}}
+            onPress={() => {router.push("/(workspace)/create")}}
             activeOpacity={0.7}
             style={{
               backgroundColor: Theme.surface,

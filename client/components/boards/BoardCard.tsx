@@ -6,15 +6,12 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import BackgroundCard, {
-  BackgroundColor,
-} from "../illustrations/BackgroundCard";
+import BackgroundCard from "../illustrations/BackgroundCard";
 import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
 import { Theme } from "@/theme/theme";
 import { Colors } from "@/theme/colors";
 import { BoardCardUI } from "@/modules/board/board";
-import { router } from "expo-router";
 
 interface BoardCardProps extends BoardCardUI {
   styleCard?: StyleProp<ViewStyle>;

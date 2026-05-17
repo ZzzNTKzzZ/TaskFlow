@@ -10,7 +10,7 @@ import Svg, {
   Use,
 } from "react-native-svg";
 
-export type BackgroundColor = "DeepPrussianBlue" | "Blue";
+export type BackgroundColor = "DeepPrussianBlue" | "Blue" | "Red" | "Orange" | "Green";
 
 interface Props {
   background: BackgroundColor;
@@ -326,6 +326,10 @@ export default function BackgroundCard({ background }: Props) {
         </Defs>
       </Svg>
     ),
+    Red: <Svg></Svg>,
+    Orange: <Svg></Svg>,
+    Green: <Svg></Svg>,
+
   };
 
   return backgroundConfig[background];

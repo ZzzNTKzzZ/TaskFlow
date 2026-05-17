@@ -2,12 +2,15 @@ import Icons from "@/components/icons/Icons";
 import LeftRightIcon from "@/components/icons/LeftRightIcon";
 import { Screen } from "@/components/layout/Screen";
 import Avatar from "@/components/ui/Avatar";
+import { useAuth } from "@/modules/auth/hook/useAuth";
 import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { Text, View } from "react-native";
+import { router } from "expo-router";
+import { Text, TouchableOpacity, View } from "react-native";
 
 type SettingItemType = {
   name: string;
@@ -206,8 +209,13 @@ function SettingSection({ section }: { section: SettingSectionType }) {
 }
 
 function LogoutButton() {
+  const logout  = useAuthStore((state) => state.logout)
   return (
-    <View
+    <TouchableOpacity
+    onPress={() =>{
+      router.navigate("/(auth)/login")
+      logout()
+    }}
       style={{
         flexDirection: "row",
         alignItems: "center",
@@ -237,7 +245,7 @@ function LogoutButton() {
       >
         Logout
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 }
 

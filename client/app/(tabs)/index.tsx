@@ -25,7 +25,7 @@ import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { Priority, RoleWorkspace } from "@/types/type";
+import { Priority } from "@/types/type";
 import { router } from "expo-router";
 import React, { ReactNode, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -161,7 +161,7 @@ export default function HomeScreen() {
           </Text>
 
           <View style={styles.quickAction}>
-            <ActionCard type="newBoard" onPress={() => {}} />
+            <ActionCard type="newBoard" onPress={() => router.push("/(board)/create")} />
             <ActionCard type="newTodo" onPress={() => {}} />
             <ActionCard type="inviteMembers" onPress={() => {}} />
             <ActionCard type="automation" onPress={() => {}} />
@@ -178,7 +178,6 @@ export default function HomeScreen() {
               icon={((): ReactNode => {
                 const ws =
                   workspaces.find((w) => w.id === selected.id) ?? workspaces[0];
-
                 return (
                   <SymbolIcon
                     name={ws?.icon as SymbolName}

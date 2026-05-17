@@ -1,6 +1,6 @@
 import { View } from "react-native";
-import CheckedIcon from "../icons/CheckedIcon";
 import { Theme } from "@/theme/theme";
+import Icons from "../icons/Icons";
 
 interface CheckedProps {
   isChecked: boolean;
@@ -22,7 +22,7 @@ export default function Checked({
         height: 24,
       }}
     >
-      {isChecked && <CheckedIcon color={Theme.surface} size={20} />}
+      {isChecked && <Icons name="Checked" color={Theme.surface} size={20} />}
     </View>
   );
 }

@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   StyleProp,
   ViewStyle,
+  TextStyle,
 } from "react-native";
 import EyeIcon from "../icons/EyeIcon";
 import Icons from "../icons/Icons";
@@ -27,6 +28,7 @@ interface InputProps {
   onPressIcon?: () => void;
   error?: boolean;
   stylesInput?: StyleProp<ViewStyle>
+  stylesLabel?: StyleProp<TextStyle>
 }
 
 export default function Input({
@@ -40,7 +42,8 @@ export default function Input({
   showPassword,
   onPressIcon,
   error,
-  stylesInput
+  stylesInput,
+  stylesLabel,
 }: InputProps) {
 
   const handleFocusError = () => {
@@ -51,7 +54,7 @@ export default function Input({
 
   return (
     <View style={[styles.container, stylesInput]}>
-      {label && <Text style={[Typography.label, error && { color: Theme.error}]}>{label}</Text>}
+      {label && <Text style={[Typography.label,{fontSize: 16} ,stylesLabel,error && { color: Theme.error}]}>{label}</Text>}
       
       <View style={[styles.inputContainer, error && styles.error, isSearch && styles.search]}>
         {isSearch && (

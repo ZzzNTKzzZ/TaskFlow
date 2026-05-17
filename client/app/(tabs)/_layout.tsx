@@ -10,7 +10,9 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        freezeOnBlur: true,
         headerShown: false,
+        lazy: true,
         tabBarStyle: {
           paddingTop: 2,
           height: inset.top + 16,

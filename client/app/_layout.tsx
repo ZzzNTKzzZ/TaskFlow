@@ -49,21 +49,34 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-        <StatusBar style="dark" backgroundColor="#F9FAFB" translucent={true} />
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-          <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: {
-                  backgroundColor: "#F9FAFB",
-                },
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+        <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: {
+                backgroundColor: "#F9FAFB",
+              },
+            }}
+          >
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen
+              name="(workspace)/create"
+              options={{
+                presentation: "modal",
               }}
             />
-          </View>
-        </SafeAreaView>
-      </View>
+            <Stack.Screen
+              name="(board)/create"
+              options={{
+                presentation: "modal",
+              }}
+            />
+            <Stack.Screen name="(auth)" />
+          </Stack>
+        </View>
+      </SafeAreaView>
     </GestureHandlerRootView>
   );
 }

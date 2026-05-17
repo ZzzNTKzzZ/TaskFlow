@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { User } from "../types/auth";
-
+import * as SecureStore from "expo-secure-store"
 interface AuthStore {
   user: User | null;
 
@@ -32,13 +32,18 @@ export const useAuthStore = create<AuthStore>((set) => ({
     refreshToken: refresh 
   }),
 
-  logout: () => {
+  logout: async () => {
     // Xóa trong store
     set({
       user: null,
       accessToken: null,
       refreshToken: null,
     });
-    // Lưu ý: Bạn nên gọi SecureStore.deleteItemAsync ở đây nữa
+    try {
+      await SecureStore.deleteItemAsync("ACCESS_TOKEN");
+      await SecureStore.deleteItemAsync("REFRESH_TOKEN"); 
+    } catch (error) {
+      console.log("Lỗi khi xóa token cứng:", error);
+    }
   },
 }));
