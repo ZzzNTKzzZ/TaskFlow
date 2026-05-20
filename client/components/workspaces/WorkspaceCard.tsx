@@ -1,17 +1,17 @@
 import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import SymbolIcon, { SymbolColor, SymbolName } from "../icons/SymbolIcon";
-import { Colors } from "@/theme/colors";
+import SymbolIcon from "../icons/SymbolIcon";
 import { WorkspaceCard } from "@/modules/workspace/workspace";
 import { Theme } from "@/theme/theme";
 import StarIcon from "../icons/StarIcon";
-import { router } from "expo-router";
+import Icons from "../icons/Icons";
+import KebabMenu from "../overlays/KebabMenu";
 
 interface WorkspaceCardProps extends Omit<WorkspaceCard, "role" | "value"> {
   checked?: boolean;
-  onPress?: () => void
+  onPress?: () => void;
 }
 export default function WorkspaceCardUI({
   id,
@@ -21,11 +21,10 @@ export default function WorkspaceCardUI({
   icon,
   checked = false,
   onPress,
-  
 }: WorkspaceCardProps) {
   const [checkedCard, setCheckedCard] = useState(checked);
+  const [active, setActive] = useState<boolean>(false);
 
- 
   return (
     <View
       style={{
@@ -47,18 +46,19 @@ export default function WorkspaceCardUI({
         elevation: 8,
       }}
     >
-      <TouchableOpacity style={{ gap: Spacing[2], alignItems: "flex-start"}} onPress={onPress}>
+      <TouchableOpacity
+        style={{ gap: Spacing[2], alignItems: "flex-start" }}
+        onPress={onPress}
+      >
         <SymbolIcon name={icon} color={color} />
         <View
           style={{ flexDirection: "column", gap: Spacing[2], maxWidth: 100 }}
         >
           <Text
-          
             numberOfLines={2}
             style={[
               Typography.label,
               { fontSize: 14, color: Theme.textPrimary },
-              
             ]}
           >
             {name}
@@ -66,14 +66,30 @@ export default function WorkspaceCardUI({
           <Text style={[Typography.caption]}>{memberCount} members</Text>
         </View>
       </TouchableOpacity>
-      <View style={{ alignItems: "center" }}>
+      <View style={{ alignItems: "center", justifyContent: "space-between" }}>
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => setCheckedCard((prev) => !prev)}
         >
           <StarIcon checked={checkedCard} />
         </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => setActive(true)}>
+          <Icons name="KebabH" size={18} />
+        </TouchableOpacity>
       </View>
+      <KebabMenu
+        visible={active}
+        onClose={() => setActive(false)}
+        menu={[
+          "Workspace settings",
+          "Invite members",
+          "Change role",
+          "Members",
+          "Manage boards",
+          "Leave workspace",
+          "Delete workspace",
+        ]}
+      />
     </View>
   );
 }

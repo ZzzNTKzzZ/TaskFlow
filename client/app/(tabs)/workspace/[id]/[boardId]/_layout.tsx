@@ -25,6 +25,7 @@ export default function WorkspaceIdLayout() {
                 name={routeParams.name}
                 icon={routeParams.icon}
                 color={routeParams.color}
+                menu={["Create list", "Sort", "Members", "Board settings", "Delete board"]}
               />
             ),
           };

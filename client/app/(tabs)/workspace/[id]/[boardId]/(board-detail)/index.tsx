@@ -3,7 +3,7 @@ import ListCard from "@/components/list/ListCard";
 import BoardService from "@/modules/board/board.service";
 import { ListCardUI } from "@/modules/list/list";
 import { Spacing } from "@/theme/spacing";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
@@ -32,6 +32,7 @@ export default function Board() {
 
   return (
     <Screen isScroll={false} padding={Spacing[4]}>
+
       <DraggableFlatList
         data={list}
         horizontal

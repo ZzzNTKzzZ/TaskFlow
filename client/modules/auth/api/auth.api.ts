@@ -28,8 +28,10 @@ export const signupApi = async (data: SignUpData) => {
 
 export const refreshTokenApi = async () => {
   try {
-    const response = await api.post("/auth/")
+    const response = await api.post("/auth/refresh-token");
+    return response.data;
   } catch (error) {
-    
+    console.error("API Error [refreshTokenApi]:", error);
+    return { success: false };
   }
 }

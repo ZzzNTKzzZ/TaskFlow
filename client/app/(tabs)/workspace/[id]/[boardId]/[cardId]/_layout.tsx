@@ -19,7 +19,7 @@ export default function CardLayout() {
                 name={"Card details"}
                 icon={routeParams.icon}
                 color={routeParams.color}
-                
+                menu={["Edit card", "Move card", "Delete card"]}
               />
             ),
           };

@@ -182,7 +182,7 @@ async function main() {
   }
 }
 
-// await clearDatabase()
+// await clearDatabases
 main()
   .then(async () => {
     console.log("seed completed");

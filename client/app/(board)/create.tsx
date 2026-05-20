@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { Text, TouchableOpacity, View, ScrollView } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 // Imports từ hệ thống Component & Icons của bạn
 import Icons from "@/components/icons/Icons";
@@ -32,13 +32,17 @@ export default function Create() {
     name: "",
     id: "",
   });
-  
-  const [background, setBackground] = useState<BackgroundColor>("DeepPrussianBlue");
-  const [visibility, setVisibility] = useState<{ id: number; name: Visibility }>({
+
+  const [background, setBackground] =
+    useState<BackgroundColor>("DeepPrussianBlue");
+  const [visibility, setVisibility] = useState<{
+    id: number;
+    name: Visibility;
+  }>({
     id: 1,
     name: "workspace",
   });
-  const [name, setName] = useState<string>("");
+  const [boardName, setBoardName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [workspaces, setWorkspaces] = useState<WorkspaceCard[]>([]);
 
@@ -57,6 +61,8 @@ export default function Create() {
     { id: 3, name: "private" },
   ];
 
+  const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
+
   // --- SIDE EFFECTS (API CALL) ---
   useEffect(() => {
     const initWorkspaces = async () => {
@@ -67,8 +73,8 @@ export default function Create() {
 
         if (list.length > 0) {
           setSelected({
-            id: list[0].id,
-            name: list[0].name,
+            id: id || list[0].id,
+            name: name || list[0].name,
           });
         }
       } catch (error) {
@@ -80,9 +86,25 @@ export default function Create() {
     initWorkspaces();
   }, []);
 
+  if (loading) return <Text>Loading...</Text>;
+
+  const handleCreate = async (payload: {
+    workspaceId: string;
+    name: string;
+    visibility: Visibility;
+    background: BackgroundColor;
+  }) => {
+    try {
+       await WorkspaceService.createWorkspaceBoard(payload);
+    } catch (error) {
+      console.error("Lỗi khi tạo board", error)
+    } finally {
+      router.back()
+    }
+  };
+
   return (
     <Screen isScroll={false}>
-      
       {/* 1. HEADER SECTION */}
       <View
         style={{
@@ -102,11 +124,8 @@ export default function Create() {
         </TouchableOpacity>
         <Text style={[Typography.heading, { fontSize: 28 }]}>Create Board</Text>
       </View>
-      <View
-        style={{ flex: 1 }} 
-      >
+      <View style={{ flex: 1 }}>
         <View style={{ flexDirection: "column" }}>
-          
           {workspaces && workspaces.length > 0 && (
             <SectionCard
               style={{
@@ -117,7 +136,9 @@ export default function Create() {
             >
               <DropDown
                 icon={((): ReactNode => {
-                  const ws = workspaces.find((w) => w.id === selected.id) ?? workspaces[0];
+                  const ws =
+                    workspaces.find((w) => w.id === selected.id) ??
+                    workspaces[0];
                   return (
                     <SymbolIcon
                       name={ws?.icon as SymbolName}
@@ -132,7 +153,13 @@ export default function Create() {
                 options={workspaces}
                 renderItem={(item) => (
                   <CardDropDown
-                    icon={<SymbolIcon name={item.icon} size={28} color={item.color} />}
+                    icon={
+                      <SymbolIcon
+                        name={item.icon}
+                        size={28}
+                        color={item.color}
+                      />
+                    }
                     name={item.name}
                     memberSize={item.memberCount}
                     role={item.role}
@@ -148,8 +175,8 @@ export default function Create() {
             <Input
               label="Board name"
               placeholder="e.g. Q2 Campaign"
-              value={name}
-              setValue={setName}
+              value={boardName}
+              setValue={setBoardName}
               stylesLabel={[
                 Typography.title,
                 {
@@ -264,43 +291,42 @@ export default function Create() {
                         overflow: "hidden",
                         justifyContent: "center",
                         alignItems: "center",
-                    }}
-                  >
-                    <Icons name="Checked" color={Theme.primary} />
-                  </View>
-                )}
+                      }}
+                    >
+                      <Icons name="Checked" color={Theme.primary} />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                activeOpacity={0.7}
+                style={{
+                  backgroundColor: Colors.gray[100],
+                  width: 50,
+                  aspectRatio: 1,
+                  borderRadius: 12,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Icons name="KebabH" color={Theme.primary} />
               </TouchableOpacity>
-            ))}
-            <TouchableOpacity
-                  activeOpacity={0.7}
-                  style={{
-                    backgroundColor: Colors.gray[100],
-                    width: 50,
-                    aspectRatio: 1,
-                    borderRadius: 12,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                    
-                    <Icons name="Kebab" color={Theme.primary} />
-              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
-    </View>
-    <View style={{ paddingTop: Spacing[2], marginBottom: Spacing[4] }}>
-      <Button onPress={() => {}} style={{ marginBottom: Spacing[3] }}>
-        Create Board
-      </Button>
-      <Button
-        type="ghost"
-        onPress={() => router.back()}
-        styleText={{ color: Colors.primary[700] }}
-      >
-        Cancel
-      </Button>
-    </View>
-  </Screen>
+      <View style={{ paddingTop: Spacing[2], marginBottom: Spacing[4] }}>
+        <Button onPress={() => handleCreate({ workspaceId: selected.id, name: boardName, visibility: visibility.name,background  })} style={{ marginBottom: Spacing[3] }}>
+          Create Board
+        </Button>
+        <Button
+          type="ghost"
+          onPress={() => router.back()}
+          styleText={{ color: Colors.primary[700] }}
+        >
+          Cancel
+        </Button>
+      </View>
+    </Screen>
   );
 }

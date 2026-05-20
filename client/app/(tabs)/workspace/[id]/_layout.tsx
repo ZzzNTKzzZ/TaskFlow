@@ -1,9 +1,6 @@
 import TopBar from "@/components/ui/TopBar";
 import {
-  router,
   Stack,
-  useGlobalSearchParams,
-  useLocalSearchParams,
 } from "expo-router";
 import { useEffect } from "react";
 
@@ -25,6 +22,7 @@ export default function WorkspaceIdLayout() {
                 name={routeParams.name}
                 icon={routeParams.icon}
                 color={routeParams.color}
+                menu={["Create board", "Sort", "Help & feedback", "Delete workspace"]}
               />
             ),
           };

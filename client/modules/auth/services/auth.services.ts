@@ -1,4 +1,4 @@
-import { loginApi, signupApi } from "../api/auth.api";
+import { loginApi, signupApi, refreshTokenApi } from "../api/auth.api";
 import { LoginData, LoginResponse, SignUpData } from "../types/auth";
 
 export default class AuthService {
@@ -14,6 +14,11 @@ export default class AuthService {
 
   static async signup(data: SignUpData): Promise<LoginResponse> {
     const response = await signupApi(data);
+    return response;
+  }
+
+  static async refresh() {
+    const response = await refreshTokenApi();
     return response;
   }
 }

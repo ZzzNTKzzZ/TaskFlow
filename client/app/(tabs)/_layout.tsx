@@ -1,4 +1,4 @@
-import TabIcon from "@/components/icons/TabIcon";
+import Icons from "@/components/icons/Icons";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import { Tabs } from "expo-router";
@@ -31,7 +31,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon icon="home" active={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <Icons name="Home" color={focused ? Theme.primary : undefined} />
+          ),
           title: "Home",
         }}
       />
@@ -39,7 +41,7 @@ export default function TabLayout() {
         name="workspace"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="board" active={focused} />
+            <Icons name="Board" color={focused ? Theme.primary : undefined} />
           ),
           title: "Workspace",
         }}
@@ -48,7 +50,10 @@ export default function TabLayout() {
         name="activity"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="activity" active={focused} />
+            <Icons
+              name="Activity"
+              color={focused ? Theme.primary : undefined}
+            />
           ),
           title: "Activity",
         }}
@@ -57,7 +62,7 @@ export default function TabLayout() {
         name="setting"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="setting" active={focused} />
+            <Icons name="Setting" color={focused ? Theme.primary : undefined} />
           ),
           title: "Setting",
         }}

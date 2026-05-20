@@ -1,5 +1,6 @@
+import { Spacing } from "@/theme/spacing";
 import React from "react";
-import { Modal, StyleSheet, TouchableWithoutFeedback, View, Animated } from "react-native";
+import { Modal, StyleSheet, TouchableWithoutFeedback, View, Animated, Dimensions, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface BaseOverlayProps {
@@ -7,7 +8,7 @@ interface BaseOverlayProps {
   onClose: () => void;
   children: React.ReactNode;
 }
-
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 export default function BaseOverlay({ visible, onClose, children }: BaseOverlayProps) {
   const insets = useSafeAreaInsets();
 
@@ -24,12 +25,12 @@ export default function BaseOverlay({ visible, onClose, children }: BaseOverlayP
       </TouchableWithoutFeedback>
 
       {/* Nội dung chính của Overlay (Dạng Bottom Sheet) */}
-      <View style={[styles.contentContainer, { paddingBottom: insets.bottom + 16 }]}>
+      <ScrollView style={[styles.contentContainer, { paddingBottom: insets.bottom + 16 }]}>
         {/* Thanh kéo nhỏ phía trên để tạo cảm giác UI Bottom Sheet */}
         <View style={styles.indicator} />
         
         {children}
-      </View>
+      </ScrollView>
     </Modal>
   );
 }
@@ -43,12 +44,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingHorizontal: Spacing[5],
+    paddingTop: Spacing[3],
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
+    maxHeight: SCREEN_HEIGHT * 0.85,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
@@ -61,6 +63,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#E0E0E0",
     borderRadius: 3,
     alignSelf: "center",
-    marginBottom: 20,
+    marginBottom: Spacing[5],
   },
 });

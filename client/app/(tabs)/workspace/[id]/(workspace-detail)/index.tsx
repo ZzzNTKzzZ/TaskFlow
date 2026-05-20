@@ -7,28 +7,28 @@ import WorkspaceService from "@/modules/workspace/workspace.service";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useIsFocused } from "@react-navigation/core";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { Text, View } from "react-native";
 export default function WorkspaceDetail() {
-  const { id, name } = useLocalSearchParams<{ id: string, name: string }>();
-
+  const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
+  const isFocused = useIsFocused();
   const [boards, setBoards] = useState<BoardCardUI[]>([]);
 
   useEffect(() => {
     const getWorkspace = async () => {
       try {
-        const respone = await WorkspaceService.getWorkspaceBoard(id);
+        const respone = await WorkspaceService.getWorkspaceBoards(id);
         setBoards(respone);
       } catch (error) {}
     };
     getWorkspace();
-  }, [id]);
+  }, [id, isFocused]);
 
   return (
-    
-    <Screen >
-      <View style={{ flexDirection: "column" }}>
+    <Screen>
+      <View style={{ flexDirection: "column", marginBottom: Spacing[3] }}>
         <View
           style={{
             flexDirection: "row",
@@ -44,7 +44,15 @@ export default function WorkspaceDetail() {
           <View style={{ paddingVertical: Spacing[3] }}>
             <Button
               leftIcon={<Icons name="Plus" color={Theme.surface} size={18} />}
-              onPress={() => {}}
+              onPress={() =>
+                router.push({
+                  pathname: "/(board)/create",
+                  params: {
+                    id: id,
+                    name: name,
+                  },
+                })
+              }
               style={{
                 paddingVertical: Spacing[2],
                 paddingHorizontal: Spacing[3],
@@ -68,15 +76,17 @@ export default function WorkspaceDetail() {
             <BoardCard
               key={b.id}
               {...b}
-              onPress={() => router.push({
-                pathname: "/(tabs)/workspace/[id]/[boardId]",
-                params: {
-                  id: id,
-                  boardId: b.id,
-                  name: b.name,
-                  parentName: name,
-                }
-              })}
+              onPress={() =>
+                router.push({
+                  pathname: "/(tabs)/workspace/[id]/[boardId]",
+                  params: {
+                    id: id,
+                    boardId: b.id,
+                    name: b.name,
+                    parentName: name,
+                  },
+                })
+              }
               styleCard={{ width: "48%" }}
               styleText={{ fontSize: 14 }}
               showMembers={false}

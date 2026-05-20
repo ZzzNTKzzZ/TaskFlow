@@ -8,7 +8,6 @@ import SymbolIcon, {
   SymbolColor,
   SymbolName,
 } from "@/components/icons/SymbolIcon";
-import { BackgroundColor } from "@/components/illustrations/BackgroundCard";
 import { Screen } from "@/components/layout/Screen";
 import SectionCard from "@/components/layout/SectionCard";
 import SectionHeader from "@/components/layout/SectionHeader";
@@ -66,7 +65,7 @@ export default function HomeScreen() {
 
     const fetchBoards = async () => {
       try {
-        const boardList = await WorkspaceService.getWorkspaceBoard(selected.id);
+        const boardList = await WorkspaceService.getWorkspaceBoards(selected.id, 3);
         setBoards(boardList);
       } catch (error) {
         console.error("Lỗi lấy danh sách Board:", error);
@@ -222,7 +221,7 @@ export default function HomeScreen() {
                 onPress={() =>
                   router.push({
                     pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
-                    params: { id: selected.id, boardId: b.id },
+                    params: { id: selected.id, boardId: b.id, name: b.name },
                   })
                 }
                 key={b.id}

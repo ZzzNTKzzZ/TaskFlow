@@ -27,3 +27,4 @@ interface WorkspaceCard {
     icon: SymbolName,
     color: SymbolColor
 }
+

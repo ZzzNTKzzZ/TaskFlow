@@ -6,7 +6,8 @@ const currentUser = useCurrentUser();
 
   const displayName = name || currentUser?.name || "User";
 
-  const urlAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random&color=fff&format=png`;
+  // const urlAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random&color=fff&format=png`;
+  const urlAvatar = `https://i.pravatar.cc/${size}`
   return (
     <View style={{ width: size, height: size}}>
       <Image

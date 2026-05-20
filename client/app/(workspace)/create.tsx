@@ -16,7 +16,6 @@ import { Text, TouchableOpacity, View } from "react-native";
 export default function Create() {
   const [isInviteVisible, setIsInviteVisible] = useState(false);
   const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
   const [selected, setSelected] = useState<{
     id: string | number;
     name: string;
@@ -80,21 +79,6 @@ export default function Create() {
               },
             ]}
           />
-          <Input
-            label="Description(optional)"
-            placeholder="Tell your team about this workspace"
-            value={description}
-            setValue={setDescription}
-            stylesLabel={[
-              Typography.title,
-              {
-                color: Theme.textPrimary,
-                marginBottom: Spacing[2],
-                fontSize: 16,
-              },
-            ]}
-          />
-
           <Text
             style={[
               Typography.title,

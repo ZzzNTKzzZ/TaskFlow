@@ -15,14 +15,40 @@ export const getWorkspacesApi = async (limit?: number): Promise<ResponseApi<Work
   }
 };
 
-export const getWorkspaceBoardApi = async(workspaceId: string, limit: number = 3):Promise<ResponseApi<BoardResponse[]>> => {
+export const getWorkspaceBoardsApi = async(workspaceId: string, limit?: number):Promise<ResponseApi<BoardResponse[]>> => {
   try {
     const response = await api.get<ResponseApi<BoardResponse[]>>(`/workspaces/${workspaceId}/boards?`, {
       params: {limit}
     })
     return response.data
   } catch (error) {
-    console.error("API Error [getWorkspaceBoardApi]:", error)
+    console.error("API Error [getWorkspaceBoardsApi]:", error)
     return { success: false, data: []}
+  }
+}
+
+export const createWorkspaceApi = async(data: Partial<WorkspaceResponse> = {}) => {
+  try {
+    const response = await api.post<ResponseApi<WorkspaceResponse>>("/workspaces", data);
+    return response.data;
+  } catch (error) {
+    console.error("API Error [createWorkspaceApi]:", error);
+    return { success: false } as unknown as ResponseApi<WorkspaceResponse>;
+  }
+}
+
+export const createWorkspaceBoardApi = async(data: Partial<BoardResponse> = {}) => {
+  try {
+    console.log(data)
+    const respone = await api.post<ResponseApi<BoardResponse>>(`/workspaces/${data.workspaceId}/boards`, {
+
+      name: data.name,
+      visibility: data.visibility,
+      background: data.background
+    })
+    return respone.data
+  } catch (error) {
+     console.error("API Error [createWorkspaceBoardApi]:", error);
+    return { success: false } as unknown as ResponseApi<BoardResponse>;
   }
 }
