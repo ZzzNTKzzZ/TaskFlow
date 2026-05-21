@@ -67,10 +67,10 @@ export default class WorkspaceController {
   // PATCH: /workspaces/:workspaceId/members
   static async addMember(req: Request, res: Response) {
     const workspaceId = req.params.workspaceId as string;
-    const { userId, role } = req.body;
+    const { email, role } = req.body;
     const member = await WorkspaceService.addMember({
       workspaceId,
-      userId,
+      email,
       role,
     });
 

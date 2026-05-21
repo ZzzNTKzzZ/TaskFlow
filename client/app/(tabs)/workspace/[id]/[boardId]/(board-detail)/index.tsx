@@ -3,16 +3,15 @@ import ListCard from "@/components/list/ListCard";
 import BoardService from "@/modules/board/board.service";
 import { ListCardUI } from "@/modules/list/list";
 import { Spacing } from "@/theme/spacing";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, usePathname } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 
 export default function Board() {
-  const { boardId } = useLocalSearchParams();
+  const { boardId, refresh } = useLocalSearchParams();
   const [list, setList] = useState<ListCardUI[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const getList = async () => {
       try {
@@ -24,21 +23,20 @@ export default function Board() {
     };
 
     getList();
-  }, []);
-
-
+  }, [refresh, boardId]);
 
   if (loading) return <Text>Loading...</Text>;
 
   return (
     <Screen isScroll={false} padding={Spacing[4]}>
-
+      
       <DraggableFlatList
         data={list}
         horizontal
         nestedScrollEnabled
         activationDistance={20}
         keyExtractor={(item) => item.id}
+        showsHorizontalScrollIndicator={false}
         onDragEnd={({ data }) => {
           setList(data);
 

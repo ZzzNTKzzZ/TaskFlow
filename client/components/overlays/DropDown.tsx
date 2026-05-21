@@ -58,7 +58,6 @@ export default function DropDown<T extends Option>({
   const itemHeight = optionHeight ?? 56;
   const rawMaxHeight = itemHeight * options.length;
   
-  // 🌟 GIẢI PHÁP: Giới hạn mốc chiều cao thực tế mà Dropdown được phép mở ra
   const ALLOWED_MAX_HEIGHT = 220;
   const finalTargetHeight = rawMaxHeight >= ALLOWED_MAX_HEIGHT ? ALLOWED_MAX_HEIGHT : rawMaxHeight;
 
@@ -118,9 +117,11 @@ export default function DropDown<T extends Option>({
 
             {!isOpen && (
               <Text
+              numberOfLines={1}
                 style={[
                   Typography.title,
                   {
+                    maxWidth: 150,
                     fontSize: 14,
                     color: Colors.primary[700],
                   },
@@ -258,7 +259,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     color: Theme.textSecondary,
-    marginBottom: Spacing[2],
   },
   card: {
     borderColor: Theme.border || "#E0E0E0",

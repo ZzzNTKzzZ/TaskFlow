@@ -5,6 +5,7 @@ import DropDown from "@/components/overlays/DropDown";
 import InviteMembers from "@/components/overlays/InviteMembers";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import WorkspaceService from "@/modules/workspace/workspace.service";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
@@ -25,7 +26,6 @@ export default function Create() {
   });
   const handleSendInvite = (email: string) => {
     console.log("Tiến hành gửi lời mời tới email:", email);
-    // Xử lý gọi API mời thành viên ở đây...
   };
   const options = [
     {
@@ -41,6 +41,11 @@ export default function Create() {
       name: "Public",
     },
   ];
+
+  const handleCreateWorkspace = async () => {
+    await WorkspaceService.createWorkspace(name)
+    router.replace("/(tabs)/workspace")
+  }
   return (
     <Screen isScroll={false}>
         <View
@@ -95,8 +100,6 @@ export default function Create() {
             style={{
               borderWidth: 1,
               borderRadius: 16,
-              paddingVertical: Spacing[3],
-              paddingHorizontal: Spacing[4],
               borderColor: Theme.border,
             }}
           >
@@ -170,7 +173,7 @@ export default function Create() {
             <Icons name="Plus" size={24} />
           </TouchableOpacity>
         </View>
-        <Button onPress={() => {}} style={{marginBottom: Spacing[4]}}>Create Board</Button>
+        <Button onPress={() => handleCreateWorkspace()} style={{marginBottom: Spacing[4]}}>Create Board</Button>
         <Button type="ghost" onPress={() => router.back()} style={{marginBottom: Spacing[4]}} styleText={{color: Colors.primary[700]}}>Cancel</Button>
         <InviteMembers
         visible={isInviteVisible}

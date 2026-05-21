@@ -15,7 +15,7 @@ import {
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { useGlobalSearchParams } from "expo-router";
+import { useGlobalSearchParams, usePathname } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
@@ -117,9 +117,11 @@ export default function Card() {
   const { boardId, cardId } = useGlobalSearchParams();
   const [card, setCard] = useState<CardRespone>();
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname()
 
   useEffect(() => {
     const getCard = async () => {
+      console.log(pathname)
       try {
         const response = await CardService.getCard(
           boardId as string,

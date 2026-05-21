@@ -20,8 +20,8 @@ export default function InviteMembers({ visible, onClose, onInvite }: InviteMemb
   const handleInvite = () => {
     if (email.trim()) {
       onInvite(email.trim());
-      setEmail(""); // Reset input sau khi mời
-      onClose(); // Đóng overlay
+      setEmail(""); 
+      onClose(); 
     }
   };
 

@@ -20,6 +20,7 @@ import type {
   WorkspaceResponse,
 } from "../../types/workspace.js";
 import { AppError } from "../../utils/appError.js";
+import { AuthService } from "../Auth/auth.service.js";
 import BoardRepository from "../Board/board.repository.js";
 import WorkspaceRepository from "./workspace.repository.js";
 
@@ -107,17 +108,32 @@ export class WorkspaceService {
     });
 
     if (!workspace) throw new AppError("Workspace not found", 404);
+    const role = workspace.members[0]!.role;
+      const cardCount = workspace.boards.reduce((total, board) => {
+        return (
+          total +
+          board.lists.reduce((listTotal, list) => {
+            return listTotal + list.cards.length;
+          }, 0)
+        );
+      }, 0);
+      return {
+        id: workspace.id,
+        name: workspace.name,
+        slug: workspace.slug,
+        createdAt: workspace.createdAt,
 
-    return {
-      id: workspace.id,
-      name: workspace.name,
-      slug: workspace.slug,
-      createdAt: workspace.createdAt,
+        stats: {
+          memberCount: workspace._count.members,
+          boardCount: workspace._count.boards,
+          cardCount,
+        },
 
-      currentUser: {
-        role: workspace.members[0]!.role,
-      },
-    };
+        currentUser: {
+          role
+        },
+      }
+
   }
 
   static async editWorkspace({
@@ -184,12 +200,14 @@ export class WorkspaceService {
 
   static async addMember({
     workspaceId,
-    userId,
+    email,
     role,
   }: AddMember): Promise<MemberResponse> {
     if (!workspaceId) throw new AppError("Workspace id is required", 400);
-    if (!userId) throw new AppError("User id is required", 400);
+    if (!email) throw new AppError("Email is required", 400);
     if (!role) throw new AppError("Role is required", 400);
+
+    const userId = await AuthService.findUser(email)
 
     const workspace = await WorkspaceRepository.findWorkspace({
       workspaceId,

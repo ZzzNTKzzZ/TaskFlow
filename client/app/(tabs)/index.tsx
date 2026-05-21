@@ -32,9 +32,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 export default function HomeScreen() {
   const user = useCurrentUser();
 
-  const [selected, setSelected] = useState<{ name: string; id: string }>({
+  const [selected, setSelected] = useState<{ name: string; id: string, icon: SymbolName, color: SymbolColor }>({
     name: "",
     id: "",
+    icon: "Company",
+    color: "Primary"
   });
   const [loading, setLoading] = useState(true);
   const [workspaces, setWorkspaces] = useState<WorkspaceCard[]>([]);
@@ -50,6 +52,8 @@ export default function HomeScreen() {
           setSelected({
             id: list[0].id,
             name: list[0].name,
+            icon: list[0].icon,
+            color: list[0].color
           });
         }
       } catch (error) {
@@ -65,7 +69,10 @@ export default function HomeScreen() {
 
     const fetchBoards = async () => {
       try {
-        const boardList = await WorkspaceService.getWorkspaceBoards(selected.id, 3);
+        const boardList = await WorkspaceService.getWorkspaceBoards(
+          selected.id,
+          3,
+        );
         setBoards(boardList);
       } catch (error) {
         console.error("Lỗi lấy danh sách Board:", error);
@@ -160,7 +167,10 @@ export default function HomeScreen() {
           </Text>
 
           <View style={styles.quickAction}>
-            <ActionCard type="newBoard" onPress={() => router.push("/(board)/create")} />
+            <ActionCard
+              type="newBoard"
+              onPress={() => router.push("/(board)/create")}
+            />
             <ActionCard type="newTodo" onPress={() => {}} />
             <ActionCard type="inviteMembers" onPress={() => {}} />
             <ActionCard type="automation" onPress={() => {}} />
@@ -209,7 +219,15 @@ export default function HomeScreen() {
               Your Boards
             </Text>
 
-            <TouchableOpacity activeOpacity={0.7} onPress={() => {}}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() =>
+                router.push({
+                  pathname: "/(tabs)/workspace/[id]/(workspace-detail)",
+                  params: { id: selected.id, name: selected.name, icon: selected.icon, color: selected.color },
+                })
+              }
+            >
               <Text style={styles.viewAll}>View all</Text>
             </TouchableOpacity>
           </View>

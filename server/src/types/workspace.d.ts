@@ -35,6 +35,11 @@ interface WorkspaceDetailRespone extends BaseItem {
   slug: string;
   createdAt: Date;
 
+  stats: {
+    memberCount: number;
+    boardCount: number;
+    cardCount: number;
+  };
   currentUser: {
     role: WorkspaceRole;
   };
@@ -63,7 +68,7 @@ interface MemberResponse extends BaseItem {
 
 interface AddMember {
   workspaceId: string;
-  userId: string;
+  email: string
   role: WorkspaceRole;
 }
 

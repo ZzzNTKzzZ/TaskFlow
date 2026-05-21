@@ -7,7 +7,15 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../../lib/prisma.js";
 import { AppError } from "../../utils/appError.js";
 export class AuthService {
-  static async register({ name, email, password }: {name: string, email: string, password: string}) {
+  static async register({
+    name,
+    email,
+    password,
+  }: {
+    name: string;
+    email: string;
+    password: string;
+  }) {
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -46,16 +54,16 @@ export class AuthService {
     };
   }
 
-  static async login({email, password} :{email: string, password: string}) {
+  static async login({ email, password }: { email: string; password: string }) {
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
         _count: {
           select: {
-            workspaces: true
-          }
-        }
-      }
+            workspaces: true,
+          },
+        },
+      },
     });
 
     if (!user) throw new AppError("Invalid email or password", 401);
@@ -81,8 +89,8 @@ export class AuthService {
         name: user.name,
         email: user.email,
         workspaceStats: {
-          workspaceCount: user._count.workspaces
-        }
+          workspaceCount: user._count.workspaces,
+        },
       },
       accessToken,
       refreshToken,
@@ -90,7 +98,7 @@ export class AuthService {
   }
 
   static async logout(refreshToken: string) {
-    if(!refreshToken) throw new AppError("No refresh token provided", 401)
+    if (!refreshToken) throw new AppError("No refresh token provided", 401);
     await prisma.refreshToken.delete({
       where: { token: refreshToken },
     });
@@ -152,5 +160,14 @@ export class AuthService {
       email: user.email,
       createdAt: user.createdAt,
     };
+  }
+
+  static async findUser(email: string) {
+    const userId =  await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if(!userId) throw new AppError("User not found", 404)
+    return userId?.id
   }
 }

@@ -7,7 +7,7 @@ import Button from "../ui/Button";
 import { useEffect, useState } from "react";
 import { Theme } from "@/theme/theme";
 import { Spacing } from "@/theme/spacing";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, usePathname } from "expo-router";
 import { Colors } from "@/theme/colors";
 import { Typography } from "@/theme/typography";
 import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
@@ -22,11 +22,11 @@ export default function CreateList({
   onClose: () => void;
 }) {
   const [name, setName] = useState<string>("");
-  const { boardId, boardName, id } = useLocalSearchParams<{
+  const { boardId, id } = useLocalSearchParams<{
     id: string;
     boardId: string;
-    boardName: string;
   }>();
+  const pathname = usePathname()
   const [options, setOptions] = useState<{ id: string; name: string }[]>([
     {
       id: "",
@@ -58,14 +58,14 @@ export default function CreateList({
     getBoards();
   }, []);
 
-  const handleCreate = async (payload: { boardId: string, name: string }) => {
-    const create = await BoardService.createList(payload)
-    console.log(create)
-  }
+  const handleCreate = async (payload: { boardId: string; name: string }) => {
+    await BoardService.createList(payload);
+    onClose();
+    setName("");
+  };
   
-
   return (
-    <BaseOverlay visible={visible} onClose={onClose}>
+    <BaseOverlay visible={visible} onClose={onClose} >
       <View style={{gap: Spacing[3]}}>
         <View
           style={{
@@ -142,7 +142,7 @@ export default function CreateList({
             )}
           />
         </View>
-        <Button onPress={() => handleCreate({ boardId: selected.id, name: selected.name})}>Add List</Button>
+        <Button onPress={() => handleCreate({ boardId: selected.id, name})}>Add List</Button>
       </View>
     </BaseOverlay>
   );

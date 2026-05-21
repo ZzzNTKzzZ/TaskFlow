@@ -22,7 +22,7 @@ export default function WorkspaceIdLayout() {
                 name={routeParams.name}
                 icon={routeParams.icon}
                 color={routeParams.color}
-                menu={["Create board", "Sort", "Help & feedback", "Delete workspace"]}
+                menu={["Create board", "Help & feedback", "Delete workspace"]}
               />
             ),
           };

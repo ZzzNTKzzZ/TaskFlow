@@ -18,6 +18,7 @@ import { FlatList } from "react-native";
 import UpDownIcon from "../icons/UpDownIcon";
 import { useState } from "react";
 import DropDown from "../overlays/DropDown";
+import KebabMenu from "../overlays/KebabMenu";
 
 interface ListCardProps extends ListCardUI {
   styleList?: StyleProp<ViewStyle>;
@@ -33,7 +34,8 @@ export default function ListCard({
   onLongPress,
   typeCard = "Board",
 }: ListCardProps) {
-  const [active, setActive] = useState(false)
+  const [activeMenu, setActiveMenu] = useState(false)
+  const [active, setActive] = useState(false);
   if (typeCard === "List")
     return (
       <View
@@ -43,22 +45,28 @@ export default function ListCard({
             borderRadius: 16,
             marginBottom: Spacing[4],
             borderWidth: 1,
-            borderColor: Theme.border
+            borderColor: Theme.border,
           },
           styleList,
         ]}
       >
         <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={() => setActive(prev => !prev)}
-          style={{ flexDirection: "row", gap: Spacing[2], alignItems: "center", justifyContent: "space-between",              marginVertical: Spacing[2],
-              marginHorizontal: Spacing[2], }}
+          activeOpacity={0.7}
+          onPress={() => setActive((prev) => !prev)}
+          style={{
+            flexDirection: "row",
+            gap: Spacing[2],
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginVertical: Spacing[2],
+            marginHorizontal: Spacing[2],
+          }}
         >
           <View
             style={{
               flexDirection: "row",
               gap: Spacing[2],
-              alignItems: "center"
+              alignItems: "center",
             }}
           >
             <Text style={[Typography.title, { fontSize: 16 }]}>{name}</Text>
@@ -87,15 +95,17 @@ export default function ListCard({
                 scrollEnabled
                 showsVerticalScrollIndicator={false}
                 ItemSeparatorComponent={() => (
-                  <View 
-                    style={{ 
-                      height: 1, 
-                      backgroundColor: Colors.gray[200], 
-                      marginHorizontal: Spacing[3] 
-                    }} 
+                  <View
+                    style={{
+                      height: 1,
+                      backgroundColor: Colors.gray[200],
+                      marginHorizontal: Spacing[3],
+                    }}
                   />
                 )}
-                renderItem={({ item }) => <CardUI typeCard={typeCard} {...item} />}
+                renderItem={({ item }) => (
+                  <CardUI typeCard={typeCard} {...item} />
+                )}
               />
             </View>
 
@@ -139,24 +149,39 @@ export default function ListCard({
         styleList,
       ]}
     >
-      <TouchableOpacity
-        onLongPress={onLongPress}
-        style={{ flexDirection: "row", gap: Spacing[2], alignItems: "center" }}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        <Text style={[Typography.title, { fontSize: 16 }]}>{name}</Text>
-        <View
+        <TouchableOpacity
+          onLongPress={onLongPress}
           style={{
-            paddingVertical: Spacing[1],
-            paddingHorizontal: Spacing[2],
-            borderRadius: 16,
-            backgroundColor: Theme.border,
+            flexDirection: "row",
+            gap: Spacing[2],
+            alignItems: "center",
           }}
         >
-          <Text style={[Typography.subtitle, { fontSize: 14 }]}>
-            {cardCount}
-          </Text>
-        </View>
-      </TouchableOpacity>
+          <Text style={[Typography.title, { fontSize: 16 }]}>{name}</Text>
+          <View
+            style={{
+              paddingVertical: Spacing[1],
+              paddingHorizontal: Spacing[2],
+              borderRadius: 16,
+              backgroundColor: Theme.border,
+            }}
+          >
+            <Text style={[Typography.subtitle, { fontSize: 14 }]}>
+              {cardCount}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => setActiveMenu(true)}>
+          <Icons name="KebabH" size={22} />
+        </TouchableOpacity>
+      </View>
       <View style={{ maxHeight: 520 }}>
         <FlatList
           data={cards}
@@ -188,6 +213,7 @@ export default function ListCard({
           Add card
         </Button>
       </View>
+      <KebabMenu visible={activeMenu} onClose={() => setActiveMenu(false)} menu={["Edit list", "Delete list"]}/>
     </View>
   );
 }

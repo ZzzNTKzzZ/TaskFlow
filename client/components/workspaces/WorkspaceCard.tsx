@@ -8,6 +8,7 @@ import { Theme } from "@/theme/theme";
 import StarIcon from "../icons/StarIcon";
 import Icons from "../icons/Icons";
 import KebabMenu from "../overlays/KebabMenu";
+import { router } from "expo-router";
 
 interface WorkspaceCardProps extends Omit<WorkspaceCard, "role" | "value"> {
   checked?: boolean;
@@ -24,7 +25,6 @@ export default function WorkspaceCardUI({
 }: WorkspaceCardProps) {
   const [checkedCard, setCheckedCard] = useState(checked);
   const [active, setActive] = useState<boolean>(false);
-
   return (
     <View
       style={{
@@ -89,6 +89,11 @@ export default function WorkspaceCardUI({
           "Leave workspace",
           "Delete workspace",
         ]}
+        onSelectMenu={(i) => {
+          if(i === "Workspace settings") {
+            router.navigate({ pathname: "/(workspace)/edit", params: { id } });
+          }
+        }}
       />
     </View>
   );

@@ -30,10 +30,12 @@ export default function TopBar({
 
   const [active, setActive] = useState<boolean>(false)
   const [isCreateListVisible, setIsCreateListVisible] = useState(false)
-
   const handleSelectMenu = (item: KebabMenuType) => {
     if (item === "Create list") {
       setIsCreateListVisible(true)
+    }
+    if(item === "Create board") {
+      router.navigate("/(board)/create")
     }
   }
 
@@ -59,7 +61,7 @@ export default function TopBar({
         )}
         <View>
 
-        <Text style={[Typography.heading, { fontSize: 20 }]}>{name}</Text>
+        <Text numberOfLines={1} style={[Typography.heading, { fontSize: 20, maxWidth: 200 }]}>{name}</Text>
         {parentName && <Text style={[Typography.caption ,{fontSize: 12}]}>{parentName}</Text>}
         </View>
       </View>

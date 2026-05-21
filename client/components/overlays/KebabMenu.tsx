@@ -24,16 +24,42 @@ export type KebabMenuType =
   | "Create list"
   | "Edit card"
   | "Move card"
-  | "Delete card";
+  | "Delete card"
+  | "Edit list"
+  | "Delete list"
+  | "Recently"
+  | "Updated"
+  | "Name(A-Z)"
 
 interface MenuItemConfig {
   name: KebabMenuType;
   icon: ReactNode;
   isDanger?: boolean;
-  navigate?: () => void
+  navigate?: () => void;
 }
 
 const KABAB_MENU_CONFIG: Record<KebabMenuType, MenuItemConfig> = {
+  "Recently": {
+    name: "Recently",
+    icon: <Icons size={24} name="Clock" />
+  },
+  "Updated": {
+    name: "Updated",
+    icon: <Icons size={24} name="Calender" />
+  },
+  "Name(A-Z)": {
+    name: "Name(A-Z)",
+    icon: <Icons size={24} name="Sort(A-Z)" />
+  },
+  "Edit list": {
+    name: "Edit list",
+    icon: <Icons size={24} name="Edit" />,
+  },
+  "Delete list": {
+    name: "Delete list",
+    icon: <Icons size={24} name="Trash" color={Theme.error} />,
+    isDanger: true,
+  },
   "Edit card": {
     name: "Edit card",
     icon: <Icons size={24} name="Edit" />,
@@ -59,7 +85,7 @@ const KABAB_MENU_CONFIG: Record<KebabMenuType, MenuItemConfig> = {
     name: "Join board",
     icon: <Icons size={24} name="InviteMembers" />,
   },
-  "Sort": {
+  Sort: {
     name: "Sort",
     icon: <Icons size={24} name="Sort" />,
   },

@@ -7,35 +7,35 @@ import { prisma } from "../../lib/prisma.js";
 export default class WorkspaceRepository {
   static async findUserWorkspaces({ userId }: { userId: string }) {
     return await prisma.workspace.findMany({
-    where: {
-      members: {
-        some: { userId },
-      },
-    },
-    include: {
-      _count: {
-        select: {
-          members: true,
-          boards: true,
+      where: {
+        members: {
+          some: { userId },
         },
       },
-      members: {
-        where: { userId },
-        select: { role: true },
-      },
-      boards: {
-        select: {
-          lists: {
-            select: {
-              cards: {
-                select: { id: true },
+      include: {
+        _count: {
+          select: {
+            members: true,
+            boards: true,
+          },
+        },
+        members: {
+          where: { userId },
+          select: { role: true },
+        },
+        boards: {
+          select: {
+            lists: {
+              select: {
+                cards: {
+                  select: { id: true },
+                },
               },
             },
           },
         },
       },
-    },
-  });
+    });
   }
 
   static async createWorkspace({
@@ -63,12 +63,40 @@ export default class WorkspaceRepository {
     });
   }
 
-  static async findWorkspace({ workspaceId, userId }: { workspaceId: string, userId: string }) {
+  static async findWorkspace({
+    workspaceId,
+    userId,
+  }: {
+    workspaceId: string;
+    userId: string;
+  }) {
     return await prisma.workspace.findUnique({
-      where: { id: workspaceId },
+      where: {
+        id: workspaceId,
+      },
       include: {
-        members: true,
-      }
+        _count: {
+          select: {
+            members: true,
+            boards: true,
+          },
+        },
+        members: {
+          where: { userId },
+          select: { role: true },
+        },
+        boards: {
+          select: {
+            lists: {
+              select: {
+                cards: {
+                  select: { id: true },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -112,9 +140,9 @@ export default class WorkspaceRepository {
             id: true,
             name: true,
             email: true,
-          }
+          },
         },
-        role: true
+        role: true,
       },
       orderBy: {
         user: {
@@ -162,9 +190,9 @@ export default class WorkspaceRepository {
             id: true,
             name: true,
             email: true,
-          }
+          },
         },
-        role: true
+        role: true,
       },
     });
   }
@@ -194,9 +222,9 @@ export default class WorkspaceRepository {
             id: true,
             name: true,
             email: true,
-          }
+          },
         },
-        role: true
+        role: true,
       },
     });
   }
@@ -219,27 +247,33 @@ export default class WorkspaceRepository {
   }
 
   // ========================== BOARD ==========================
-  static async findBoards({ workspaceId, limit }: { workspaceId: string, limit?: number | undefined }) {
+  static async findBoards({
+    workspaceId,
+    limit,
+  }: {
+    workspaceId: string;
+    limit?: number | undefined;
+  }) {
     return await prisma.board.findMany({
       where: { workspaceId },
       include: {
         _count: {
           select: {
             members: true,
-            lists: true
-          }
+            lists: true,
+          },
         },
         lists: {
           include: {
             _count: {
               select: {
-                cards: true
-              }
-            }
-          }
-        }
+                cards: true,
+              },
+            },
+          },
+        },
       },
-     ...(typeof limit === 'number' ? { take: limit } : {})
+      ...(typeof limit === "number" ? { take: limit } : {}),
     });
   }
 

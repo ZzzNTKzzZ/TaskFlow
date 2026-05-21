@@ -1,7 +1,7 @@
 import DisplayIcon from "@/components/icons/DisplayIcon";
 import Icons from "@/components/icons/Icons";
 import { Screen } from "@/components/layout/Screen";
-import DropDown from "@/components/overlays/DropDown";
+import KebabMenu from "@/components/overlays/KebabMenu";
 import Input from "@/components/ui/Input";
 import Pagination from "@/components/ui/Pagination";
 import WorkspaceCardUI from "@/components/workspaces/WorkspaceCard";
@@ -16,56 +16,26 @@ import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function Workspace() {
-  const ITEM_ONE_PAGE = 8; // Number workspaces display in 1 page
+  const ITEM_ONE_PAGE = 8;
 
   const [data, setData] = useState<WorkspaceCard[]>([]);
   const [displayType, setDisplayType] = useState<"Grid" | "List">("Grid");
   const [search, setSearch] = useState<string>("");
-  const [sort, setSort] = useState<{ name: string; id: number }>({
-    id: 0,
-    name: "",
-  });
+  const [sort, setSort] = useState<string>("Recently"); // State giữ kiểu sort
   const [loading, setLoading] = useState(true);
   const [workspaces, setWorkspaces] = useState<WorkspaceCard[]>([]);
   const [totalPage, setToltalPage] = useState<number>(1);
   const [page, setPage] = useState(1);
   const user = useCurrentUser();
+  const [active, setActive] = useState<boolean>(false);
 
-  const sorts = [
-    {
-      id: 1,
-      name: "Recently Updated",
-    },
-    {
-      id: 2,
-      name: "Name (A-Z)",
-    },
-    {
-      id: 3,
-      name: "Visibility",
-    },
-    {
-      id: 4,
-      name: "Most Active",
-    },
-  ];
-
+  // 1. Chỉ gọi API lấy dữ liệu thô một lần duy nhất khi vào trang
   useEffect(() => {
     const initWorkspaces = async () => {
       try {
         setLoading(true);
         const list = await WorkspaceService.getWorkspaces(24);
         setData(list);
-        setWorkspaces(
-          list.slice(ITEM_ONE_PAGE * (page - 1), ITEM_ONE_PAGE * page),
-        );
-        if (user?.workspaceStats) {
-          setToltalPage(
-            Math.ceil(user?.workspaceStats.workspaceCount / ITEM_ONE_PAGE),
-          );
-        } else {
-          setToltalPage(0);
-        }
       } catch (error) {
         console.error("Lỗi khởi tạo Workspace:", error);
       } finally {
@@ -75,13 +45,45 @@ export default function Workspace() {
     initWorkspaces();
   }, []);
 
+  // 2. TỰ ĐỘNG XỬ LÝ: Tìm kiếm -> Sắp xếp -> Phân trang mỗi khi các state liên quan thay đổi
   useEffect(() => {
-    setWorkspaces(data.slice(ITEM_ONE_PAGE * (page - 1), ITEM_ONE_PAGE * page));
-  }, [page]);
+    if (data.length === 0) return;
+
+    // Bước A: Lọc theo tìm kiếm (Search)
+    let processedData = data.filter((item) =>
+      item.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (sort === "Name(A-Z)" || sort === "Recently") {
+      processedData = [...processedData].sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sort === "Members") {
+      processedData = [...processedData].sort((a, b) => b.memberCount - a.memberCount);
+    }
+
+    const calculatedTotalPage = Math.ceil(processedData.length / ITEM_ONE_PAGE);
+    setToltalPage(calculatedTotalPage || 1);
+
+    const startIndex = ITEM_ONE_PAGE * (page - 1);
+    const endIndex = ITEM_ONE_PAGE * page;
+    setWorkspaces(processedData.slice(startIndex, endIndex));
+  }, [data, search, sort, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, sort]);
+
+  // Hàm xử lý khi chọn Menu Sort
+  const handleSortSelect = (sortType: string) => {
+    setSort(sortType);
+    setActive(false);
+  };
+
+  if (loading) return <Text style={{ padding: Spacing[4] }}>Loading...</Text>;
 
   return (
     <Screen>
       <View style={{ paddingVertical: Spacing[6] }}>
+        {/* Header */}
         <View
           style={{
             flexDirection: "row",
@@ -96,18 +98,14 @@ export default function Workspace() {
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => {router.push("/(workspace)/create")}}
+            onPress={() => router.push("/(workspace)/create")}
             activeOpacity={0.7}
             style={{
               backgroundColor: Theme.surface,
               borderRadius: 100,
               padding: Spacing[2],
-
               shadowColor: "#000",
-              shadowOffset: {
-                width: 0,
-                height: 4,
-              },
+              shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.3,
               shadowRadius: 4.65,
               elevation: 8,
@@ -116,6 +114,8 @@ export default function Workspace() {
             <Icons name="Plus" />
           </TouchableOpacity>
         </View>
+
+        {/* Search Input */}
         <View style={{ marginVertical: Spacing[4] }}>
           <Input
             isSearch
@@ -125,6 +125,8 @@ export default function Workspace() {
             stylesInput={{ marginBottom: Spacing[0] }}
           />
         </View>
+
+        {/* Toolbar: Stats & Sort/Display */}
         <View
           style={{
             marginBottom: Spacing[2],
@@ -134,7 +136,7 @@ export default function Workspace() {
           }}
         >
           <Text style={[Typography.caption]}>
-            {user?.workspaceStats.workspaceCount || 0} workspaces
+            {data.length} workspaces
           </Text>
           <View
             style={{
@@ -142,64 +144,58 @@ export default function Workspace() {
               alignItems: "center",
               justifyContent: "flex-end",
               gap: Spacing[2],
-              position: "relative",
               zIndex: 100,
             }}
           >
-            <View
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setActive(true)}
               style={{
                 flexDirection: "row",
+                alignItems: "center",
                 gap: Spacing[2],
-                justifyContent: "center",
+                paddingHorizontal: Spacing[2],
               }}
             >
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => setDisplayType("Grid")}
-                style={{
-                  backgroundColor: Theme.surface,
-                  borderRadius: 8,
-                  padding: Spacing[1],
+              <Icons name="Sort" size={24} />
+              <Text style={[Typography.subtitle, { color: Theme.primary, fontSize: 14 }]}>
+                {sort}
+              </Text>
+            </TouchableOpacity>
 
-                  shadowColor: "#000",
-                  shadowOffset: {
-                    width: 0,
-                    height: 4,
-                  },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 4.65,
-                  elevation: 8,
-                }}
-              >
-                <DisplayIcon name="Gird" active={displayType === "Grid"} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => setDisplayType("List")}
-                style={{
-                  backgroundColor: Theme.surface,
-                  borderRadius: 8,
-                  padding: Spacing[1],
-
-                  shadowColor: "#000",
-                  shadowOffset: {
-                    width: 0,
-                    height: 4,
-                  },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 4.65,
-                  elevation: 8,
-                }}
-              >
-                <DisplayIcon name="List" active={displayType === "List"} />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setDisplayType("Grid")}
+              style={{
+                backgroundColor: Theme.surface,
+                borderRadius: 8,
+                padding: Spacing[1],
+                elevation: 2,
+              }}
+            >
+              <DisplayIcon name="Gird" active={displayType === "Grid"} />
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setDisplayType("List")}
+              style={{
+                backgroundColor: Theme.surface,
+                borderRadius: 8,
+                padding: Spacing[1],
+                elevation: 2,
+              }}
+            >
+              <DisplayIcon name="List" active={displayType === "List"} />
+            </TouchableOpacity>
           </View>
         </View>
+
+        {/* Grid/List Content */}
         <View
           style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
+            flexDirection: displayType === "Grid" ? "row" : "column",
+            flexWrap: displayType === "Grid" ? "wrap" : "nowrap",
             justifyContent: "space-between",
             minHeight: 500,
             marginBottom: Spacing[3],
@@ -223,12 +219,22 @@ export default function Workspace() {
             />
           ))}
         </View>
+
+        {/* Pagination */}
         <Pagination
           totalPage={totalPage}
           page={page}
           setPage={(newPage) => setPage(newPage)}
         />
       </View>
+
+      {/* Kebab Menu */}
+      <KebabMenu
+        visible={active}
+        onClose={() => setActive(false)}
+        menu={["Recently", "Name(A-Z)", "Members"]}
+        onSelectMenu={handleSortSelect}
+      />
     </Screen>
   );
 }
