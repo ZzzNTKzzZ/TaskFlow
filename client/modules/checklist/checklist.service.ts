@@ -16,8 +16,8 @@ export default class ChecklistService {
     return response.data;
   }
 
-  static async createChecklist(cardId: string, payload: any) {
-    const response = await createChecklist(cardId, payload);
+  static async createChecklist(boardId: string ,cardId: string, name: string) {
+    const response = await createChecklist(boardId ,cardId, name);
     return response;
   }
 
@@ -31,8 +31,8 @@ export default class ChecklistService {
     return response;
   }
 
-  static async createChecklistItem(cardId: string, checklistId: string, payload: any) {
-    const response = await createChecklistItem(cardId, checklistId, payload);
+  static async createChecklistItem(boardId: string ,cardId: string, checklistId: string, payload: any) {
+    const response = await createChecklistItem(boardId ,cardId, checklistId, payload);
     return response;
   }
 

@@ -11,19 +11,19 @@ export default class ChecklistController {
 
   static async createChecklist(req: Request, res: Response) {
     const cardId = req.params.cardId as string;
-    const { title } = req.body;
-    const checklist = await ChecklistService.createChecklist({ cardId, title });
+    const { name } = req.body;
+    const checklist = await ChecklistService.createChecklist({ cardId, name });
     res.status(201).json(responseHandler.success(checklist));
   }
 
   static async updateChecklist(req: Request, res: Response) {
     const cardId = req.params.cardId as string;
     const checklistId = req.params.checklistId as string;
-    const { title } = req.body;
+    const { name } = req.body;
     const checklist = await ChecklistService.updateChecklist({
       cardId,
       checklistId,
-      title,
+      name,
     });
     res.status(200).json(responseHandler.success(checklist));
   }
@@ -38,11 +38,11 @@ export default class ChecklistController {
   static async createChecklistItem(req: Request, res: Response) {
     const cardId = req.params.cardId as string;
     const checklistId = req.params.checklistId as string;
-    const { title } = req.body;
+    const { name } = req.body;
     const item = await ChecklistService.createChecklistItem({
       cardId,
       checklistId,
-      title,
+      name,
     });
     res.status(201).json(responseHandler.success(item));
   }
@@ -51,12 +51,12 @@ export default class ChecklistController {
     const cardId = req.params.cardId as string;
     const checklistId = req.params.checklistId as string;
     const itemId = req.params.itemId as string;
-    const { title, isCompleted } = req.body;
+    const { name, isCompleted } = req.body;
     const item = await ChecklistService.updateChecklistItem({
       cardId,
       checklistId,
       itemId,
-      title,
+      name,
       isCompleted,
     });
     res.status(200).json(responseHandler.success(item));

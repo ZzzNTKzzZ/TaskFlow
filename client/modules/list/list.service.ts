@@ -1,3 +1,4 @@
+import { Priority } from "@/types/type";
 import { editList, deleteList, getListCards, createCardInList } from "./list.api";
 
 export default class ListService {
@@ -17,8 +18,14 @@ export default class ListService {
     return response.data;
   }
 
-  static async createCardInList(listId: string, payload: any) {
-    const response = await createCardInList(listId, payload);
+  static async createCardInList(boardId: string ,listId: string, payload: {
+    name: string,
+    description: string,
+    priority: Priority,
+    dueDate: string,
+
+  }) {
+    const response = await createCardInList(boardId ,listId, payload);
     return response;
   }
 }

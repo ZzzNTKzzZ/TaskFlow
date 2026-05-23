@@ -30,9 +30,9 @@ export const getListCards = async (listId: string) => {
   }
 };
 
-export const createCardInList = async (listId: string, payload: any) => {
+export const createCardInList = async (boardId: string,listId: string, payload: any) => {
   try {
-    const response = await api.post(`/lists/${listId}/cards`, payload);
+    const response = await api.post(`/${boardId}/lists/${listId}/cards`, payload);
     return response.data;
   } catch (error) {
     console.error("API Error [createCardInList]:", error);

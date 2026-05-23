@@ -10,9 +10,10 @@ export const getCardChecklists = async (cardId: string) => {
   }
 };
 
-export const createChecklist = async (cardId: string, payload: any) => {
+export const createChecklist = async (boardId: string ,cardId: string, name:  string) => {
   try {
-    const response = await api.post(`/cards/${cardId}/checklists`, payload);
+    const response = await api.post(`/${boardId}/cards/${cardId}/checklists`, {name
+    });
     return response.data;
   } catch (error) {
     console.error("API Error [createChecklist]:", error);
@@ -40,9 +41,11 @@ export const deleteChecklist = async (cardId: string, checklistId: string) => {
   }
 };
 
-export const createChecklistItem = async (cardId: string, checklistId: string, payload: any) => {
+export const createChecklistItem = async (boardId: string ,cardId: string, checklistId: string, name: string) => {
   try {
-    const response = await api.post(`/cards/${cardId}/checklists/${checklistId}/items`, payload);
+    const response = await api.post(`/${boardId}/cards/${cardId}/checklists/${checklistId}/items`, {
+      name
+    });
     return response.data;
   } catch (error) {
     console.error("API Error [createChecklistItem]:", error);

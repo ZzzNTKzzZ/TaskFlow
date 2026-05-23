@@ -9,4 +9,6 @@ export default class CardService {
     const payload = response.data;
     return payload
   }
+
+
 }

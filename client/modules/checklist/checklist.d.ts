@@ -1,6 +1,6 @@
 export interface ChecklistItem {
   id: string;
-  title: string;
+  name: string;
   isCompleted: boolean;
   checklistId: string;
   createdAt: string;
@@ -8,7 +8,7 @@ export interface ChecklistItem {
 
 export interface Checklist {
   id: string;
-  title: string;
+  name: string;
   cardId: string;
   createdAt: string;
   items: ChecklistItem[];

@@ -1,10 +1,21 @@
-import {createBoardListApi, getBoardApi } from "./board.api";
+import {createBoardListApi, getBoardApi, getBoardListApi } from "./board.api";
 
 export default class BoardService {
     static async getBoard(boardId: string) {
         const response = await getBoardApi(boardId)
         if (!response || !response.success || !response.data) {
       return {};
+    }
+
+    const payload = response.data;
+    return payload
+    }
+
+
+    static async getBoardList(boardId: string) {
+      const response = await getBoardListApi(boardId)
+       if (!response || !response.success || !response.data) {
+      return [];
     }
 
     const payload = response.data;

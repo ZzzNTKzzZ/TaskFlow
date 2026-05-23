@@ -6,7 +6,7 @@ import {
 } from "../generated/prisma/index.js";
 import { prisma } from "../src/lib/prisma.js";
 
-const USER_ID = "fe461aeb-243f-4906-8a76-7dbd4882286f";
+const USER_ID = "4225abb4-8e06-4ab1-b6f3-1d6ff5c43f57";
 
 async function clearDatabase() {
   await prisma.checklistItem.deleteMany();
@@ -72,14 +72,14 @@ const cardTemplates = [
 async function createChecklist(cardId: string) {
   return prisma.checklist.create({
     data: {
-      title: "Implementation steps",
+      name: "Implementation steps",
       cardId,
       items: {
         create: [
-          { title: "Analyze requirement", isCompleted: true },
-          { title: "Write code" },
-          { title: "Test feature" },
-          { title: "Deploy production" },
+          { name: "Analyze requirement", isCompleted: true },
+          { name: "Write code" },
+          { name: "Test feature" },
+          { name: "Deploy production" },
         ],
       },
     },
@@ -166,7 +166,7 @@ async function main() {
     // personal todo mỗi workspace
     await prisma.todo.create({
       data: {
-        title: `Todo for ${workspace.name}`,
+        name: `Todo for ${workspace.name}`,
         description: `Finish setup for ${workspace.name}`,
         status:
           w % 3 === 0

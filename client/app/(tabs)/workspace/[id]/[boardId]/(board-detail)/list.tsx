@@ -7,7 +7,6 @@ import { useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 
-function TabList() {}
 
 export default function List() {
   const { boardId } = useGlobalSearchParams();

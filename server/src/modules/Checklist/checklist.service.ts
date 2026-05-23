@@ -10,17 +10,17 @@ export default class ChecklistService {
 
   static async createChecklist({
     cardId,
-    title,
+    name,
   }: {
     cardId: string;
-    title: string;
+    name: string;
   }) {
     const card = await CardRepository.findCard({ cardId });
     if (!card) throw new AppError("Card not found", 404);
 
     return ChecklistRepository.createChecklist({
       data: {
-        title,
+        name,
         cardId,
       },
     });
@@ -29,11 +29,11 @@ export default class ChecklistService {
   static async updateChecklist({
     cardId,
     checklistId,
-    title,
+    name,
   }: {
     cardId: string;
     checklistId: string;
-    title?: string;
+    name?: string;
   }) {
     const checklist = await ChecklistRepository.findChecklist({ checklistId });
     if (!checklist) throw new AppError("Checklist not found", 404);
@@ -41,7 +41,7 @@ export default class ChecklistService {
       throw new AppError("Checklist does not belong to this card", 400);
     }
 
-    const data = removeUndefined({ title });
+    const data = removeUndefined({ name });
     if (!Object.keys(data).length) {
       throw new AppError("No fields provided for update", 400);
     }
@@ -68,11 +68,11 @@ export default class ChecklistService {
   static async createChecklistItem({
     cardId,
     checklistId,
-    title,
+    name,
   }: {
     cardId: string;
     checklistId: string;
-    title: string;
+    name: string;
   }) {
     const checklist = await ChecklistRepository.findChecklist({ checklistId });
     if (!checklist) throw new AppError("Checklist not found", 404);
@@ -81,7 +81,7 @@ export default class ChecklistService {
     }
 
     return ChecklistRepository.createChecklistItem({
-      data: { title, checklistId },
+      data: { name, checklistId },
     });
   }
 
@@ -89,13 +89,13 @@ export default class ChecklistService {
     cardId,
     checklistId,
     itemId,
-    title,
+    name,
     isCompleted,
   }: {
     cardId: string;
     checklistId: string;
     itemId: string;
-    title?: string;
+    name?: string;
     isCompleted?: boolean;
   }) {
     const item = await ChecklistRepository.findChecklistItem({ itemId });
@@ -104,7 +104,7 @@ export default class ChecklistService {
       throw new AppError("Checklist item does not belong to this checklist", 400);
     }
 
-    const data = removeUndefined({ title, isCompleted });
+    const data = removeUndefined({ name, isCompleted });
     if (!Object.keys(data).length) {
       throw new AppError("No fields provided for update", 400);
     }

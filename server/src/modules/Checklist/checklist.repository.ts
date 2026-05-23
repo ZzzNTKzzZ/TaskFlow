@@ -23,7 +23,7 @@ export default class ChecklistRepository {
     data,
   }: {
     data: {
-      title: string;
+      name: string;
       cardId: string;
     };
   }) {
@@ -38,7 +38,7 @@ export default class ChecklistRepository {
   }: {
     checklistId: string;
     data: Partial<{
-      title: string;
+      name: string;
     }>;
   }) {
     return prisma.checklist.update({
@@ -63,7 +63,7 @@ export default class ChecklistRepository {
     data,
   }: {
     data: {
-      title: string;
+      name: string;
       checklistId: string;
     };
   }) {
@@ -78,7 +78,7 @@ export default class ChecklistRepository {
   }: {
     itemId: string;
     data: Partial<{
-      title: string;
+      name: string;
       isCompleted: boolean;
     }>;
   }) {

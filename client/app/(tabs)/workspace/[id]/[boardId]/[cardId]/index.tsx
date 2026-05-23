@@ -1,6 +1,8 @@
 import Icons from "@/components/icons/Icons";
 import UpDownIcon from "@/components/icons/UpDownIcon";
 import { Screen } from "@/components/layout/Screen";
+import CreateCheckList from "@/components/overlays/CreateCheckList";
+import CreateCheckListItem from "@/components/overlays/CreateCheckListItem";
 import Badges from "@/components/ui/Badges";
 import Button from "@/components/ui/Button";
 import Checked from "@/components/ui/Checked";
@@ -40,7 +42,7 @@ function InnerTodoItem({ item }: { item: ChecklistItemType }) {
           },
         ]}
       >
-        {item.title}
+        {item.name}
       </Text>
     </View>
   );
@@ -48,13 +50,22 @@ function InnerTodoItem({ item }: { item: ChecklistItemType }) {
 
 function ChecklistItem({ checklist }: { checklist: Checklist }) {
   const [active, setActive] = useState(false);
-
+  const [isOpenCreate, setIsOpenCreate] = useState(false);
   const completedCount = checklist.items.filter((i) => i.isCompleted).length;
   const progress =
     checklist.items.length > 0 ? completedCount / checklist.items.length : 0;
 
   return (
-    <View style={{ marginBottom: Spacing[2], borderRadius: 8, borderWidth: 1, borderColor: Theme.border, paddingHorizontal: Spacing[2], paddingVertical: Spacing[3] }}>
+    <View
+      style={{
+        marginBottom: Spacing[2],
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: Theme.border,
+        paddingHorizontal: Spacing[2],
+        paddingVertical: Spacing[3],
+      }}
+    >
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={() => setActive((prev) => !prev)}
@@ -72,8 +83,13 @@ function ChecklistItem({ checklist }: { checklist: Checklist }) {
             flex: 1,
           }}
         >
-          <Text style={[Typography.label, { fontSize: 16, color: Theme.textPrimary }]}>
-            {checklist.title}
+          <Text
+            style={[
+              Typography.label,
+              { fontSize: 16, color: Theme.textPrimary },
+            ]}
+          >
+            {checklist.name}
           </Text>
           {checklist.items.length > 0 && (
             <View
@@ -99,16 +115,39 @@ function ChecklistItem({ checklist }: { checklist: Checklist }) {
       </TouchableOpacity>
 
       {active && (
-        <View style={{ paddingLeft: Spacing[4], marginTop: Spacing[1], gap: Spacing[3]}}>
+        <View
+          style={{
+            paddingLeft: Spacing[4],
+            marginTop: Spacing[1],
+            gap: Spacing[3],
+          }}
+        >
           {checklist.items.map((item) => (
             <InnerTodoItem key={item.id} item={item} />
           ))}
-          <TouchableOpacity style={{flexDirection: "row", gap: Spacing[2], alignItems: "center"}}>
-            <Icons name="Plus" color={Theme.primary}/>
-            <Text style={[Typography.title ,{color: Theme.primary, fontSize: 14}]}>Add item</Text>
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              gap: Spacing[2],
+              alignItems: "center",
+            }}
+            onPress={() => setIsOpenCreate(true)}
+          >
+            <Icons name="Plus" color={Theme.primary} />
+            <Text
+              style={[Typography.title, { color: Theme.primary, fontSize: 14 }]}
+            >
+              Add item
+            </Text>
           </TouchableOpacity>
         </View>
       )}
+      <CreateCheckListItem
+        active={isOpenCreate}
+        onClose={() => setIsOpenCreate(false)}
+        cardId={checklist.cardId}
+        checkListId={checklist.id}
+      />
     </View>
   );
 }
@@ -117,11 +156,11 @@ export default function Card() {
   const { boardId, cardId } = useGlobalSearchParams();
   const [card, setCard] = useState<CardRespone>();
   const [loading, setLoading] = useState(true);
-  const pathname = usePathname()
-
+  const pathname = usePathname();
+  const [active, setActive] = useState<boolean>(false);
   useEffect(() => {
     const getCard = async () => {
-      console.log(pathname)
+      console.log(pathname);
       try {
         const response = await CardService.getCard(
           boardId as string,
@@ -176,7 +215,6 @@ export default function Card() {
             </Text>
           </View>
 
-          {/* FIXED: Passed style as an Array structure here instead of spreading an array inside an object literal */}
           <Badges
             name={formatMonthDate(card.dueDate)}
             style={{ ...Typography.title, fontSize: 16 }}
@@ -194,10 +232,7 @@ export default function Card() {
         }}
       >
         <Text style={[Typography.heading, { fontSize: 20 }]}>Description</Text>
-        <Text
-          numberOfLines={2}
-          style={[Typography.caption, { fontSize: 16 }]}
-        >
+        <Text numberOfLines={2} style={[Typography.caption, { fontSize: 16 }]}>
           {card.description || "No description provided."}
         </Text>
       </View>
@@ -215,7 +250,7 @@ export default function Card() {
       >
         <Text style={[Typography.heading, { fontSize: 20 }]}>Checklist</Text>
         <Button
-          onPress={() => {}}
+          onPress={() => setActive(true)}
           type="ghost"
           styleText={{ color: Theme.primary, fontSize: 16 }}
           style={{ borderWidth: 0 }}
@@ -235,6 +270,11 @@ export default function Card() {
           <ChecklistItem key={c.id} checklist={c} />
         ))}
       </View>
+      <CreateCheckList
+        active={active}
+        onClose={() => setActive(false)}
+        cardId={cardId as string}
+      />
     </Screen>
   );
 }

@@ -190,7 +190,7 @@ model Comment {
 
 model Checklist {
   id        String   @id @default(uuid())
-  title     String
+  name     String
   cardId    String
   createdAt DateTime @default(now())
 
@@ -200,7 +200,7 @@ model Checklist {
 
 model ChecklistItem {
   id          String  @id @default(uuid())
-  title       String
+  name       String
   isCompleted Boolean @default(false)
   checklistId String
 
@@ -209,7 +209,7 @@ model ChecklistItem {
 
 model Todo {
   id          String     @id @default(uuid())
-  title       String
+  name       String
   description String?
   status      TodoStatus
   priority    Priority
@@ -244,7 +244,7 @@ model LabelOnCard {
 model Notification {
   id        String   @id @default(uuid())
   userId    String
-  title     String
+  name     String
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())

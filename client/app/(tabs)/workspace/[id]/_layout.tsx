@@ -1,5 +1,6 @@
 import TopBar from "@/components/ui/TopBar";
 import {
+  router,
   Stack,
 } from "expo-router";
 import { useEffect } from "react";
@@ -19,6 +20,7 @@ export default function WorkspaceIdLayout() {
             headerShown: true,
             header: () => (
               <TopBar
+              onBack={() => router.navigate("/(tabs)/workspace")}
                 name={routeParams.name}
                 icon={routeParams.icon}
                 color={routeParams.color}

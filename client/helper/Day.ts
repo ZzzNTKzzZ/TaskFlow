@@ -1,4 +1,3 @@
-import { requireNativeComponent } from "react-native";
 
 export function formatDate(dateString: string): string {
   // 1. Khởi tạo đối tượng Date từ chuỗi ISO
@@ -19,6 +18,7 @@ export function formatDate(dateString: string): string {
   // 3. Loại bỏ dấu phẩy (nếu có) để ra định dạng "10:49:53 10/5/2026"
   return vnTime.replace(",", "");
 }
+
 
 export function getTimeDifference(dateString: string) {
   const past = new Date(dateString)
@@ -44,6 +44,15 @@ export function formatMonthDate(dateString: string) {
   const date = new Date(dateString);
   
   return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+export function formatYearMonthDate(dateString: string) {
+   const date = new Date(dateString);
+  
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
     month: "short",
     day: "numeric",
   });

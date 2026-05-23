@@ -19,6 +19,8 @@ import UpDownIcon from "../icons/UpDownIcon";
 import { useState } from "react";
 import DropDown from "../overlays/DropDown";
 import KebabMenu from "../overlays/KebabMenu";
+import CreateCard from "../overlays/CreateCard";
+import { usePathname } from "expo-router";
 
 interface ListCardProps extends ListCardUI {
   styleList?: StyleProp<ViewStyle>;
@@ -27,6 +29,7 @@ interface ListCardProps extends ListCardUI {
 }
 
 export default function ListCard({
+  id,
   name,
   cardCount,
   styleList,
@@ -34,8 +37,10 @@ export default function ListCard({
   onLongPress,
   typeCard = "Board",
 }: ListCardProps) {
+  const pathName = usePathname()
   const [activeMenu, setActiveMenu] = useState(false)
   const [active, setActive] = useState(false);
+  const [isActiveAddCard, setIsActiveAddCard] = useState(false)
   if (typeCard === "List")
     return (
       <View
@@ -199,7 +204,7 @@ export default function ListCard({
         <Button
           type="ghost"
           leftIcon={<Icons name="Plus" color={Theme.primary} />}
-          onPress={() => {}}
+          onPress={() => setIsActiveAddCard(true)}
           style={{
             paddingVertical: Spacing[2],
             paddingHorizontal: Spacing[3],
@@ -213,6 +218,7 @@ export default function ListCard({
           Add card
         </Button>
       </View>
+        <CreateCard listId={id} visible={isActiveAddCard} onClose={() => setIsActiveAddCard(false)}/> 
       <KebabMenu visible={activeMenu} onClose={() => setActiveMenu(false)} menu={["Edit list", "Delete list"]}/>
     </View>
   );
