@@ -94,9 +94,29 @@ export default function Create() {
     visibility: Visibility;
     background: BackgroundColor;
   }) => {
+    const tempId = `tmp-${Date.now()}`;
+    const tempBoard = { id: tempId, name: payload.name, memberCount: 0, workspaceId: payload.workspaceId } as any;
     try {
-       await WorkspaceService.createWorkspaceBoard(payload);
+      const eventBus = await import("@/services/eventBus");
+      eventBus.emit("board:creating", { workspaceId: payload.workspaceId, board: tempBoard });
+    } catch (e) {}
+
+    try {
+       const response = await WorkspaceService.createWorkspaceBoard(payload);
+       if (response && response.id) {
+         try {
+           const eventBus = await import("@/services/eventBus");
+           eventBus.emit("board:created", { tempId, created: response });
+         } catch (e) {}
+       } else {
+         const eventBus = await import("@/services/eventBus");
+         eventBus.emit("board:create_failed", { tempId });
+       }
     } catch (error) {
+      try {
+        const eventBus = await import("@/services/eventBus");
+        eventBus.emit("board:create_failed", { tempId });
+      } catch (e) {}
       console.error("Lỗi khi tạo board", error)
     } finally {
       router.back()
