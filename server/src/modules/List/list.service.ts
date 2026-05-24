@@ -49,7 +49,7 @@ export default class ListService {
     const maxPosition = await CardRepository.getMaxPosition({ listId: data.listId });
     const position = maxPosition + 65535;
 
-    const card = await CardRepository.createCard({
+    const card = await CardRepository.createCardWithChecklist({
       data: {
         name: data.name,
         description: data.description ?? null,

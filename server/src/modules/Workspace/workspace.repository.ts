@@ -1,7 +1,5 @@
-import type {
-  BoardVisibility,
-  WorkspaceRole,
-} from "../../../generated/prisma/index.js";
+import { BoardVisibility, Priority } from "../../../generated/prisma/index.js";
+import type { WorkspaceRole } from "../../../generated/prisma/index.js";
 import { prisma } from "../../lib/prisma.js";
 
 export default class WorkspaceRepository {
@@ -49,16 +47,65 @@ export default class WorkspaceRepository {
   }) {
     return await prisma.$transaction(async (tx) => {
       const workspace = await tx.workspace.create({
-        data: { name, slug },
-      });
-
-      await tx.workspaceMember.create({
         data: {
-          userId,
-          workspaceId: workspace.id,
-          role: "OWNER",
+          name,
+          slug,
+          members: {
+            create: {
+              userId,
+              role: "OWNER",
+            },
+          },
+          boards: {
+            create: [
+              {
+                name: "Main Board",
+                visibility: BoardVisibility.workspace,
+                position: 0,
+                members: {
+                  create: {
+                    userId,
+                  },
+                },
+                lists: {
+                  create: [
+                    {
+                      name: "To Do",
+                      position: 0,
+                      cards: {
+                        create: [
+                          {
+                            name: "Getting Started",
+                            description: null,
+                            position: 0,
+                            priority: Priority.low,
+                            dueDate: null,
+                            checklists: {
+                              create: [
+                                {
+                                  name: "Setup Checklist",
+                                  items: {
+                                    create: [
+                                      { name: "Complete workspace setup" },
+                                      { name: "Invite team members" },
+                                      { name: "Create your first task" },
+                                    ],
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
         },
       });
+
       return workspace;
     });
   }
@@ -298,13 +345,44 @@ export default class WorkspaceRepository {
           visibility,
           background,
           position: 0,
-        },
-      });
-
-      await tx.boardMember.create({
-        data: {
-          userId,
-          boardId: board.id,
+          members: {
+            create: {
+              userId,
+            },
+          },
+          lists: {
+            create: [
+              {
+                name: "To Do",
+                position: 0,
+                cards: {
+                  create: [
+                    {
+                      name: "Getting Started",
+                      description: null,
+                      position: 0,
+                      priority: Priority.low,
+                      dueDate: null,
+                      checklists: {
+                        create: [
+                          {
+                            name: "Setup Checklist",
+                            items: {
+                              create: [
+                                { name: "Complete workspace setup" },
+                                { name: "Invite team members" },
+                                { name: "Create your first task" },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
         },
       });
 

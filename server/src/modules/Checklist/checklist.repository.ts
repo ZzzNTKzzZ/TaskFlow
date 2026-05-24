@@ -25,10 +25,17 @@ export default class ChecklistRepository {
     data: {
       name: string;
       cardId: string;
+      items?: { name: string }[];
     };
   }) {
+    const checklistData = {
+      name: data.name,
+      cardId: data.cardId,
+      ...(data.items ? { items: { create: data.items } } : {}),
+    };
+
     return prisma.checklist.create({
-      data,
+      data: checklistData,
     });
   }
 

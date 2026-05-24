@@ -1,3 +1,4 @@
+import { Priority } from "../../../generated/prisma/index.js";
 import { prisma } from "../../lib/prisma.js";
 
 export default class ListRepository {
@@ -16,6 +17,51 @@ export default class ListRepository {
         name,
         position: 0,
       },
+    });
+  }
+
+  static async createListWithDefaults({
+    boardId,
+    name,
+  }: {
+    boardId: string;
+    name: string;
+  }) {
+    return await prisma.$transaction(async (tx) => {
+      const list = await tx.list.create({
+        data: {
+          boardId,
+          name,
+          position: 0,
+        },
+      });
+
+      const card = await tx.card.create({
+        data: {
+          name: "New Task",
+          description: null,
+          listId: list.id,
+          position: 0,
+          priority: Priority.low,
+          dueDate: null,
+        },
+      });
+
+      await tx.checklist.create({
+        data: {
+          name: "Task Checklist",
+          cardId: card.id,
+          items: {
+            create: [
+              { name: "Item 1" },
+              { name: "Item 2" },
+              { name: "Item 3" },
+            ],
+          },
+        },
+      });
+
+      return list;
     });
   }
 

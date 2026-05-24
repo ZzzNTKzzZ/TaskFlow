@@ -38,6 +38,43 @@ export default class CardRepository {
     });
   }
 
+  static async createCardWithChecklist({
+    data,
+  }: {
+    data: {
+      name: string;
+      description?: string | null;
+      listId: string;
+      position: number;
+      priority: "low" | "medium" | "high" | "urgent";
+      dueDate?: Date | null;
+    };
+  }) {
+    return await prisma.$transaction(async (tx) => {
+      const card = await tx.card.create({
+        data: {
+          ...data,
+        },
+      });
+
+      await tx.checklist.create({
+        data: {
+          name: "Task Checklist",
+          cardId: card.id,
+          items: {
+            create: [
+              { name: "Item 1" },
+              { name: "Item 2" },
+              { name: "Item 3" },
+            ],
+          },
+        },
+      });
+
+      return card;
+    });
+  }
+
   static async updateCard({
     cardId,
     data,
