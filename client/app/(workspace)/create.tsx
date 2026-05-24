@@ -43,8 +43,34 @@ export default function Create() {
   ];
 
   const handleCreateWorkspace = async () => {
-    await WorkspaceService.createWorkspace(name)
-    router.replace("/(tabs)/workspace")
+    const tempId = `tmp-${Date.now()}`;
+    const tempWs = { id: tempId, name, boardCount: 0, memberCount: 0, icon: "Company", color: "Primary" } as any;
+
+    try {
+      const eventBus = await import("@/services/eventBus");
+      eventBus.emit("workspace:creating", tempWs);
+    } catch (e) {}
+
+    try {
+      const response = await WorkspaceService.createWorkspace(name);
+      if (response && response.id) {
+        try {
+          const eventBus = await import("@/services/eventBus");
+          eventBus.emit("workspace:created", { tempId, created: response });
+        } catch (e) {}
+      } else {
+        const eventBus = await import("@/services/eventBus");
+        eventBus.emit("workspace:create_failed", { tempId });
+      }
+    } catch (error) {
+      try {
+        const eventBus = await import("@/services/eventBus");
+        eventBus.emit("workspace:create_failed", { tempId });
+      } catch (e) {}
+      console.error("Create workspace error:", error);
+    }
+
+    router.replace("/(tabs)/workspace");
   }
   return (
     <Screen isScroll={false}>

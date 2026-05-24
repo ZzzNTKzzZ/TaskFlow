@@ -22,10 +22,12 @@ export default function CreateCard({
   visible,
   onClose,
   listId,
+  onCreateCard,
 }: {
   visible: boolean;
   onClose: () => void;
-  listId: string
+  listId: string;
+  onCreateCard?: (boardId: string, listId: string, payload: any) => Promise<any> | void;
 }) {
   const dateNow = new Date();
   const {id ,boardId } = useLocalSearchParams();
@@ -62,17 +64,33 @@ export default function CreateCard({
   const [options, setOptions] = useState<{ id: string; name: string }[]>([]);
   const [isOpenCalender, setIsOpenCalender] = useState(false);
   const handleCreate = async () => {
-    await ListService.createCardInList(boardId as string, selected.id, {
+    const payload = {
       name,
       description,
       priority: priority.name,
-      dueDate: new Date(date).toString()
-    })
-    onClose()
-    router.navigate({pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)", params: {
-      id: id as string,
-      boardId: boardId as string,
-    }})
+      dueDate: new Date(date).toString(),
+    };
+
+    if (onCreateCard) {
+      try {
+        // Parent handles optimistic update and API call
+        onCreateCard(boardId as string, selected.id, payload);
+      } catch (error) {
+        console.error("Create card handler error:", error);
+      }
+    } else {
+      try {
+        await ListService.createCardInList(boardId as string, selected.id, payload);
+        router.navigate({ pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)", params: {
+          id: id as string,
+          boardId: boardId as string,
+        }});
+      } catch (error) {
+        console.error("Create card error:", error);
+      }
+    }
+
+    onClose();
   };
   useEffect(() => {
     const getList = async () => {
