@@ -23,7 +23,31 @@ export default function CreateCheckList({
   const {boardId} = useLocalSearchParams<{boardId: string}>()
   const [name, setName] = useState<string>("");
   const handleSave = async () => {
-    await ChecklistService.createChecklist(boardId ,cardId, name)
+    const tempId = `tmp-${Date.now()}`;
+    const tempChecklist = { id: tempId, name, items: [], cardId } as any;
+    try {
+      const eventBus = await import("@/services/eventBus");
+      eventBus.emit("checklist:creating", { cardId, checklist: tempChecklist });
+    } catch (e) {}
+
+    try {
+      const response = await ChecklistService.createChecklist(boardId, cardId, name);
+      if (response && response.id) {
+        try {
+          const eventBus = await import("@/services/eventBus");
+          eventBus.emit("checklist:created", { tempId, created: response });
+        } catch (e) {}
+      } else {
+        const eventBus = await import("@/services/eventBus");
+        eventBus.emit("checklist:create_failed", { tempId });
+      }
+    } catch (error) {
+      try {
+        const eventBus = await import("@/services/eventBus");
+        eventBus.emit("checklist:create_failed", { tempId });
+      } catch (e) {}
+      console.error("Create checklist error:", error);
+    }
   }
   return (
     <BaseOverlay visible={active} onClose={onClose}>

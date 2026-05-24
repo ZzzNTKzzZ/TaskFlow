@@ -36,6 +36,40 @@ export default function WorkspaceDetail() {
     if (id) getWorkspace();
   }, [id, isFocused]);
 
+  // subscribe to board create events (optimistic from create board page)
+  useEffect(() => {
+    let offCreating: any;
+    let offCreated: any;
+    let offFailed: any;
+
+    (async () => {
+      try {
+        const eventBus = await import("@/services/eventBus");
+        offCreating = eventBus.on("board:creating", ({ workspaceId, board }: any) => {
+          if (workspaceId === id) {
+            setBoards((prev) => [...prev, board]);
+          }
+        });
+        offCreated = eventBus.on("board:created", ({ tempId, created }: any) => {
+          setBoards((prev) => prev.map((b) => (b.id === tempId ? created : b)));
+        });
+        offFailed = eventBus.on("board:create_failed", ({ tempId }: any) => {
+          setBoards((prev) => prev.filter((b) => b.id !== tempId));
+        });
+      } catch (e) {
+        console.error("eventBus subscribe error:", e);
+      }
+    })();
+
+    return () => {
+      try {
+        if (offCreating) offCreating();
+        if (offCreated) offCreated();
+        if (offFailed) offFailed();
+      } catch (e) {}
+    };
+  }, [id]);
+
   // 2. Tự động xử lý Filter & Sort tập trung khi bất kỳ state liên quan nào thay đổi
   useEffect(() => {
     // Lọc theo từ khóa tìm kiếm (nếu sau này bạn thêm thanh Input Search)

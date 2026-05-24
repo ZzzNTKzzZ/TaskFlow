@@ -64,6 +64,39 @@ export default function HomeScreen() {
     };
     initWorkspaces();
   }, []);
+
+  // subscribe to workspace create events
+  useEffect(() => {
+    let offCreating: any;
+    let offCreated: any;
+    let offFailed: any;
+
+    (async () => {
+      try {
+        const eventBus = await import("@/services/eventBus");
+        offCreating = eventBus.on("workspace:creating", (tempWs: any) => {
+          setWorkspaces((prev) => [...prev, tempWs]);
+        });
+        offCreated = eventBus.on("workspace:created", ({ tempId, created }: any) => {
+          setWorkspaces((prev) => prev.map((w) => (w.id === tempId ? created : w)));
+        });
+        offFailed = eventBus.on("workspace:create_failed", ({ tempId }: any) => {
+          setWorkspaces((prev) => prev.filter((w) => w.id !== tempId));
+        });
+      } catch (e) {
+        console.error("eventBus subscribe error:", e);
+      }
+    })();
+
+    return () => {
+      try {
+        if (offCreating) offCreating();
+        if (offCreated) offCreated();
+        if (offFailed) offFailed();
+      } catch (e) {}
+    };
+  }, []);
+
   useEffect(() => {
     if (!selected.id) return;
 

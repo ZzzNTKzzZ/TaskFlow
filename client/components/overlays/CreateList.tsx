@@ -59,7 +59,38 @@ export default function CreateList({
   }, []);
 
   const handleCreate = async (payload: { boardId: string; name: string }) => {
-    await BoardService.createList(payload);
+    const tempId = `tmp-${Date.now()}`;
+    const tempList = { id: tempId, name: payload.name, cards: [], cardCount: 0, boardId: payload.boardId } as any;
+
+    // optimistic notify
+    try {
+      const eventBus = await import("@/services/eventBus");
+      eventBus.emit("list:creating", tempList);
+    } catch (e) {
+      console.error("eventBus error:", e);
+    }
+
+    try {
+      const response = await BoardService.createList(payload);
+      if (response && response.id) {
+        try {
+          const eventBus = await import("@/services/eventBus");
+          eventBus.emit("list:created", { tempId, created: response });
+        } catch (e) {
+          console.error("eventBus error:", e);
+        }
+      } else {
+        const eventBus = await import("@/services/eventBus");
+        eventBus.emit("list:create_failed", { tempId });
+      }
+    } catch (error) {
+      console.error("Create list error:", error);
+      try {
+        const eventBus = await import("@/services/eventBus");
+        eventBus.emit("list:create_failed", { tempId });
+      } catch (e) {}
+    }
+
     onClose();
     setName("");
   };

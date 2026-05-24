@@ -174,6 +174,71 @@ export default function Card() {
       }
     };
     getCard();
+
+    // subscribe to checklist events for optimistic updates
+    let offCreating: any;
+    let offCreated: any;
+    let offFailed: any;
+    let offItemCreating: any;
+    let offItemCreated: any;
+    let offItemFailed: any;
+    (async () => {
+      try {
+        const eventBus = await import("@/services/eventBus");
+        offCreating = eventBus.on("checklist:creating", ({ cardId: targetCardId, checklist }: any) => {
+          if (targetCardId === cardId) {
+            setCard((prev) => ({ ...(prev as any), checklists: [...((prev as any).checklists || []), checklist] }));
+          }
+        });
+        offCreated = eventBus.on("checklist:created", ({ tempId, created }: any) => {
+          setCard((prev) => ({ ...(prev as any), checklists: ((prev as any).checklists || []).map((c: any) => (c.id === tempId ? created : c)) }));
+        });
+        offFailed = eventBus.on("checklist:create_failed", ({ tempId }: any) => {
+          setCard((prev) => ({ ...(prev as any), checklists: ((prev as any).checklists || []).filter((c: any) => c.id !== tempId) }));
+        });
+
+        // checklist item events
+        offItemCreating = eventBus.on("checklistItem:creating", ({ checklistId, item }: any) => {
+          setCard((prev) => ({
+            ...(prev as any),
+            checklists: ((prev as any).checklists || []).map((c: any) =>
+              c.id === checklistId ? { ...c, items: [...(c.items || []), item] } : c,
+            ),
+          }));
+        });
+        offItemCreated = eventBus.on("checklistItem:created", ({ tempId, created }: any) => {
+          setCard((prev) => ({
+            ...(prev as any),
+            checklists: ((prev as any).checklists || []).map((c: any) => ({
+              ...c,
+              items: (c.items || []).map((it: any) => (it.id === tempId ? created : it)),
+            })),
+          }));
+        });
+        offItemFailed = eventBus.on("checklistItem:create_failed", ({ tempId }: any) => {
+          setCard((prev) => ({
+            ...(prev as any),
+            checklists: ((prev as any).checklists || []).map((c: any) => ({
+              ...c,
+              items: (c.items || []).filter((it: any) => it.id !== tempId),
+            })),
+          }));
+        });
+      } catch (e) {
+        console.error("eventBus subscribe error:", e);
+      }
+    })();
+
+    return () => {
+      try {
+        if (offCreating) offCreating();
+        if (offCreated) offCreated();
+        if (offFailed) offFailed();
+        if (offItemCreating) offItemCreating();
+        if (offItemCreated) offItemCreated();
+        if (offItemFailed) offItemFailed();
+      } catch (e) {}
+    };
   }, [boardId, cardId]);
 
   if (loading) return <Text style={{ padding: Spacing[6] }}>Loading...</Text>;
