@@ -1,32 +1,59 @@
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import DraggableFlatList from "react-native-draggable-flatlist";
+
 import { Screen } from "@/components/layout/Screen";
 import ListCard from "@/components/list/ListCard";
 import BoardService from "@/modules/board/board.service";
 import ListService from "@/modules/list/list.service";
 import { ListCardUI } from "@/modules/list/list";
 import { Spacing } from "@/theme/spacing";
-import { useLocalSearchParams, usePathname } from "expo-router";
-import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import DraggableFlatList from "react-native-draggable-flatlist";
+import { Colors } from "@/theme/colors";
+import { Theme } from "@/theme/theme";
+import { Typography } from "@/theme/typography";
 
 export default function Board() {
-  const { boardId, refresh } = useLocalSearchParams();
+  const { boardId, refresh } = useLocalSearchParams<{ boardId: string; refresh?: string }>();
   const [list, setList] = useState<ListCardUI[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const getList = async () => {
-      try {
-        const response = await BoardService.getBoard(boardId as string);
-        setList(response.lists);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-    getList();
+  // Fetch Board Details on Mount / Refresh
+  const getBoardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await BoardService.getBoard(boardId);
+      if (response && response.lists) {
+        // Sort lists based on position before mapping to UI
+        const sortedLists = [...response.lists].sort((a, b) => a.position - b.position);
+        setList(sortedLists);
+      } else {
+        setError("Failed to fetch board lists.");
+      }
+    } catch (err: any) {
+      console.error("Lỗi lấy dữ liệu Board:", err);
+      setError(err.message || "A network error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (boardId) {
+      getBoardData();
+    }
   }, [refresh, boardId]);
 
-  // subscribe to list create events from header overlay
+  // EventBus Subscriptions for Live List CRUD Sync
   useEffect(() => {
     let offCreating: any;
     let offCreated: any;
@@ -36,16 +63,13 @@ export default function Board() {
       try {
         const eventBus = await import("@/services/eventBus");
         offCreating = eventBus.on("list:creating", (tempList: any) => {
-          // only add if belongs to this board
           if (tempList.boardId === boardId) {
             setList((prev) => [...prev, tempList]);
           }
         });
 
         offCreated = eventBus.on("list:created", ({ tempId, created }: any) => {
-          setList((prev) =>
-            prev.map((l) => (l.id === tempId ? created : l)),
-          );
+          setList((prev) => prev.map((l) => (l.id === tempId ? created : l)));
         });
 
         offFailed = eventBus.on("list:create_failed", ({ tempId }: any) => {
@@ -65,7 +89,45 @@ export default function Board() {
     };
   }, [boardId]);
 
-  const handleCreateCard = async (boardIdParam: string, listIdParam: string, payload: any) => {
+  // Handle Optimistic List Reordering Action
+  const handleReorderLists = async (newData: ListCardUI[], movedItem: ListCardUI) => {
+    const previousState = [...list];
+    
+    // 1. Optimistic Update Local React State Immediately
+    setList(newData);
+
+    try {
+      const index = newData.findIndex((l) => l.id === movedItem.id);
+      const beforeId = index > 0 ? newData[index - 1].id : null;
+      const afterId = index < newData.length - 1 ? newData[index + 1].id : null;
+
+      // 2. Trigger asynchronous API call in the background
+      const response = await BoardService.reorderList(boardId, {
+        listId: movedItem.id,
+        beforeId,
+        afterId,
+      });
+
+      if (!response) {
+        throw new Error("Failed to reorder list on server.");
+      }
+    } catch (err: any) {
+      // 3. Roll back smoothly on failure
+      Alert.alert(
+        "Sync Failed",
+        err.message || "An error occurred while saving the list order. Restoring layout...",
+        [{ text: "OK" }]
+      );
+      setList(previousState);
+    }
+  };
+
+  // Handle Create Card inside List
+  const handleCreateCard = async (
+    boardIdParam: string,
+    listIdParam: string,
+    payload: any,
+  ) => {
     const previous = list;
     const tempId = `tmp-${Date.now()}`;
     const newCard = {
@@ -74,25 +136,42 @@ export default function Board() {
       description: payload.description,
       priority: payload.priority,
       dueDate: payload.dueDate,
+      stats: {
+        checkListCount: 0,
+        checkListCompelete: 0,
+      },
+      checklists: [],
     };
 
-    // optimistic update
+    // Optimistic Update local Card state
     setList((prev) =>
       prev.map((l) =>
         l.id === listIdParam
-          ? { ...l, cards: [...(l.cards || []), newCard], cardCount: (l.cardCount || 0) + 1 }
+          ? {
+              ...l,
+              cards: [...(l.cards || []), newCard as any],
+              cardCount: (l.cardCount || 0) + 1,
+            }
           : l,
       ),
     );
 
     try {
-      const response = await ListService.createCardInList(boardIdParam, listIdParam, payload);
-      if (response && response.success && response.data) {
-        const created = response.data;
+      const response = await ListService.createCardInList(
+        boardIdParam,
+        listIdParam,
+        payload,
+      );
+      if (response) {
         setList((prev) =>
           prev.map((l) =>
             l.id === listIdParam
-              ? { ...l, cards: l.cards.map((c: any) => (c.id === tempId ? created : c)) }
+              ? {
+                  ...l,
+                  cards: l.cards.map((c: any) =>
+                    c.id === tempId ? response : c,
+                  ),
+                }
               : l,
           ),
         );
@@ -105,11 +184,30 @@ export default function Board() {
     }
   };
 
-  if (loading) return <Text>Loading...</Text>;
+  // Loading UI State
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={Theme.primary} />
+        <Text style={styles.metaText}>Syncing board layout...</Text>
+      </View>
+    );
+  }
+
+  // Error UI State
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>⚠️ Error: {error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={getBoardData}>
+          <Text style={styles.retryText}>Retry Connection</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <Screen isScroll={false} padding={Spacing[4]}>
-      
       <DraggableFlatList
         data={list}
         horizontal
@@ -117,24 +215,59 @@ export default function Board() {
         activationDistance={20}
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
-        onDragEnd={({ data }) => {
-          setList(data);
-
-          // call api save order
-          // BoardService.updateListOrder(data)
+        onDragEnd={({ data, to }) => {
+          const movedItem = data[to];
+          if (movedItem) {
+            handleReorderLists(data, movedItem);
+          }
         }}
         style={{ paddingVertical: Spacing[4] }}
-        renderItem={({ item, drag, isActive }) => (
+        renderItem={({ item, drag }) => (
           <TouchableOpacity
-          activeOpacity={0.7}
-            style={{
-              marginRight: Spacing[3],
-            }}
+            activeOpacity={0.9}
+            style={{ marginRight: Spacing[3] }}
           >
-            <ListCard {...item} onLongPress={drag} onCreateCard={handleCreateCard} />
+            <ListCard
+              {...item}
+              onLongPress={drag}
+              onCreateCard={handleCreateCard}
+            />
           </TouchableOpacity>
         )}
       />
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.gray[50],
+    padding: Spacing[6],
+  },
+  metaText: {
+    marginTop: Spacing[3],
+    ...Typography.body,
+    color: Colors.gray[600],
+  },
+  errorText: {
+    ...Typography.title,
+    fontSize: 16,
+    color: Theme.error[600],
+    textAlign: "center",
+    marginBottom: Spacing[4],
+  },
+  retryButton: {
+    backgroundColor: Theme.primary,
+    paddingVertical: Spacing[3],
+    paddingHorizontal: Spacing[6],
+    borderRadius: 8,
+  },
+  retryText: {
+    color: Theme.surface,
+    ...Typography.heading,
+    fontSize: 14,
+  },
+});

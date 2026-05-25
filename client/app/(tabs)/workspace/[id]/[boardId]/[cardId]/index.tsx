@@ -10,6 +10,7 @@ import ProgressBar from "@/components/ui/ProgressBar";
 import { formatMonthDate } from "@/helper/Day";
 import { CardRespone } from "@/modules/card/card";
 import CardService from "@/modules/card/card.service";
+import ChecklistService from "@/modules/checklist/checklist.service";
 import {
   Checklist,
   ChecklistItem as ChecklistItemType,
@@ -21,9 +22,17 @@ import { useGlobalSearchParams, usePathname } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-function InnerTodoItem({ item }: { item: ChecklistItemType }) {
+function InnerTodoItem({
+  item,
+  onToggle,
+}: {
+  item: ChecklistItemType;
+  onToggle: (item: ChecklistItemType) => void;
+}) {
   return (
-    <View
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => onToggle(item)}
       style={{
         flexDirection: "row",
         alignItems: "center",
@@ -44,11 +53,17 @@ function InnerTodoItem({ item }: { item: ChecklistItemType }) {
       >
         {item.name}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 }
 
-function ChecklistItem({ checklist }: { checklist: Checklist }) {
+function ChecklistItem({
+  checklist,
+  onToggle,
+}: {
+  checklist: Checklist;
+  onToggle: (item: ChecklistItemType) => void;
+}) {
   const [active, setActive] = useState(false);
   const [isOpenCreate, setIsOpenCreate] = useState(false);
   const completedCount = checklist.items.filter((i) => i.isCompleted).length;
@@ -123,7 +138,13 @@ function ChecklistItem({ checklist }: { checklist: Checklist }) {
           }}
         >
           {checklist.items.map((item) => (
-            <InnerTodoItem key={item.id} item={item} />
+            <InnerTodoItem
+              key={item.id}
+              item={item}
+              onToggle={(itemToToggle) =>
+                onToggle ? onToggle(itemToToggle) : undefined
+              }
+            />
           ))}
           <TouchableOpacity
             style={{
@@ -158,6 +179,57 @@ export default function Card() {
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
   const [active, setActive] = useState<boolean>(false);
+
+  const handleToggleChecklistItem = async (
+    checklistId: string,
+    item: ChecklistItemType,
+  ) => {
+    const nextCompleted = !item.isCompleted;
+    setCard((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        checklists: (prev.checklists || []).map((checklist) =>
+          checklist.id === checklistId
+            ? {
+                ...checklist,
+                items: (checklist.items || []).map((it) =>
+                  it.id === item.id ? { ...it, isCompleted: nextCompleted } : it,
+                ),
+              }
+            : checklist,
+        ),
+      };
+    });
+    try {
+      await ChecklistService.completeChecklistItem(
+        boardId as string,
+        cardId as string,
+        checklistId,
+        item.id,
+        nextCompleted,
+      );
+    } catch (error) {
+      console.error("Failed to update checklist item:", error);
+      setCard((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          checklists: (prev.checklists || []).map((checklist) =>
+            checklist.id === checklistId
+              ? {
+                  ...checklist,
+                  items: (checklist.items || []).map((it) =>
+                    it.id === item.id ? { ...it, isCompleted: item.isCompleted } : it,
+                  ),
+                }
+              : checklist,
+          ),
+        };
+      });
+    }
+  };
+
   useEffect(() => {
     const getCard = async () => {
       console.log(pathname);
@@ -332,7 +404,11 @@ export default function Card() {
         }}
       >
         {card.checklists?.map((c) => (
-          <ChecklistItem key={c.id} checklist={c} />
+          <ChecklistItem
+            key={c.id}
+            checklist={c}
+            onToggle={(item) => handleToggleChecklistItem(c.id, item)}
+          />
         ))}
       </View>
       <CreateCheckList

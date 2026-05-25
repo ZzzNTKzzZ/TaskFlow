@@ -1,41 +1,42 @@
 import { api } from "@/services/api";
+import { ApiResponse, Card, CreateCardInListBody, List } from "@/types/types";
 
-export const editList = async (listId: string, payload: any) => {
+export const editListApi = async (boardId: string, listId: string, payload: { name?: string; position?: number }): Promise<ApiResponse<List>> => {
   try {
-    const response = await api.patch(`/lists/${listId}`, payload);
+    const response = await api.patch<ApiResponse<List>>(`/${boardId}/lists/${listId}`, payload);
     return response.data;
-  } catch (error) {
-    console.error("API Error [editList]:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("API Error [editListApi]:", error);
+    return { success: false, data: null as any, message: error.message };
   }
 };
 
-export const deleteList = async (listId: string) => {
+export const deleteListApi = async (boardId: string, listId: string): Promise<ApiResponse<List>> => {
   try {
-    const response = await api.delete(`/lists/${listId}`);
+    const response = await api.delete<ApiResponse<List>>(`/${boardId}/lists/${listId}`);
     return response.data;
-  } catch (error) {
-    console.error("API Error [deleteList]:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("API Error [deleteListApi]:", error);
+    return { success: false, data: null as any, message: error.message };
   }
 };
 
-export const getListCards = async (listId: string) => {
+export const getListCardsApi = async (boardId: string, listId: string): Promise<ApiResponse<Card[]>> => {
   try {
-    const response = await api.get(`/lists/${listId}/cards`);
+    const response = await api.get<ApiResponse<Card[]>>(`/${boardId}/lists/${listId}/cards`);
     return response.data;
-  } catch (error) {
-    console.error("API Error [getListCards]:", error);
-    return { success: false, data: [] };
+  } catch (error: any) {
+    console.error("API Error [getListCardsApi]:", error);
+    return { success: false, data: [], message: error.message };
   }
 };
 
-export const createCardInList = async (boardId: string,listId: string, payload: any) => {
+export const createCardInListApi = async (boardId: string, listId: string, payload: CreateCardInListBody): Promise<ApiResponse<Card>> => {
   try {
-    const response = await api.post(`/${boardId}/lists/${listId}/cards`, payload);
+    const response = await api.post<ApiResponse<Card>>(`/${boardId}/lists/${listId}/cards`, payload);
     return response.data;
-  } catch (error) {
-    console.error("API Error [createCardInList]:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("API Error [createCardInListApi]:", error);
+    return { success: false, data: null as any, message: error.message };
   }
 };

@@ -26,6 +26,43 @@ export default function List() {
     getList();
   }, []);
 
+  // 2. Synchronize with the same events your Board uses!
+  useEffect(() => {
+    if (!boardId) return;
+    
+    let offCreating: any;
+    let offCreated: any;
+    let offFailed: any;
+
+    (async () => {
+      try {
+        const eventBus = await import("@/services/eventBus");
+        
+        offCreating = eventBus.on("list:creating", (tempList: any) => {
+          if (tempList.boardId === boardId) {
+            setList((prev) => [...prev, tempList]);
+          }
+        });
+
+        offCreated = eventBus.on("list:created", ({ tempId, created }: any) => {
+          setList((prev) => prev.map((l) => (l.id === tempId ? created : l)));
+        });
+
+        offFailed = eventBus.on("list:create_failed", ({ tempId }: any) => {
+          setList((prev) => prev.filter((l) => l.id !== tempId));
+        });
+      } catch (e) {
+        console.error("eventBus sync error in List view:", e);
+      }
+    })();
+
+    return () => {
+      if (offCreating) offCreating();
+      if (offCreated) offCreated();
+      if (offFailed) offFailed();
+    };
+  }, [boardId]);
+
   if (loading) return <Text>Loading...</Text>;
 
   return (

@@ -1,35 +1,45 @@
 import { api } from "@/services/api";
-import { ResponseApi } from "@/types/api";
-import { requireNativeComponent } from "react-native";
-import { ListResponse } from "../list/list";
+import { ApiResponse, BoardResponse, List } from "@/types/types";
 
-export const getBoardApi = async (boardId: string) => {
-    try {
-        const respone = await api.get(`/boards/${boardId}`)
-        return respone.data
-    } catch (error) {
-         console.error("API Error [getWorkspaceApi]:", error);
-    return { success: false, data: [] };
-    }
-}
-export const getBoardListApi = async (boardId: string) => {
-    try {
-        const response = await api.get<ResponseApi<ListResponse[]>>(`/boards/${boardId}/lists`)
-        return response.data
-    } catch (error) {
-        console.error("API Error [getBoardListApi: ", error)
-        return { success: false, data :[]}
-    }
-}
-export const createBoardListApi = async (boardId: string, name: string) => {
-    try {
-        const respone = await api.post(`/boards/${boardId}/lists`, {
-          name  
-        })
-        return respone.data
+export const getBoardApi = async (boardId: string): Promise<ApiResponse<BoardResponse>> => {
+  try {
+    const response = await api.get<ApiResponse<BoardResponse>>(`/boards/${boardId}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error [getBoardApi]:", error);
+    return { success: false, data: null as any, message: error.message };
+  }
+};
 
-    } catch(error) {
-        console.error("API Error [createBoardListApi: ", error)
-        return { success: false, data :[]}
-    }
-}
+export const getBoardListsApi = async (boardId: string): Promise<ApiResponse<List[]>> => {
+  try {
+    const response = await api.get<ApiResponse<List[]>>(`/boards/${boardId}/lists`);
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error [getBoardListsApi]:", error);
+    return { success: false, data: [], message: error.message };
+  }
+};
+
+export const createBoardListApi = async (boardId: string, name: string): Promise<ApiResponse<List>> => {
+  try {
+    const response = await api.post<ApiResponse<List>>(`/boards/${boardId}/lists`, { name });
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error [createBoardListApi]:", error);
+    return { success: false, data: null as any, message: error.message };
+  }
+};
+
+export const reorderListsApi = async (
+  boardId: string,
+  payload: { listId: string; beforeId?: string | null; afterId?: string | null }
+): Promise<ApiResponse<List>> => {
+  try {
+    const response = await api.patch<ApiResponse<List>>(`/boards/${boardId}/lists/reorder`, payload);
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error [reorderListsApi]:", error);
+    return { success: false, data: null as any, message: error.message };
+  }
+};

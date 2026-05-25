@@ -1,34 +1,43 @@
-import {createBoardListApi, getBoardApi, getBoardListApi } from "./board.api";
+import {
+  createBoardListApi,
+  getBoardApi,
+  getBoardListsApi,
+  reorderListsApi,
+} from "./board.api";
 
 export default class BoardService {
-    static async getBoard(boardId: string) {
-        const response = await getBoardApi(boardId)
-        if (!response || !response.success || !response.data) {
-      return {};
+  static async getBoard(boardId: string) {
+    const response = await getBoardApi(boardId);
+    if (!response || !response.success || !response.data) {
+      return null;
     }
+    return response.data;
+  }
 
-    const payload = response.data;
-    return payload
-    }
-
-
-    static async getBoardList(boardId: string) {
-      const response = await getBoardListApi(boardId)
-       if (!response || !response.success || !response.data) {
+  static async getBoardList(boardId: string) {
+    const response = await getBoardListsApi(boardId);
+    if (!response || !response.success || !response.data) {
       return [];
     }
+    return response.data;
+  }
 
-    const payload = response.data;
-    return payload
+  static async createList(payload: { boardId: string; name: string }) {
+    const response = await createBoardListApi(payload.boardId, payload.name);
+    if (!response || !response.success || !response.data) {
+      return null;
     }
+    return response.data;
+  }
 
-    static async createList(payload: { boardId: string, name: string}) {
-       const response = await createBoardListApi(payload.boardId, payload.name)
-        if (!response || !response.success || !response.data) {
-      return {};
+  static async reorderList(
+    boardId: string,
+    payload: { listId: string; beforeId?: string | null; afterId?: string | null }
+  ) {
+    const response = await reorderListsApi(boardId, payload);
+    if (!response || !response.success || !response.data) {
+      return null;
     }
-
-    const data = response.data;
-    return data
-    }
+    return response.data;
+  }
 }

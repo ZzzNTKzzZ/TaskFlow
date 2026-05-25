@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import {  CardRespone } from "@/modules/card/card";
+import { CardRespone } from "@/modules/card/card";
 import Badges from "../ui/Badges";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import Icons from "../icons/Icons";
 import { formatMonthDate } from "@/helper/Day";
 import { Typography } from "@/theme/typography";
-import CheckedIcon from "../icons/CheckedIcon";
 import Checked from "../ui/Checked";
 import { router } from "expo-router";
 
-// 1. Định nghĩa Interface mở rộng
 interface CardUIProps extends CardRespone {
-  typeCard?: "Board" | "List" | "Detailed"; // Bạn có thể thêm các kiểu khác ở đây
+  typeCard?: "Board" | "List" | "Detailed";
 }
 
-// 2. Component cho kiểu Board
 const BoardView = ({
   name,
   priority,
@@ -62,7 +59,6 @@ const BoardView = ({
   </>
 );
 
-// 3. Component cho kiểu List (Ví dụ hiển thị theo dòng ngang)
 const ListView = ({
   name,
   priority,
@@ -113,16 +109,17 @@ const ListView = ({
   </View>
 );
 
-// 4. Component chính
 export default function CardUI(props: CardUIProps) {
   const { checklists, typeCard = "Board" } = props;
   const [nChecked, setNChecked] = useState(0);
   const [totalCheckList, setTotalCheckList] = useState(0);
+  
   const handleClick = (cardId: string) => {
     router.push(`./${cardId}`);
   };
+
   useEffect(() => {
-    if (checklists) {
+    if (checklists && checklists.length > 0) {
       const totalCompleted = checklists.reduce((total, checklist) => {
         return (
           total + checklist.items.filter((item) => item.isCompleted).length
@@ -134,10 +131,13 @@ export default function CardUI(props: CardUIProps) {
 
       setNChecked(totalCompleted);
       setTotalCheckList(total);
+    } else if (props.stats) {
+      // Safely resolves pre-computed count utilizing exact backend spelling typos
+      setNChecked(props.stats.checkListCompelete || 0);
+      setTotalCheckList(props.stats.checkListCount || 0);
     }
-  }, [checklists]);
+  }, [checklists, props.stats]);
 
-  // Object mapper để render UI tương ứng với typeCard
   const renderContent = () => {
     const commonProps = { ...props, nChecked, totalCheckList };
 
@@ -159,7 +159,7 @@ export default function CardUI(props: CardUIProps) {
         backgroundColor: Theme.surface,
         borderRadius: typeCard === "Board" ? 8 : 0,
         minWidth: 150,
-        maxWidth: typeCard === "Board" ? 170 : "100%", // Giữ logic style của bạn
+        maxWidth: typeCard === "Board" ? 170 : "100%",
         gap: Spacing[2],
       }}
     >

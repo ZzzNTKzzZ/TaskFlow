@@ -70,7 +70,7 @@ const KABAB_MENU_CONFIG: Record<KebabMenuType, MenuItemConfig> = {
   },
   "Delete card": {
     name: "Delete card",
-    icon: <Icons size={24} name="Trash" />,
+    icon: <Icons size={24} name="Trash" color={Theme.error}/>,
     isDanger: true,
   },
   "Create list": {

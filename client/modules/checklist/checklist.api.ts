@@ -1,84 +1,102 @@
 import { api } from "@/services/api";
+import {
+  ApiResponse,
+  Checklist,
+  ChecklistItem,
+  UpdateChecklistItemBody,
+} from "@/types/types";
 
-export const getCardChecklists = async (cardId: string) => {
+export const getCardChecklistsApi = async (boardId: string, cardId: string): Promise<ApiResponse<Checklist[]>> => {
   try {
-    const response = await api.get(`/cards/${cardId}/checklists`);
+    const response = await api.get<ApiResponse<Checklist[]>>(`/${boardId}/cards/${cardId}/checklists`);
     return response.data;
-  } catch (error) {
-    console.error("API Error [getCardChecklists]:", error);
-    return { success: false, data: [] };
+  } catch (error: any) {
+    console.error("API Error [getCardChecklistsApi]:", error);
+    return { success: false, data: [], message: error.message };
   }
 };
 
-export const createChecklist = async (boardId: string ,cardId: string, name:  string) => {
+export const createChecklistApi = async (boardId: string, cardId: string, name: string): Promise<ApiResponse<Checklist>> => {
   try {
-    const response = await api.post(`/${boardId}/cards/${cardId}/checklists`, {name
-    });
+    const response = await api.post<ApiResponse<Checklist>>(`/${boardId}/cards/${cardId}/checklists`, { name });
     return response.data;
-  } catch (error) {
-    console.error("API Error [createChecklist]:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("API Error [createChecklistApi]:", error);
+    return { success: false, data: null as any, message: error.message };
   }
 };
 
-export const updateChecklist = async (cardId: string, checklistId: string, payload: any) => {
+export const updateChecklistApi = async (boardId: string, cardId: string, checklistId: string, name: string): Promise<ApiResponse<Checklist>> => {
   try {
-    const response = await api.patch(`/cards/${cardId}/checklists/${checklistId}`, payload);
+    const response = await api.patch<ApiResponse<Checklist>>(`/${boardId}/cards/${cardId}/checklists/${checklistId}`, { name });
     return response.data;
-  } catch (error) {
-    console.error("API Error [updateChecklist]:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("API Error [updateChecklistApi]:", error);
+    return { success: false, data: null as any, message: error.message };
   }
 };
 
-export const deleteChecklist = async (cardId: string, checklistId: string) => {
+export const deleteChecklistApi = async (boardId: string, cardId: string, checklistId: string): Promise<ApiResponse<{ message: string }>> => {
   try {
-    const response = await api.delete(`/cards/${cardId}/checklists/${checklistId}`);
+    const response = await api.delete<ApiResponse<{ message: string }>>(`/${boardId}/cards/${cardId}/checklists/${checklistId}`);
     return response.data;
-  } catch (error) {
-    console.error("API Error [deleteChecklist]:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("API Error [deleteChecklistApi]:", error);
+    return { success: false, data: null as any, message: error.message };
   }
 };
 
-export const createChecklistItem = async (boardId: string ,cardId: string, checklistId: string, name: string) => {
+export const createChecklistItemApi = async (boardId: string, cardId: string, checklistId: string, name: string): Promise<ApiResponse<ChecklistItem>> => {
   try {
-    const response = await api.post(`/${boardId}/cards/${cardId}/checklists/${checklistId}/items`, {
-      name
-    });
+    const response = await api.post<ApiResponse<ChecklistItem>>(`/${boardId}/cards/${cardId}/checklists/${checklistId}/items`, { name });
     return response.data;
-  } catch (error) {
-    console.error("API Error [createChecklistItem]:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("API Error [createChecklistItemApi]:", error);
+    return { success: false, data: null as any, message: error.message };
   }
 };
 
-export const updateChecklistItem = async (cardId: string, checklistId: string, itemId: string, payload: any) => {
+export const updateChecklistItemApi = async (
+  boardId: string,
+  cardId: string,
+  checklistId: string,
+  itemId: string,
+  payload: UpdateChecklistItemBody
+): Promise<ApiResponse<ChecklistItem>> => {
   try {
-    const response = await api.patch(`/cards/${cardId}/checklists/${checklistId}/items/${itemId}`, payload);
+    const response = await api.patch<ApiResponse<ChecklistItem>>(`/${boardId}/cards/${cardId}/checklists/${checklistId}/items/${itemId}`, payload);
     return response.data;
-  } catch (error) {
-    console.error("API Error [updateChecklistItem]:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("API Error [updateChecklistItemApi]:", error);
+    return { success: false, data: null as any, message: error.message };
   }
 };
 
-export const completeChecklistItem = async (cardId: string, checklistId: string, itemId: string, payload: any) => {
+export const completeChecklistItemApi = async (
+  boardId: string,
+  cardId: string,
+  checklistId: string,
+  itemId: string,
+  isCompleted: boolean
+): Promise<ApiResponse<ChecklistItem>> => {
   try {
-    const response = await api.patch(`/cards/${cardId}/checklists/${checklistId}/items/${itemId}/complete`, payload);
+    const response = await api.patch<ApiResponse<ChecklistItem>>(
+      `/${boardId}/cards/${cardId}/checklists/${checklistId}/items/${itemId}/complete`,
+      { isCompleted }
+    );
     return response.data;
-  } catch (error) {
-    console.error("API Error [completeChecklistItem]:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("API Error [completeChecklistItemApi]:", error);
+    return { success: false, data: null as any, message: error.message };
   }
 };
 
-export const deleteChecklistItem = async (cardId: string, checklistId: string, itemId: string) => {
+export const deleteChecklistItemApi = async (boardId: string, cardId: string, checklistId: string, itemId: string): Promise<ApiResponse<{ message: string }>> => {
   try {
-    const response = await api.delete(`/cards/${cardId}/checklists/${checklistId}/items/${itemId}`);
+    const response = await api.delete<ApiResponse<{ message: string }>>(`/${boardId}/cards/${cardId}/checklists/${checklistId}/items/${itemId}`);
     return response.data;
-  } catch (error) {
-    console.error("API Error [deleteChecklistItem]:", error);
-    return { success: false };
+  } catch (error: any) {
+    console.error("API Error [deleteChecklistItemApi]:", error);
+    return { success: false, data: null as any, message: error.message };
   }
 };

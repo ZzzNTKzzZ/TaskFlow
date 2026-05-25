@@ -1,31 +1,33 @@
-import { Priority } from "@/types/type";
-import { editList, deleteList, getListCards, createCardInList } from "./list.api";
+import {
+  editListApi,
+  deleteListApi,
+  getListCardsApi,
+  createCardInListApi,
+} from "./list.api";
+import { CreateCardInListBody } from "@/types/types";
 
 export default class ListService {
-  static async editList(listId: string, payload: any) {
-    const response = await editList(listId, payload);
-    return response;
+  static async editList(boardId: string, listId: string, payload: { name?: string; position?: number }) {
+    const response = await editListApi(boardId, listId, payload);
+    if (!response || !response.success || !response.data) return null;
+    return response.data;
   }
 
-  static async deleteList(listId: string) {
-    const response = await deleteList(listId);
-    return response;
+  static async deleteList(boardId: string, listId: string) {
+    const response = await deleteListApi(boardId, listId);
+    if (!response || !response.success || !response.data) return null;
+    return response.data;
   }
 
-  static async getListCards(listId: string) {
-    const response = await getListCards(listId);
+  static async getListCards(boardId: string, listId: string) {
+    const response = await getListCardsApi(boardId, listId);
     if (!response || !response.success || !response.data) return [];
     return response.data;
   }
 
-  static async createCardInList(boardId: string ,listId: string, payload: {
-    name: string,
-    description: string,
-    priority: Priority,
-    dueDate: string,
-
-  }) {
-    const response = await createCardInList(boardId ,listId, payload);
-    return response;
+  static async createCardInList(boardId: string, listId: string, payload: CreateCardInListBody) {
+    const response = await createCardInListApi(boardId, listId, payload);
+    if (!response || !response.success || !response.data) return null;
+    return response.data;
   }
 }

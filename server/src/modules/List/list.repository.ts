@@ -2,7 +2,6 @@ import { Priority } from "../../../generated/prisma/index.js";
 import { prisma } from "../../lib/prisma.js";
 
 export default class ListRepository {
-
   static async findList(listId: string) {
     return await prisma.list.findUnique({
       where: { id: listId },
@@ -57,6 +56,14 @@ export default class ListRepository {
               { name: "Item 2" },
               { name: "Item 3" },
             ],
+          },
+        },
+        include: {
+          items: true,
+          _count: {
+            select: {
+              items: true,
+            },
           },
         },
       });
@@ -117,7 +124,9 @@ export default class ListRepository {
       orderBy: { position: "asc" },
       include: {
         labels: { include: { label: true } },
-        assignees: { include: { user: { select: { id: true, name: true, email: true } } } },
+        assignees: {
+          include: { user: { select: { id: true, name: true, email: true } } },
+        },
       },
     });
   }

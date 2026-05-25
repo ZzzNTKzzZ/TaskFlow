@@ -90,7 +90,7 @@ export default class BoardController {
     const boardId = req.params.boardId as string;
     const { name } = req.body;
     const list = await BoardService.createList({ boardId, name });
-
+    console.log(list)
     res.status(201).json(responseHandler.success(list));
   }
 
