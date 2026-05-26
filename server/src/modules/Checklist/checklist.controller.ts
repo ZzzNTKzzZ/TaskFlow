@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import ChecklistService from "./checklist.service.js";
 import { responseHandler } from "../../utils/responseHandler.js";
+import { ActivityService } from "../Activity/activity.service.js";
 
 export default class ChecklistController {
   static async getCardChecklists(req: Request, res: Response) {
@@ -13,6 +14,16 @@ export default class ChecklistController {
     const cardId = req.params.cardId as string;
     const { name } = req.body;
     const checklist = await ChecklistService.createChecklist({ cardId, name });
+
+    await ActivityService.logActivity({
+      boardId: req.params.boardId as string,
+
+      userId: req.user.userId,
+      cardId: cardId,
+      action: "CHECKLIST_CREATED",
+      description: `added checklist "${name}"`,
+    });
+
     res.status(201).json(responseHandler.success(checklist));
   }
 
@@ -25,13 +36,26 @@ export default class ChecklistController {
       checklistId,
       name,
     });
+
+    await ActivityService.logActivity({
+      boardId: req.params.boardId as string,
+
+      userId: req.user.userId,
+      cardId: cardId,
+      action: "CHECKLIST_UPDATED",
+      description: `updated a checklist`,
+    });
+
     res.status(200).json(responseHandler.success(checklist));
   }
 
   static async deleteChecklist(req: Request, res: Response) {
     const cardId = req.params.cardId as string;
     const checklistId = req.params.checklistId as string;
-    const checklist = await ChecklistService.deleteChecklist({ cardId, checklistId });
+    const checklist = await ChecklistService.deleteChecklist({
+      cardId,
+      checklistId,
+    });
     res.status(200).json(responseHandler.success(checklist));
   }
 
@@ -73,6 +97,18 @@ export default class ChecklistController {
       itemId,
       isCompleted,
     });
+
+    if (isCompleted) {
+      await ActivityService.logActivity({
+        boardId: req.params.boardId as string,
+
+        userId: req.user.userId,
+        cardId: cardId,
+        action: "CHECKLIST_ITEM_COMPLETED",
+        description: `completed checklist item`,
+      });
+    }
+
     res.status(200).json(responseHandler.success(item));
   }
 

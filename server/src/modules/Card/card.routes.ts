@@ -6,7 +6,7 @@ import { validateMiddleware } from "../../middleware/validate.middleware.js";
 import { cardSchema, updateCardSchema } from "../../validators/card.schema.js";
 import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
 
-const cardRoutes = Router();
+const cardRoutes = Router({ mergeParams: true });
 
 cardRoutes.get("/:cardId", asyncHandler(CardController.getCard));
 cardRoutes.patch("/reorder", asyncHandler(CardController.reorderCard));

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import CardService from "./card.service.js";
 import { responseHandler } from "../../utils/responseHandler.js";
+import { ActivityService } from "../Activity/activity.service.js";
 
 export default class CardController {
   // GET /cards/:cardId
@@ -15,6 +16,16 @@ export default class CardController {
   static async updateCard(req: Request, res: Response) {
     const { cardId } = req.params;
     const card = await CardService.updateCard(cardId as string, req.body);
+    
+    await ActivityService.logActivity({
+            boardId: req.params.boardId as string,
+
+      userId: req.user.userId,
+      cardId: cardId as string,
+      action: "CARD_UPDATED",
+      description: `updated card`,
+    });
+
     res.status(200).json(responseHandler.success(card));
   }
 
@@ -22,6 +33,15 @@ export default class CardController {
   // STANDARDIZED: Response JSON wrapped inside responseHandler.success envelope
   static async reorderCard(req: Request, res: Response) {
     const card = await CardService.reorderCard(req.body);
+
+    await ActivityService.logActivity({
+                  boardId: req.params.boardId as string,
+
+      userId: req.user.userId,
+      action: "CARD_MOVED",
+      description: `moved a card`,
+    });
+
     res.status(200).json(responseHandler.success(card));
   }
 
@@ -30,6 +50,16 @@ export default class CardController {
   static async deleteCard(req: Request, res: Response) {
     const cardId = req.params.cardId;
     await CardService.deleteCard(cardId as string);
+
+    await ActivityService.logActivity({
+                  boardId: req.params.boardId as string,
+
+      userId: req.user.userId,
+      cardId: cardId as string,
+      action: "CARD_DELETED",
+      description: `deleted a card`,
+    });
+
     res.status(200).json(responseHandler.success({ message: "Card deleted successfully" }));
   }
 
@@ -39,6 +69,16 @@ export default class CardController {
     const cardId = req.params.cardId as string;
     const { userIds } = req.body;
     const assignees = await CardService.assignUsersToCard({ cardId, userIds });
+
+    await ActivityService.logActivity({
+                  boardId: req.params.boardId as string,
+
+      userId: req.user.userId,
+      cardId: cardId as string,
+      action: "CARD_ASSIGNED",
+      description: `assigned users to card`,
+    });
+
     res.status(200).json(responseHandler.success(assignees));
   }
 

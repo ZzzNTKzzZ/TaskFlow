@@ -7,7 +7,7 @@ import { permissionMiddleware } from "../../middleware/permissions.middleware.js
 import { boardAccessMiddleware } from "../../middleware/boardAccess.middleware.js";
 import { workspaceAccess } from "../../middleware/workspaceAccess.middleware.js";
 
-const listRoutes = Router();
+const listRoutes = Router({ mergeParams: true });
 // PATCH  /lists/:listId
 listRoutes.patch(
   "/:listId",

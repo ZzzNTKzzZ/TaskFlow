@@ -2,6 +2,7 @@ import type { Response, Request } from "express";
 import { AppError } from "../../utils/appError.js";
 import { WorkspaceService } from "./workspace.service.js";
 import { responseHandler } from "../../utils/responseHandler.js";
+import { ActivityService } from "../Activity/activity.service.js";
 
 export default class WorkspaceController {
   // GET: /workspaces
@@ -126,6 +127,14 @@ export default class WorkspaceController {
       background,
       userId: req.user.userId,
     });
+
+    await ActivityService.logActivity({
+      boardId: board.id,
+      userId: req.user.userId,
+      action: "BOARD_CREATED",
+      description: `created board "${name}"`,
+    });
+
     res.status(201).json(responseHandler.success(board));
   }
 

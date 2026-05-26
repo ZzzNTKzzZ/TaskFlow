@@ -7,7 +7,7 @@ import { listSchema } from "../../validators/list.schema.js";
 import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
 import { boardAccessMiddleware } from "../../middleware/boardAccess.middleware.js";
 
-const boardRoutes = Router();
+const boardRoutes = Router({ mergeParams: true });
 
 // GET    /boards/:boardId
 boardRoutes.get("/:boardId", asyncHandler(BoardController.getBoard));

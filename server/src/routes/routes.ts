@@ -9,9 +9,11 @@ import listRoutes from "../modules/List/list.routes.js";
 import cardRoutes from "../modules/Card/card.routes.js";
 import { workspaceAccess } from "../middleware/workspaceAccess.middleware.js";
 import checklistRoutes from "../modules/Checklist/checklist.routes.js";
+import activityRoutes from "../modules/Activity/activity.routes.js";
 
 export const routes = (app: Express) => {
   app.use("/auth", authRoutes);
+  app.use("/activities", authMiddleware, activityRoutes);
   app.use("/workspaces", authMiddleware, workspaceRoutes);
   app.use(
     "/boards",
