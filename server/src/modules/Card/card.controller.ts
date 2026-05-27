@@ -52,10 +52,8 @@ export default class CardController {
     await CardService.deleteCard(cardId as string);
 
     await ActivityService.logActivity({
-                  boardId: req.params.boardId as string,
-
+      boardId: req.params.boardId as string,
       userId: req.user.userId,
-      cardId: cardId as string,
       action: "CARD_DELETED",
       description: `deleted a card`,
     });

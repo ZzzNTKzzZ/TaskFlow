@@ -5,8 +5,8 @@ import { ListCardUI } from "@/modules/list/list";
 import { Spacing } from "@/theme/spacing";
 import { useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
-
+import { FlatList, Text, View, Alert } from "react-native";
+import ListService from "@/modules/list/list.service";
 
 export default function List() {
   const { boardId } = useGlobalSearchParams();
@@ -17,7 +17,7 @@ export default function List() {
     const getList = async () => {
       try {
         const response = await BoardService.getBoard(boardId as string);
-        setList(response.lists);
+        setList(response?.lists as any);
       } finally {
         setLoading(false);
       }
@@ -65,6 +65,24 @@ export default function List() {
 
   if (loading) return <Text>Loading...</Text>;
 
+  const handleDeleteList = (listIdParam: string) => {
+    Alert.alert("Delete List", "Are you sure you want to delete this list?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: async () => {
+        try {
+          const success = await ListService.deleteList(boardId as string, listIdParam);
+          if (success) {
+            setList(prev => prev.filter(l => l.id !== listIdParam));
+          } else {
+            Alert.alert("Error", "Failed to delete list. You might not have permission.");
+          }
+        } catch(e) {
+          console.error(e);
+        }
+      }}
+    ]);
+  };
+
   return (
     <Screen isScroll={false}>
       <FlatList
@@ -77,7 +95,7 @@ export default function List() {
           paddingVertical: Spacing[6],
           borderRadius: 8,
         }}
-        renderItem={({ item }) => <ListCard typeCard="List" {...item} />}
+        renderItem={({ item }) => <ListCard typeCard="List" {...item} onDeleteList={handleDeleteList} />}
       />
     </Screen>
   );

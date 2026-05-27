@@ -10,6 +10,9 @@ import {
   getWorkspaceMembersApi,
   addWorkspaceMemberApi,
   deleteWorkspaceApi,
+  updateWorkspaceMemberRoleApi,
+  getWorkspaceTimelineApi,
+  TimelineCard,
 } from "./workspace.api";
 import { RoleWorkspace, Visibility } from "@/types/type";
 import { BoardCardUI } from "../board/board";
@@ -162,5 +165,23 @@ export default class WorkspaceService {
 
     const data = response.data;
     return data;
+  }
+
+  static async updateWorkspaceMemberRole(workspaceId: string, memberId: string, role: string) {
+    const response = await updateWorkspaceMemberRoleApi(workspaceId, memberId, role as any);
+    if (!response || !response.data) {
+      return null;
+    }
+
+    const data = response.data;
+    return data;
+  }
+
+  static async getWorkspaceTimeline(workspaceId: string): Promise<TimelineCard[]> {
+    const response = await getWorkspaceTimelineApi(workspaceId);
+    if (!response || !response.success || !response.data) {
+      return [];
+    }
+    return response.data;
   }
 }

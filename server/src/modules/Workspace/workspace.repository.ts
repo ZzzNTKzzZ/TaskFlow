@@ -389,4 +389,36 @@ export default class WorkspaceRepository {
       return board;
     });
   }
+
+  // ========================== TIMELINE ==========================
+  static async findWorkspaceCards({ workspaceId }: { workspaceId: string }) {
+    return await prisma.card.findMany({
+      where: {
+        list: {
+          board: {
+            workspaceId,
+          },
+        },
+      },
+      include: {
+        list: {
+          include: {
+            board: {
+              select: {
+                id: true,
+                name: true,
+                background: true,
+              },
+            },
+          },
+        },
+        checklists: {
+          include: {
+            items: true,
+          },
+        },
+      },
+      orderBy: { dueDate: "asc" },
+    });
+  }
 }

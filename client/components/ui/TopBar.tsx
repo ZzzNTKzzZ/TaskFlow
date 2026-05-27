@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, Alert } from "react-native";
 import LeftRightIcon from "../icons/LeftRightIcon";
 import SymbolIcon, { SymbolColor, SymbolName } from "../icons/SymbolIcon";
 import Icons from "../icons/Icons";
@@ -8,9 +8,13 @@ import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
 import {
   router,
+  useGlobalSearchParams,
 } from "expo-router";
 import { useState } from "react";
 import KebabMenu, { KebabMenuType } from "../overlays/KebabMenu";
+import WorkspaceService from "@/modules/workspace/workspace.service";
+import BoardService from "@/modules/board/board.service";
+import CardService from "@/modules/card/card.service";
 
 export default function TopBar({
   name,
@@ -18,7 +22,7 @@ export default function TopBar({
   color,
   parentName,
   menu = [],
-  onBack = () => router.push("../"),
+  onBack = () => router.back(),
 }: {
   name: string;
   icon?: SymbolName;
@@ -30,12 +34,69 @@ export default function TopBar({
 
   const [active, setActive] = useState<boolean>(false)
   const [isCreateListVisible, setIsCreateListVisible] = useState(false)
+  
+  const { id, boardId, cardId } = useGlobalSearchParams<{
+    id: string;
+    boardId: string;
+    cardId: string;
+  }>();
+
   const handleSelectMenu = (item: KebabMenuType) => {
     if (item === "Create list") {
       setIsCreateListVisible(true)
     }
     if(item === "Create board") {
       router.navigate("/(board)/create")
+    }
+    if(item === "Edit card") {
+      router.push({
+        pathname: "/(card)/edit",
+        params: { id, boardId, cardId }
+      });
+    }
+    if (item === "Delete workspace") {
+      Alert.alert("Delete Workspace", "Are you sure you want to delete this workspace?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: async () => {
+          if (!id) return;
+          const success = await WorkspaceService.deleteWorkspace(id);
+          if (success) {
+            router.replace("/(tabs)/");
+          } else {
+            Alert.alert("Error", "Failed to delete workspace. You might not have permission.");
+          }
+        }},
+      ]);
+    }
+
+    if (item === "Delete board") {
+      Alert.alert("Delete Board", "Are you sure you want to delete this board?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: async () => {
+          if (!boardId) return;
+          const success = await BoardService.deleteBoard(boardId);
+          if (success) {
+            router.replace(`/(tabs)/workspace/${id}`);
+          } else {
+            Alert.alert("Error", "Failed to delete board. You might not have permission.");
+          }
+        }},
+      ]);
+    }
+
+    if (item === "Delete card") {
+      Alert.alert("Delete Card", "Are you sure you want to delete this card?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: async () => {
+          if (!boardId || !cardId) return;
+          const success = await CardService.deleteCard(boardId, cardId);
+          if (success) {
+            router.back();
+          } else {
+            Alert.alert("Error", "Failed to delete card. You might not have permission.");
+          }
+        }},
+      ]);
     }
   }
 

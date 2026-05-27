@@ -156,4 +156,13 @@ export default class WorkspaceController {
 
     res.status(200).json(responseHandler.success(board));
   }
+
+  // ========================== TIMELINE ==========================
+
+  // GET /workspaces/:workspaceId/timeline
+  static async getTimeline(req: Request, res: Response) {
+    const workspaceId = req.params.workspaceId as string;
+    const timeline = await WorkspaceService.getTimeline({ workspaceId });
+    res.status(200).json(responseHandler.success(timeline));
+  }
 }

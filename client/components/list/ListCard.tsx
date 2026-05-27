@@ -27,6 +27,7 @@ interface ListCardProps extends ListCardUI {
   typeCard?: "Board" | "List";
   onLongPress?: () => void;
   onCreateCard?: (boardId: string, listId: string, payload: any) => Promise<any> | void;
+  onDeleteList?: (listId: string) => void;
 }
 
 export default function ListCard({
@@ -37,6 +38,7 @@ export default function ListCard({
   cards,
   onLongPress,
   onCreateCard,
+  onDeleteList,
   typeCard = "Board",
 }: ListCardProps) {
   const pathName = usePathname()
@@ -221,7 +223,16 @@ export default function ListCard({
         </Button>
       </View>
         <CreateCard listId={id} visible={isActiveAddCard} onClose={() => setIsActiveAddCard(false)} onCreateCard={onCreateCard}/> 
-      <KebabMenu visible={activeMenu} onClose={() => setActiveMenu(false)} menu={["Edit list", "Delete list"]}/>
+      <KebabMenu 
+        visible={activeMenu} 
+        onClose={() => setActiveMenu(false)} 
+        menu={["Edit list", "Delete list"]}
+        onSelectMenu={(menuItem) => {
+          if (menuItem === "Delete list" && onDeleteList) {
+            onDeleteList(id);
+          }
+        }}
+      />
     </View>
   );
 }

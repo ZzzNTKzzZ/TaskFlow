@@ -35,7 +35,7 @@ export default function Board() {
       if (response && response.lists) {
         // Sort lists based on position before mapping to UI
         const sortedLists = [...response.lists].sort((a, b) => a.position - b.position);
-        setList(sortedLists);
+        setList(sortedLists as any);
       } else {
         setError("Failed to fetch board lists.");
       }
@@ -58,6 +58,7 @@ export default function Board() {
     let offCreating: any;
     let offCreated: any;
     let offFailed: any;
+    let offCardUpdated: any;
 
     (async () => {
       try {
@@ -75,6 +76,42 @@ export default function Board() {
         offFailed = eventBus.on("list:create_failed", ({ tempId }: any) => {
           setList((prev) => prev.filter((l) => l.id !== tempId));
         });
+
+        offCardUpdated = eventBus.on("card:updated", ({ cardId: targetCardId, payload }: any) => {
+          setList((prev) => {
+            let existingCard: any = null;
+            let currentListId: string | null = null;
+            
+            prev.forEach(l => {
+              const c = l.cards?.find((card: any) => card.id === targetCardId);
+              if (c) {
+                existingCard = c;
+                currentListId = l.id;
+              }
+            });
+
+            if (!existingCard) return prev; 
+
+            if (payload.listId && currentListId && payload.listId !== currentListId) {
+              return prev.map(l => {
+                if (l.id === currentListId) {
+                  return { ...l, cards: l.cards.filter((c: any) => c.id !== targetCardId), cardCount: Math.max(0, (l.cardCount || 1) - 1) };
+                }
+                if (l.id === payload.listId) {
+                  return { ...l, cards: [...(l.cards || []), { ...existingCard, ...payload }], cardCount: (l.cardCount || 0) + 1 };
+                }
+                return l;
+              });
+            } else {
+              return prev.map(l => {
+                if (l.id === currentListId) {
+                  return { ...l, cards: l.cards.map((c: any) => c.id === targetCardId ? { ...c, ...payload } : c) };
+                }
+                return l;
+              });
+            }
+          });
+        });
       } catch (e) {
         console.error("eventBus subscribe error:", e);
       }
@@ -85,6 +122,7 @@ export default function Board() {
         if (offCreating) offCreating();
         if (offCreated) offCreated();
         if (offFailed) offFailed();
+        if (offCardUpdated) offCardUpdated();
       } catch (e) {}
     };
   }, [boardId]);
@@ -184,6 +222,26 @@ export default function Board() {
     }
   };
 
+  // Handle Delete List
+  const handleDeleteList = (listIdParam: string) => {
+    Alert.alert("Delete List", "Are you sure you want to delete this list? All cards inside will be removed.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: async () => {
+        try {
+          const success = await ListService.deleteList(boardId, listIdParam);
+          if (success) {
+            setList(prev => prev.filter(l => l.id !== listIdParam));
+          } else {
+            Alert.alert("Error", "Failed to delete list. You might not have permission.");
+          }
+        } catch(e) {
+          console.error(e);
+          Alert.alert("Error", "Failed to delete list.");
+        }
+      }}
+    ]);
+  };
+
   // Loading UI State
   if (loading) {
     return (
@@ -231,6 +289,7 @@ export default function Board() {
               {...item}
               onLongPress={drag}
               onCreateCard={handleCreateCard}
+              onDeleteList={handleDeleteList}
             />
           </TouchableOpacity>
         )}

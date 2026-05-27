@@ -369,4 +369,40 @@ export class WorkspaceService {
       position: newPosition,
     });
   }
+
+  // ========================== TIMELINE ==========================
+  static async getTimeline({ workspaceId }: { workspaceId: string }) {
+    if (!workspaceId) throw new AppError("Workspace id is required", 400);
+
+    const cards = await WorkspaceRepository.findWorkspaceCards({ workspaceId });
+
+    return cards.map((card: any) => {
+      let checklistTotal = 0;
+      let checklistCompleted = 0;
+
+      if (card.checklists) {
+        card.checklists.forEach((cl: any) => {
+          if (cl.items) {
+            checklistTotal += cl.items.length;
+            checklistCompleted += cl.items.filter((item: any) => item.isCompleted).length;
+          }
+        });
+      }
+
+      return {
+        id: card.id,
+        name: card.name,
+        description: card.description,
+        priority: card.priority,
+        dueDate: card.dueDate,
+        createdAt: card.createdAt,
+        listName: card.list.name,
+        boardId: card.list.board.id,
+        boardName: card.list.board.name,
+        boardBackground: card.list.board.background,
+        checklistTotal,
+        checklistCompleted,
+      };
+    });
+  }
 }

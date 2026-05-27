@@ -31,9 +31,7 @@ export default class ListController {
 
     await ActivityService.logActivity({
       boardId: req.params.boardId as string,
-
       userId: req.user.userId,
-      listId: listId as string,
       action: "LIST_DELETED",
       description: `deleted a list`,
     });

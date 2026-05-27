@@ -3,6 +3,7 @@ import {
   getBoardApi,
   getBoardListsApi,
   reorderListsApi,
+  deleteBoardApi,
 } from "./board.api";
 
 export default class BoardService {
@@ -39,5 +40,13 @@ export default class BoardService {
       return null;
     }
     return response.data;
+  }
+
+  static async deleteBoard(boardId: string) {
+    const response = await deleteBoardApi(boardId);
+    if (!response || !response.success) {
+      return false;
+    }
+    return true;
   }
 }

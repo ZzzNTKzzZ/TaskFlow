@@ -20,6 +20,8 @@ import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
 import { BoardCardUI } from "@/modules/board/board";
 import { WorkspaceCard } from "@/modules/workspace/workspace";
 import WorkspaceService from "@/modules/workspace/workspace.service";
+import BoardService from "@/modules/board/board.service";
+import ActivityService from "@/modules/activity/activity.service";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
@@ -32,15 +34,21 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 export default function HomeScreen() {
   const user = useCurrentUser();
 
-  const [selected, setSelected] = useState<{ name: string; id: string, icon: SymbolName, color: SymbolColor }>({
+  const [selected, setSelected] = useState<{
+    name: string;
+    id: string;
+    icon: SymbolName;
+    color: SymbolColor;
+  }>({
     name: "",
     id: "",
     icon: "Company",
-    color: "Primary"
+    color: "Primary",
   });
   const [loading, setLoading] = useState(true);
   const [workspaces, setWorkspaces] = useState<WorkspaceCard[]>([]);
   const [boards, setBoards] = useState<BoardCardUI[]>([]);
+  const [activities, setActivities] = useState<ActivityCardProps[]>([]);
   useEffect(() => {
     const initWorkspaces = async () => {
       try {
@@ -53,7 +61,7 @@ export default function HomeScreen() {
             id: list[0].id,
             name: list[0].name,
             icon: list[0].icon,
-            color: list[0].color
+            color: list[0].color,
           });
         }
       } catch (error) {
@@ -77,12 +85,20 @@ export default function HomeScreen() {
         offCreating = eventBus.on("workspace:creating", (tempWs: any) => {
           setWorkspaces((prev) => [...prev, tempWs]);
         });
-        offCreated = eventBus.on("workspace:created", ({ tempId, created }: any) => {
-          setWorkspaces((prev) => prev.map((w) => (w.id === tempId ? created : w)));
-        });
-        offFailed = eventBus.on("workspace:create_failed", ({ tempId }: any) => {
-          setWorkspaces((prev) => prev.filter((w) => w.id !== tempId));
-        });
+        offCreated = eventBus.on(
+          "workspace:created",
+          ({ tempId, created }: any) => {
+            setWorkspaces((prev) =>
+              prev.map((w) => (w.id === tempId ? created : w)),
+            );
+          },
+        );
+        offFailed = eventBus.on(
+          "workspace:create_failed",
+          ({ tempId }: any) => {
+            setWorkspaces((prev) => prev.filter((w) => w.id !== tempId));
+          },
+        );
       } catch (e) {
         console.error("eventBus subscribe error:", e);
       }
@@ -95,6 +111,26 @@ export default function HomeScreen() {
         if (offFailed) offFailed();
       } catch (e) {}
     };
+  }, []);
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const activityList = await ActivityService.getGlobalActivities(3);
+        setActivities(
+          activityList.map((a) => ({
+            name: a.user.name,
+            action: a.action.toLowerCase().replace(/_/g, " "),
+            boardName: a.board?.name || a.description || "Workspace",
+            time: a.createdAt,
+          })),
+        );
+      } catch (error) {
+        console.error("Lỗi lấy danh sách Activity:", error);
+      }
+    };
+
+    fetchActivities();
   }, []);
 
   useEffect(() => {
@@ -115,27 +151,6 @@ export default function HomeScreen() {
     fetchBoards();
   }, [selected.id]);
   if (loading && !workspaces) return;
-
-  const activitys: ActivityCardProps[] = [
-    {
-      name: "Jane",
-      action: "moved",
-      boardName: "Design Tasks",
-      time: "2026-05-10T03:45:05.608Z",
-    },
-    {
-      name: "Alex",
-      action: "commented",
-      boardName: "Design Tasks",
-      time: "2026-05-10T02:45:05.608Z",
-    },
-    {
-      name: "Mike",
-      action: "commented",
-      boardName: "Design Tasks",
-      time: "2026-04-10T02:45:05.608Z",
-    },
-  ];
 
   const todos = [
     {
@@ -254,12 +269,22 @@ export default function HomeScreen() {
 
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() =>
-                router.push({
-                  pathname: "/(tabs)/workspace/[id]/(workspace-detail)",
-                  params: { id: selected.id, name: selected.name, icon: selected.icon, color: selected.color },
-                })
-              }
+              onPress={async () => {
+                try {
+                  await WorkspaceService.getWorkspace(selected.id);
+                  router.push({
+                    pathname: "/(tabs)/workspace/[id]/(workspace-detail)",
+                    params: {
+                      id: selected.id,
+                      name: selected.name,
+                      icon: selected.icon,
+                      color: selected.color,
+                    },
+                  });
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
             >
               <Text style={styles.viewAll}>View all</Text>
             </TouchableOpacity>
@@ -269,12 +294,25 @@ export default function HomeScreen() {
             {boards.map((b) => (
               <BoardCard
                 showMembers={true}
-                onPress={() =>
-                  router.push({
-                    pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
-                    params: { id: selected.id, boardId: b.id, name: b.name },
-                  })
-                }
+                onPress={async () => {
+                  try {
+                    await BoardService.getBoard(b.id);
+                    router.push({
+                      pathname:
+                        "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
+                      params: {
+                        id: selected.id,
+                        boardId: b.id,
+                        name: b.name,
+                        parentName: selected.name,
+                        workspaceIcon: selected.icon,
+                        workspaceColor: selected.color,
+                      },
+                    });
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }}
                 key={b.id}
                 {...b}
                 styleCard={{ width: "32%" }}
@@ -289,13 +327,16 @@ export default function HomeScreen() {
             paddingHorizontal: Spacing[4],
           }}
         >
-          <SectionHeader title="Recent Activity" onPress={() => {}} />
+          <SectionHeader
+            title="Recent Activity"
+            onPress={() => router.navigate("/(tabs)/activity")}
+          />
 
           <View style={styles.list}>
-            {activitys.map((a, index) => (
+            {activities.map((a, index) => (
               <React.Fragment key={index}>
                 <ActivityCard {...a} />
-                {activitys.length !== index + 1 && (
+                {activities.length !== index + 1 && (
                   <View style={styles.divider} />
                 )}
               </React.Fragment>

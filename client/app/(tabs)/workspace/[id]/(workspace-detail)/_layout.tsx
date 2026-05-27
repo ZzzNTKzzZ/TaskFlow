@@ -4,10 +4,11 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import { withLayoutContext } from "expo-router";
 
 
+const TopTabs = withLayoutContext(
+  createMaterialTopTabNavigator().Navigator
+);
+
 export default function WorkspaceDetailLayout() {
-  const TopTabs = withLayoutContext(
-    createMaterialTopTabNavigator().Navigator
-  );
 
   return (
     <TopTabs
@@ -25,7 +26,7 @@ export default function WorkspaceDetailLayout() {
       <TopTabs.Screen name="index" options={{ title: "Boards" }} />
       <TopTabs.Screen name="members" options={{ title: "Members" }} />
       <TopTabs.Screen name="activity" options={{ title: "Activity" }} />
-      <TopTabs.Screen name="setting" options={{ title: "Setting" }} />
+      <TopTabs.Screen name="timeline" options={{ title: "Timeline" }} />
     </TopTabs>
   );
 }

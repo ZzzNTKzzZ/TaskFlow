@@ -1,4 +1,4 @@
 {
-    "editor.suggest.selectionMode": "never",
+    "editor.suggest.selectionMode": "always",
     "editor.inlineSuggest.suppressSuggestions": false
 }

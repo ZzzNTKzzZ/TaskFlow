@@ -1,10 +1,10 @@
-import { Touchable, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import BaseOverlay from "./BaseOverlay";
 import { Text } from "react-native";
 import Icons from "../icons/Icons";
 import { Typography } from "@/theme/typography";
 import Input from "../ui/Input";
-import { useActionState, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Theme } from "@/theme/theme";
 import { Spacing } from "@/theme/spacing";
 import { Colors } from "@/theme/colors";
@@ -16,87 +16,62 @@ import Calendar from "../ui/Calendar";
 import Button from "../ui/Button";
 import { formatYearMonthDate } from "@/helper/Day";
 import { Priority } from "@/types/type";
-import ListService from "@/modules/list/list.service";
+import CardService from "@/modules/card/card.service";
 
-export default function CreateCard({
+interface CardData {
+  id: string;
+  name: string;
+  description: string | null;
+  priority: Priority;
+  dueDate: string | null;
+  listId: string;
+}
+
+export default function EditCard({
   visible,
   onClose,
-  listId,
-  onCreateCard,
+  card,
+  onUpdateCard,
 }: {
   visible: boolean;
   onClose: () => void;
-  listId: string;
-  onCreateCard?: (boardId: string, listId: string, payload: any) => Promise<any> | void;
+  card: CardData | null;
+  onUpdateCard?: (cardId: string, payload: any) => Promise<any> | void;
 }) {
   const dateNow = new Date();
-  const {id ,boardId } = useLocalSearchParams();
+  const { id, boardId } = useLocalSearchParams<{ id: string; boardId: string }>();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+
   const priorities: { id: number; name: Priority }[] = [
-    {
-      id: 1,
-      name: "low",
-    },
-    {
-      id: 2,
-      name: "medium",
-    },
-    {
-      id: 3,
-      name: "high",
-    },
-    {
-      id: 4,
-      name: "urgent",
-    },
+    { id: 1, name: "low" },
+    { id: 2, name: "medium" },
+    { id: 3, name: "high" },
+    { id: 4, name: "urgent" },
   ];
+
   const [priority, setPriority] = useState<{ id: number; name: Priority }>({
     id: 1,
     name: "low",
   });
+
   const [selected, setSelected] = useState<{ id: string; name: string }>({
-    id: boardId as string,
+    id: "",
     name: "",
   });
+
   const [date, setDate] = useState<string>(dateNow.toString());
   const [options, setOptions] = useState<{ id: string; name: string }[]>([]);
-  const [isOpenCalender, setIsOpenCalender] = useState(false);
-  const handleCreate = async () => {
-    const payload = {
-      name,
-      description,
-      priority: priority.name,
-      dueDate: new Date(date).toString(),
-    };
+  const [isOpenCalender, setIsOpenCalender] = useState<boolean>(false);
 
-    if (onCreateCard) {
-      try {
-        // Parent handles optimistic update and API call
-        onCreateCard(boardId as string, selected.id, payload);
-      } catch (error) {
-        console.error("Create card handler error:", error);
-      }
-    } else {
-      try {
-        await ListService.createCardInList(boardId as string, selected.id, payload);
-        router.navigate({ pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)", params: {
-          id: id as string,
-          boardId: boardId as string,
-        }});
-      } catch (error) {
-        console.error("Create card error:", error);
-      }
-    }
-
-    onClose();
-  };
+  // Fetch Lists on Board for selection options
   useEffect(() => {
-    const getList = async () => {
+    const getBoardLists = async () => {
+      if (!boardId) return;
       try {
         setLoading(true);
-        const response = await BoardService.getBoardList(selected.id);
+        const response = await BoardService.getBoardList(boardId);
         const filteredOptions = (Array.isArray(response) ? response : []).map(
           (rs) => ({
             id: rs.id,
@@ -104,23 +79,69 @@ export default function CreateCard({
           }),
         );
         setOptions(filteredOptions);
-
-        setSelected(
-          () =>
-            filteredOptions.find((option) => option.id === listId) || {
-              id: "",
-              name: "",
-            },
-        );
+      } catch (error) {
+        console.error("EditCard fetch list error:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    getList();
-  }, []);
+    if (visible && boardId) {
+      getBoardLists();
+    }
+  }, [visible, boardId]);
 
-  if (loading && boardId) return;
+  // Populate States when Card or Lists loaded
+  useEffect(() => {
+    if (card) {
+      setName(card.name || "");
+      setDescription(card.description || "");
+      const p = priorities.find((pr) => pr.name === card.priority) || priorities[0];
+      setPriority(p);
+      setDate(card.dueDate || dateNow.toString());
+
+      if (options.length > 0) {
+        const activeList = options.find((opt) => opt.id === card.listId) || options[0];
+        setSelected(activeList);
+      }
+    }
+  }, [card, visible, options]);
+
+  const handleUpdate = async () => {
+    if (!card || !boardId) return;
+
+    const payload = {
+      name,
+      description,
+      priority: priority.name,
+      dueDate: date ? new Date(date).toISOString() : null,
+      listId: selected.id,
+    };
+
+    if (onUpdateCard) {
+      try {
+        await onUpdateCard(card.id, payload);
+      } catch (error) {
+        console.error("Update card callback error:", error);
+      }
+    } else {
+      try {
+        await CardService.updateCard(boardId, card.id, payload);
+        router.navigate({
+          pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
+          params: { id, boardId },
+        });
+      } catch (error) {
+        console.error("Update card error:", error);
+      }
+    }
+
+    onClose();
+  };
+
+  if (loading && visible) {
+    return null;
+  }
 
   return (
     <BaseOverlay visible={visible} onClose={onClose}>
@@ -133,22 +154,24 @@ export default function CreateCard({
         }}
       >
         <Text style={[Typography.heading, { fontSize: 24, letterSpacing: 1 }]}>
-          Create Card
+          Edit Card
         </Text>
         <TouchableOpacity activeOpacity={0.7} onPress={onClose}>
           <Icons name="Cross" size={24} />
         </TouchableOpacity>
       </View>
+      
       <Input
         label="Card title"
         value={name}
         setValue={setName}
-        placeholder="e.g.Design landing page"
+        placeholder="e.g. Design landing page"
         stylesLabel={[
           Typography.title,
           { color: Theme.textPrimary, fontSize: 16 },
         ]}
       />
+
       <Text
         style={[Typography.title, { color: Theme.textPrimary, fontSize: 16 }]}
       >
@@ -165,7 +188,7 @@ export default function CreateCard({
       >
         <DropDown
           variant="card"
-          selected={selected.name || options[0].name || ""}
+          selected={selected.name || (options[0]?.name ?? "")}
           setSelected={setSelected}
           options={options}
           stylesText={{
@@ -203,6 +226,7 @@ export default function CreateCard({
           )}
         />
       </View>
+
       <Input
         label="Description"
         value={description}
@@ -212,11 +236,12 @@ export default function CreateCard({
           { color: Theme.textPrimary, fontSize: 16 },
         ]}
       />
-          <Text
-    style={[Typography.title, { color: Theme.textPrimary, fontSize: 16 }]}
-  >
-    Priority
-  </Text>
+
+      <Text
+        style={[Typography.title, { color: Theme.textPrimary, fontSize: 16 }]}
+      >
+        Priority
+      </Text>
       <View
         style={{
           borderWidth: 1,
@@ -244,7 +269,7 @@ export default function CreateCard({
                 justifyContent: "center",
                 borderBottomColor: Theme.border,
                 backgroundColor:
-                  o.name === selected.name
+                  o.name === priority.name
                     ? Colors.primary[200]
                     : "transparent",
                 overflow: "hidden",
@@ -265,6 +290,7 @@ export default function CreateCard({
           )}
         />
       </View>
+
       <Text
         style={[Typography.title, { color: Theme.textPrimary, fontSize: 16 }]}
       >
@@ -292,6 +318,7 @@ export default function CreateCard({
         </Text>
         <Icons name="Calender" />
       </TouchableOpacity>
+
       <BaseOverlay
         visible={isOpenCalender}
         onClose={() => setIsOpenCalender(false)}
@@ -321,8 +348,9 @@ export default function CreateCard({
         </View>
         <Calendar value={date} setValue={setDate} />
       </BaseOverlay>
-            <View style={{width: 100}}/>
-      <Button onPress={handleCreate}>Create board</Button>
+
+      <View style={{ height: Spacing[4] }} />
+      <Button onPress={handleUpdate}>Save Changes</Button>
     </BaseOverlay>
   );
 }

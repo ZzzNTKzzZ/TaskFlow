@@ -45,6 +45,11 @@ export default class ActivityRepository {
             name: true,
           },
         },
+        board: {
+          select: {
+            name: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
       take: limit,
@@ -67,6 +72,11 @@ export default class ActivityRepository {
         user: {
           select: {
             id: true,
+            name: true,
+          },
+        },
+        board: {
+          select: {
             name: true,
           },
         },
@@ -101,6 +111,11 @@ export default class ActivityRepository {
         user: {
           select: {
             id: true,
+            name: true,
+          },
+        },
+        board: {
+          select: {
             name: true,
           },
         },

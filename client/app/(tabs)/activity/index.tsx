@@ -1,76 +1,22 @@
 import Icons from "@/components/icons/Icons";
 import { Screen } from "@/components/layout/Screen";
-import Avatar from "@/components/ui/Avatar";
-import { Colors } from "@/theme/colors";
-import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
+import { Spacing } from "@/theme/spacing";
+import { Colors } from "@/theme/colors";
 import dayjs from "dayjs";
-import { useMemo, useState } from "react";
-import { SectionList, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { SectionList, Text, TouchableOpacity, View, RefreshControl, ScrollView } from "react-native";
+import { useFocusEffect } from "expo-router";
 
-type Activity = {
-  id: string;
-  action: string;
-  description: string;
-  createdAt: string;
-  user: {
-    id: string;
-    name: string;
-    avatar: string;
-  };
-};
+import { Activity } from "@/modules/activity/activity";
+import ActivityService from "@/modules/activity/activity.service";
+import { ActivityItem } from "@/components/ui/ActivityItem";
 
 type ActivitySection = {
   title: string;
   data: Activity[];
 };
-
-type ActivityItemProps = {
-  item: Activity;
-};
-
-function ActivityItem({ item }: ActivityItemProps) {
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        gap: Spacing[3],
-        paddingVertical: Spacing[3],
-        borderBottomWidth: 1,
-        borderBottomColor: Theme.border,
-      }}
-    >
-      <Avatar name={item.user.name} />
-
-      <View style={{ flex: 1 }}>
-        <Text
-          style={[
-            Typography.body,
-            {
-              color: Theme.textPrimary,
-              lineHeight: 22,
-            },
-          ]}
-        >
-          {item.description}
-        </Text>
-
-        <Text
-          style={[
-            Typography.caption,
-            {
-              marginTop: 4,
-              color: Theme.textSecondary,
-            },
-          ]}
-        >
-          {dayjs(item.createdAt).format("hh:mm A")}
-        </Text>
-      </View>
-    </View>
-  );
-}
 
 function groupActivitiesByDate(data: Activity[]): ActivitySection[] {
   const grouped = data.reduce<Record<string, Activity[]>>((acc, item) => {
@@ -99,86 +45,61 @@ function groupActivitiesByDate(data: Activity[]): ActivitySection[] {
   }));
 }
 
-export default function Activity() {
-  const badges = ["All", "Boards", "Cards", "Comments", "Checklist"];
+const FILTERS = ["All", "Boards", "Lists", "Cards", "Checklists", "Comments"];
 
+export default function ActivityScreen() {
   const [selected, setSelected] = useState("All");
 
-  const activityLogs: Activity[] = [
-    {
-      id: "1",
-      action: "CARD_CREATED",
-      description:
-        "Khánh created card 'Implement authentication' in 'Backlog' on 'Sprint Planning'",
-      createdAt: "2026-05-17T10:45:00.000Z",
-      user: {
-        id: "1",
-        name: "Khánh",
-        avatar: "",
-      },
-    },
-    {
-      id: "2",
-      action: "CARD_MOVED",
-      description:
-        "Khánh moved card 'Implement authentication' from 'Backlog' to 'In Progress'",
-      createdAt: "2026-05-17T09:20:00.000Z",
-      user: {
-        id: "1",
-        name: "Khánh",
-        avatar: "",
-      },
-    },
-    {
-      id: "3",
-      action: "COMMENT_CREATED",
-      description:
-        "Khánh commented 'Need backend review' on 'Implement authentication'",
-      createdAt: "2026-05-17T08:10:00.000Z",
-      user: {
-        id: "1",
-        name: "Khánh",
-        avatar: "",
-      },
-    },
-    {
-      id: "4",
-      action: "CHECKLIST_ITEM_COMPLETED",
-      description: "Khánh completed checklist item 'Write code'",
-      createdAt: "2026-05-17T07:30:00.000Z",
-      user: {
-        id: "1",
-        name: "Khánh",
-        avatar: "",
-      },
-    },
-    {
-      id: "5",
-      action: "LIST_CREATED",
-      description: "Khánh created list 'Done'",
-      createdAt: "2026-05-16T16:15:00.000Z",
-      user: {
-        id: "1",
-        name: "Khánh",
-        avatar: "",
-      },
-    },
-    {
-      id: "6",
-      action: "BOARD_UPDATED",
-      description: "Khánh updated board background",
-      createdAt: "2026-05-16T14:00:00.000Z",
-      user: {
-        id: "1",
-        name: "Khánh",
-        avatar: "",
-      },
-    },
-  ];
+  const [activityLogs, setActivityLogs] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchActivities = async () => {
+    try {
+      const data = await ActivityService.getGlobalActivities();
+      setActivityLogs(data);
+    } catch (error) {
+      console.error("Failed to load activities", error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      fetchActivities().finally(() => setLoading(false));
+    }, [])
+  );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchActivities();
+    setRefreshing(false);
+  };
+
+  const filteredLogs = useMemo(() => {
+    if (selected === "All") return activityLogs;
+    return activityLogs.filter((log) => {
+      const action = log.action || "";
+      switch (selected) {
+        case "Boards":
+          return action.startsWith("BOARD_");
+        case "Lists":
+          return action.startsWith("LIST_");
+        case "Cards":
+          return action.startsWith("CARD_") || action.startsWith("MEMBER_");
+        case "Checklists":
+          return action.startsWith("CHECKLIST_");
+        case "Comments":
+          return action.startsWith("COMMENT_");
+        default:
+          return true;
+      }
+    });
+  }, [activityLogs, selected]);
 
   const sections = useMemo(
-    () => groupActivitiesByDate(activityLogs),
-    [activityLogs],
+    () => groupActivitiesByDate(filteredLogs),
+    [filteredLogs],
   );
 
   return (
@@ -198,74 +119,83 @@ export default function Activity() {
 
       <View
         style={{
-          flexDirection: "row",
-          gap: Spacing[2],
           marginBottom: Spacing[4],
         }}
       >
-        {badges.map((badge) => (
-          <TouchableOpacity
-            key={badge}
-            activeOpacity={0.7}
-            onPress={() => setSelected(badge)}
-            style={{
-              paddingVertical: Spacing[1],
-              paddingHorizontal: Spacing[3],
-              borderRadius: 8,
-              borderWidth: 1.5,
-              borderColor:
-                selected === badge ? Colors.primary[500] : Theme.border,
-              backgroundColor:
-                selected === badge ? Colors.primary[100] : Colors.gray[100],
-            }}
-          >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: Spacing[2] }}>
+          {FILTERS.map((badge) => (
+            <TouchableOpacity
+              key={badge}
+              activeOpacity={0.7}
+              onPress={() => setSelected(badge)}
+              style={{
+                paddingVertical: Spacing[1],
+                paddingHorizontal: Spacing[3],
+                borderRadius: 8,
+                borderWidth: 1.5,
+                borderColor:
+                  selected === badge ? Colors.primary[500] : Theme.border,
+                backgroundColor:
+                  selected === badge ? Colors.primary[100] : Colors.gray[100],
+              }}
+            >
+              <Text
+                style={[
+                  Typography.title,
+                  {
+                    fontSize: 12,
+                    color:
+                      selected === badge ? Theme.primary : Theme.textSecondary,
+                  },
+                ]}
+              >
+                {badge}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      {loading && !refreshing ? (
+        <Text style={{ textAlign: "center", marginTop: 40, color: Theme.textSecondary }}>
+          Loading activities...
+        </Text>
+      ) : (
+        <SectionList
+          sections={sections}
+          keyExtractor={(item) => item.id}
+          stickySectionHeadersEnabled={false}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={Theme.primary} />
+          }
+          ListEmptyComponent={
+            <Text
+              style={{
+                textAlign: "center",
+                marginTop: 40,
+                color: Theme.textSecondary,
+              }}
+            >
+              No activity found
+            </Text>
+          }
+          renderSectionHeader={({ section }) => (
             <Text
               style={[
                 Typography.title,
                 {
-                  fontSize: 12,
-                  color:
-                    selected === badge ? Theme.primary : Theme.textSecondary,
+                  marginTop: Spacing[3],
+                  marginBottom: Spacing[1],
                 },
               ]}
             >
-              {badge}
+              {section.title}
             </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <SectionList
-        sections={sections}
-        keyExtractor={(item) => item.id}
-        stickySectionHeadersEnabled={false}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <Text
-            style={{
-              textAlign: "center",
-              marginTop: 40,
-              color: Theme.textSecondary,
-            }}
-          >
-            No activity yet
-          </Text>
-        }
-        renderSectionHeader={({ section }) => (
-          <Text
-            style={[
-              Typography.title,
-              {
-                marginTop: Spacing[3],
-                marginBottom: Spacing[1],
-              },
-            ]}
-          >
-            {section.title}
-          </Text>
-        )}
-        renderItem={({ item }) => <ActivityItem item={item} />}
-      />
+          )}
+          renderItem={({ item }) => <ActivityItem item={item} />}
+        />
+      )}
     </Screen>
   );
 }

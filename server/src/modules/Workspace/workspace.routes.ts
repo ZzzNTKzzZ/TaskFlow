@@ -78,6 +78,13 @@ workspaceRoutes.delete(
 
 // ================= BOARDS =================
 
+// GET timeline
+workspaceRoutes.get(
+  "/:workspaceId/timeline",
+  workspaceAccess,
+  asyncHandler(WorkspaceController.getTimeline)
+);
+
 // GET boards
 workspaceRoutes.get(
   "/:workspaceId/boards",

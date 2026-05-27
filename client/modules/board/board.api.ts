@@ -43,3 +43,13 @@ export const reorderListsApi = async (
     return { success: false, data: null as any, message: error.message };
   }
 };
+
+export const deleteBoardApi = async (boardId: string): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.delete<ApiResponse<any>>(`/boards/${boardId}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error [deleteBoardApi]:", error);
+    return { success: false, data: null, message: error.message };
+  }
+};

@@ -203,16 +203,21 @@ export default function Workspace() {
         >
           {workspaces.map((ws) => (
             <WorkspaceCardUI
-              onPress={() => {
-                router.push({
-                  pathname: "/(tabs)/workspace/[id]/(workspace-detail)",
-                  params: {
-                    id: ws.id,
-                    name: ws.name,
-                    icon: ws.icon,
-                    color: ws.color,
-                  },
-                });
+              onPress={async () => {
+                try {
+                  await WorkspaceService.getWorkspace(ws.id);
+                  router.push({
+                    pathname: "/(tabs)/workspace/[id]/(workspace-detail)",
+                    params: {
+                      id: ws.id,
+                      name: ws.name,
+                      icon: ws.icon,
+                      color: ws.color,
+                    },
+                  });
+                } catch (e) {
+                  console.error(e);
+                }
               }}
               key={ws.id}
               {...ws}

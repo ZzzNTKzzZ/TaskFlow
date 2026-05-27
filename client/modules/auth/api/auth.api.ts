@@ -3,7 +3,7 @@ import { LoginData, SignUpData } from "../types/auth";
 export const loginApi = async (data: LoginData) => {
   try {
     const response = await api.post("/auth/login", data);
-   return response.data
+    return response.data;
   } catch (error: any) {
     const errorData = error.response?.data;
     return {
@@ -16,7 +16,7 @@ export const loginApi = async (data: LoginData) => {
 export const signupApi = async (data: SignUpData) => {
   try {
     const response = await api.post("/auth/register", data);
-    return response.data
+    return response.data;
   } catch (error: any) {
     const errorData = error.response?.data;
     return {
@@ -34,4 +34,4 @@ export const refreshTokenApi = async () => {
     console.error("API Error [refreshTokenApi]:", error);
     return { success: false };
   }
-}
+};

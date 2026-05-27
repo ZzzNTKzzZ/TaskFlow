@@ -9,12 +9,12 @@ import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import { useIsFocused } from "@react-navigation/core";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function WorkspaceDetail() {
-  const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
+  const { id, name, icon, color } = useGlobalSearchParams<{ id: string; name: string; icon?: string; color?: string }>();
   const isFocused = useIsFocused();
 
   const [boards, setBoards] = useState<BoardCardUI[]>([]); // Dữ liệu gốc từ API
@@ -175,6 +175,8 @@ export default function WorkspaceDetail() {
                     boardId: b.id,
                     name: b.name,
                     parentName: name,
+                    workspaceIcon: icon,
+                    workspaceColor: color
                   },
                 })
               }

@@ -42,13 +42,6 @@ export default class BoardController {
       boardId: boardId as string,
     });
 
-    await ActivityService.logActivity({
-      boardId: boardId as string,
-      userId: req.user.userId,
-      action: "BOARD_DELETED",
-      description: `deleted board`,
-    });
-
     res.status(200).json(responseHandler.success(boardId));
   }
 

@@ -20,14 +20,16 @@ import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import { useGlobalSearchParams, usePathname } from "expo-router";
 import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 
 function InnerTodoItem({
   item,
   onToggle,
+  onDelete,
 }: {
   item: ChecklistItemType;
   onToggle: (item: ChecklistItemType) => void;
+  onDelete: (item: ChecklistItemType) => void;
 }) {
   return (
     <TouchableOpacity
@@ -53,6 +55,10 @@ function InnerTodoItem({
       >
         {item.name}
       </Text>
+      <View style={{ flex: 1 }} />
+      <TouchableOpacity onPress={() => onDelete(item)} style={{ paddingHorizontal: Spacing[2] }}>
+        <Icons name="Trash" size={16} color={Theme.error} />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 }
@@ -60,9 +66,13 @@ function InnerTodoItem({
 function ChecklistItem({
   checklist,
   onToggle,
+  onDeleteChecklist,
+  onDeleteItem,
 }: {
   checklist: Checklist;
   onToggle: (item: ChecklistItemType) => void;
+  onDeleteChecklist: (checklist: Checklist) => void;
+  onDeleteItem: (item: ChecklistItemType) => void;
 }) {
   const [active, setActive] = useState(false);
   const [isOpenCreate, setIsOpenCreate] = useState(false);
@@ -126,7 +136,12 @@ function ChecklistItem({
             </View>
           )}
         </View>
-        <UpDownIcon active={active} />
+        <View style={{ flexDirection: "row", alignItems: "center", gap: Spacing[2] }}>
+          <TouchableOpacity onPress={(e) => { e.stopPropagation(); onDeleteChecklist(checklist); }} style={{ padding: Spacing[1] }}>
+            <Icons name="Trash" size={18} color={Theme.error} />
+          </TouchableOpacity>
+          <UpDownIcon active={active} />
+        </View>
       </TouchableOpacity>
 
       {active && (
@@ -144,6 +159,7 @@ function ChecklistItem({
               onToggle={(itemToToggle) =>
                 onToggle ? onToggle(itemToToggle) : undefined
               }
+              onDelete={onDeleteItem}
             />
           ))}
           <TouchableOpacity
@@ -177,9 +193,7 @@ export default function Card() {
   const { boardId, cardId } = useGlobalSearchParams();
   const [card, setCard] = useState<CardRespone>();
   const [loading, setLoading] = useState(true);
-  const pathname = usePathname();
   const [active, setActive] = useState<boolean>(false);
-
   const handleToggleChecklistItem = async (
     checklistId: string,
     item: ChecklistItemType,
@@ -194,7 +208,9 @@ export default function Card() {
             ? {
                 ...checklist,
                 items: (checklist.items || []).map((it) =>
-                  it.id === item.id ? { ...it, isCompleted: nextCompleted } : it,
+                  it.id === item.id
+                    ? { ...it, isCompleted: nextCompleted }
+                    : it,
                 ),
               }
             : checklist,
@@ -220,7 +236,9 @@ export default function Card() {
               ? {
                   ...checklist,
                   items: (checklist.items || []).map((it) =>
-                    it.id === item.id ? { ...it, isCompleted: item.isCompleted } : it,
+                    it.id === item.id
+                      ? { ...it, isCompleted: item.isCompleted }
+                      : it,
                   ),
                 }
               : checklist,
@@ -230,15 +248,60 @@ export default function Card() {
     }
   };
 
+  const handleDeleteChecklist = async (checklistId: string) => {
+    Alert.alert("Delete Checklist", "Are you sure you want to delete this checklist?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: async () => {
+        try {
+          await ChecklistService.deleteChecklist(boardId as string, cardId as string, checklistId);
+          setCard(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              checklists: (prev.checklists || []).filter(c => c.id !== checklistId)
+            };
+          });
+        } catch (error) {
+          console.error(error);
+          Alert.alert("Error", "Failed to delete checklist.");
+        }
+      }}
+    ]);
+  };
+
+  const handleDeleteChecklistItem = async (checklistId: string, item: ChecklistItemType) => {
+    Alert.alert("Delete Item", "Are you sure you want to delete this item?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: async () => {
+        try {
+          await ChecklistService.deleteChecklistItem(boardId as string, cardId as string, checklistId, item.id);
+          setCard(prev => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              checklists: (prev.checklists || []).map(c => 
+                c.id === checklistId 
+                  ? { ...c, items: (c.items || []).filter(it => it.id !== item.id) }
+                  : c
+              )
+            };
+          });
+        } catch (error) {
+          console.error(error);
+          Alert.alert("Error", "Failed to delete item.");
+        }
+      }}
+    ]);
+  };
+
   useEffect(() => {
     const getCard = async () => {
-      console.log(pathname);
       try {
         const response = await CardService.getCard(
           boardId as string,
           cardId as string,
         );
-        setCard(response);
+        setCard(response as any);
       } catch (error) {
         console.error("Failed to fetch card:", error);
       } finally {
@@ -254,48 +317,96 @@ export default function Card() {
     let offItemCreating: any;
     let offItemCreated: any;
     let offItemFailed: any;
+    let offCardUpdated: any;
     (async () => {
       try {
         const eventBus = await import("@/services/eventBus");
-        offCreating = eventBus.on("checklist:creating", ({ cardId: targetCardId, checklist }: any) => {
-          if (targetCardId === cardId) {
-            setCard((prev) => ({ ...(prev as any), checklists: [...((prev as any).checklists || []), checklist] }));
-          }
-        });
-        offCreated = eventBus.on("checklist:created", ({ tempId, created }: any) => {
-          setCard((prev) => ({ ...(prev as any), checklists: ((prev as any).checklists || []).map((c: any) => (c.id === tempId ? created : c)) }));
-        });
-        offFailed = eventBus.on("checklist:create_failed", ({ tempId }: any) => {
-          setCard((prev) => ({ ...(prev as any), checklists: ((prev as any).checklists || []).filter((c: any) => c.id !== tempId) }));
-        });
+        offCreating = eventBus.on(
+          "checklist:creating",
+          ({ cardId: targetCardId, checklist }: any) => {
+            if (targetCardId === cardId) {
+              setCard((prev) => ({
+                ...(prev as any),
+                checklists: [...((prev as any).checklists || []), checklist],
+              }));
+            }
+          },
+        );
+        offCreated = eventBus.on(
+          "checklist:created",
+          ({ tempId, created }: any) => {
+            setCard((prev) => ({
+              ...(prev as any),
+              checklists: ((prev as any).checklists || []).map((c: any) =>
+                c.id === tempId ? created : c,
+              ),
+            }));
+          },
+        );
+        offFailed = eventBus.on(
+          "checklist:create_failed",
+          ({ tempId }: any) => {
+            setCard((prev) => ({
+              ...(prev as any),
+              checklists: ((prev as any).checklists || []).filter(
+                (c: any) => c.id !== tempId,
+              ),
+            }));
+          },
+        );
 
         // checklist item events
-        offItemCreating = eventBus.on("checklistItem:creating", ({ checklistId, item }: any) => {
-          setCard((prev) => ({
-            ...(prev as any),
-            checklists: ((prev as any).checklists || []).map((c: any) =>
-              c.id === checklistId ? { ...c, items: [...(c.items || []), item] } : c,
-            ),
-          }));
-        });
-        offItemCreated = eventBus.on("checklistItem:created", ({ tempId, created }: any) => {
-          setCard((prev) => ({
-            ...(prev as any),
-            checklists: ((prev as any).checklists || []).map((c: any) => ({
-              ...c,
-              items: (c.items || []).map((it: any) => (it.id === tempId ? created : it)),
-            })),
-          }));
-        });
-        offItemFailed = eventBus.on("checklistItem:create_failed", ({ tempId }: any) => {
-          setCard((prev) => ({
-            ...(prev as any),
-            checklists: ((prev as any).checklists || []).map((c: any) => ({
-              ...c,
-              items: (c.items || []).filter((it: any) => it.id !== tempId),
-            })),
-          }));
-        });
+        offItemCreating = eventBus.on(
+          "checklistItem:creating",
+          ({ checklistId, item }: any) => {
+            setCard((prev) => ({
+              ...(prev as any),
+              checklists: ((prev as any).checklists || []).map((c: any) =>
+                c.id === checklistId
+                  ? { ...c, items: [...(c.items || []), item] }
+                  : c,
+              ),
+            }));
+          },
+        );
+        offItemCreated = eventBus.on(
+          "checklistItem:created",
+          ({ tempId, created }: any) => {
+            setCard((prev) => ({
+              ...(prev as any),
+              checklists: ((prev as any).checklists || []).map((c: any) => ({
+                ...c,
+                items: (c.items || []).map((it: any) =>
+                  it.id === tempId ? created : it,
+                ),
+              })),
+            }));
+          },
+        );
+        offItemFailed = eventBus.on(
+          "checklistItem:create_failed",
+          ({ tempId }: any) => {
+            setCard((prev) => ({
+              ...(prev as any),
+              checklists: ((prev as any).checklists || []).map((c: any) => ({
+                ...c,
+                items: (c.items || []).filter((it: any) => it.id !== tempId),
+              })),
+            }));
+          },
+        );
+
+        offCardUpdated = eventBus.on(
+          "card:updated",
+          ({ cardId: targetCardId, payload }: any) => {
+            if (targetCardId === cardId) {
+              setCard((prev) => {
+                if (!prev) return prev;
+                return { ...prev, ...payload };
+              });
+            }
+          }
+        );
       } catch (e) {
         console.error("eventBus subscribe error:", e);
       }
@@ -309,6 +420,7 @@ export default function Card() {
         if (offItemCreating) offItemCreating();
         if (offItemCreated) offItemCreated();
         if (offItemFailed) offItemFailed();
+        if (offCardUpdated) offCardUpdated();
       } catch (e) {}
     };
   }, [boardId, cardId]);
@@ -327,7 +439,6 @@ export default function Card() {
           borderBottomWidth: 2,
         }}
       >
-        <Text style={[Typography.heading, { fontSize: 24 }]}>{card.name}</Text>
         <View>
           <Badges name={card.priority} />
         </View>
@@ -408,6 +519,8 @@ export default function Card() {
             key={c.id}
             checklist={c}
             onToggle={(item) => handleToggleChecklistItem(c.id, item)}
+            onDeleteChecklist={() => handleDeleteChecklist(c.id)}
+            onDeleteItem={(item) => handleDeleteChecklistItem(c.id, item)}
           />
         ))}
       </View>
@@ -416,6 +529,7 @@ export default function Card() {
         onClose={() => setActive(false)}
         cardId={cardId as string}
       />
+    
     </Screen>
   );
 }

@@ -1,11 +1,5 @@
 import TopBar from "@/components/ui/TopBar";
-import {
-  router,
-  Stack,
-  useGlobalSearchParams,
-  useLocalSearchParams,
-} from "expo-router";
-import { useEffect } from "react";
+import { router, Stack, useGlobalSearchParams } from "expo-router";
 
 export default function WorkspaceIdLayout() {
   return (
@@ -23,15 +17,24 @@ export default function WorkspaceIdLayout() {
             header: () => (
               <TopBar
                 name={routeParams.name}
-                icon={routeParams.icon}
-                color={routeParams.color}
-                menu={["Create list", "Members", "Board settings", "Delete board"]}
+                icon={routeParams.workspaceIcon}
+                color={routeParams.workspaceColor}
+                parentName={routeParams.parentName}
+                menu={[
+                  "Create list",
+                  "Members",
+                  "Board settings",
+                  "Delete board",
+                ]}
+                onBack={() =>
+                  router.push("../")
+                }
               />
             ),
           };
         }}
       />
-        <Stack.Screen name="[cardId]"/>
+      <Stack.Screen name="[cardId]" />
     </Stack>
   );
 }
