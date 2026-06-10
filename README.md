@@ -2,7 +2,7 @@
 
 > **Kanban-inspired mobile task management — built for individuals and teams.**
 
-TaskFlow là ứng dụng di động quản lý công việc hiện đại, kết hợp bảng Kanban cộng tác nhóm theo phong cách Trello với hệ thống quản lý Todo cá nhân kiểu Todoist — tất cả trong một nền tảng duy nhất. Ứng dụng cho phép đồng bộ real-time giữa các thiết bị và hỗ trợ automation workflow giúp đội nhóm làm việc thông minh hơn, không chỉ chăm chỉ hơn.
+TaskFlow is a modern mobile task management application that combines Trello-style collaborative Kanban boards with a personal Todo system inspired by Todoist — all in a single platform. It enables real-time synchronization across devices and supports automation workflows, helping teams work smarter, not just harder.
 
 ---
 
@@ -22,73 +22,73 @@ TaskFlow là ứng dụng di động quản lý công việc hiện đại, kế
 
 ---
 
-## ✨ Tính Năng Nổi Bật
+## ✨ Key Features
 
-- 🗂️ **Kanban Board đầy đủ** — Tổ chức công việc theo cấu trúc Workspace → Board → List → Card với khả năng kéo-thả (drag & drop) linh hoạt.
-- 👥 **Cộng tác nhóm** — Mời thành viên vào Workspace/Board với hệ thống phân quyền chi tiết (OWNER, ADMIN, MEMBER, VIEWER).
-- ✅ **Todo cá nhân** — Mỗi người dùng có danh sách Todo riêng với priority (low / medium / high / urgent), dueDate và status (todo / doing / done).
-- 🔄 **Chuyển đổi Todo → Card** — Chuyển một Todo cá nhân thành Kanban Card trên bất kỳ Board nào chỉ bằng vài thao tác.
-- 📝 **Checklist chi tiết** — Mỗi Card có thể chứa nhiều Checklist với các mục con có thể tích dấu hoàn thành.
-- 🏷️ **Label & Tags** — Gắn label màu sắc tùy chỉnh cho Card để phân loại công việc trực quan.
-- 🤖 **Automation Rules** — Tạo quy tắc tự động hóa theo mô hình Trigger → Condition → Action (ví dụ: khi Card chuyển sang "Done" → tự tạo Todo mới).
-- 🔔 **Thông báo thời gian thực** — Nhận thông báo khi được giao việc, khi Card được cập nhật, hoặc khi deadline đến gần.
-- 📊 **Activity Log** — Lịch sử toàn bộ hoạt động theo Board, Card, hoặc cá nhân.
-- 🔐 **Xác thực bảo mật** — JWT Access Token + Refresh Token lưu trong HttpOnly Cookie, mật khẩu mã hóa bằng bcrypt.
-- 📱 **Đa nền tảng** — Chạy trên Android, iOS và Web từ một codebase duy nhất nhờ Expo.
+- 🗂️ **Full-featured Kanban Board** — Organize work through a Workspace → Board → List → Card hierarchy with flexible drag & drop support.
+- 👥 **Team Collaboration** — Invite members to Workspaces and Boards with a granular role-based permission system (OWNER, ADMIN, MEMBER, VIEWER).
+- ✅ **Personal Todo List** — Each user has a private Todo list with priority levels (low / medium / high / urgent), due dates, and statuses (todo / doing / done).
+- 🔄 **Todo → Card Conversion** — Promote a personal Todo into a Kanban Card on any Board in just a few taps.
+- 📝 **Detailed Checklists** — Each Card can contain multiple Checklists with completable sub-items to track granular progress.
+- 🏷️ **Labels & Tags** — Attach custom color-coded labels to Cards for fast visual categorization.
+- 🤖 **Automation Rules** — Build workflow automations using a Trigger → Condition → Action model (e.g., when a Card moves to "Done" → automatically create a new Todo).
+- 🔔 **Real-time Notifications** — Get notified when you are assigned to a task, when a Card is updated, or when a deadline is approaching.
+- 📊 **Activity Log** — Full audit history of all actions, scoped to a Board, a Card, or a specific user.
+- 🔐 **Secure Authentication** — JWT Access Token + Refresh Token stored in HttpOnly Cookies, with passwords hashed using bcrypt.
+- 📱 **Cross-platform** — Runs on Android, iOS, and Web from a single codebase powered by Expo.
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### 📱 Mobile Client
-| Công nghệ | Phiên bản | Mục đích |
+| Technology | Version | Purpose |
 |---|---|---|
-| React Native | 0.81.5 | Framework UI đa nền tảng |
+| React Native | 0.81.5 | Cross-platform UI framework |
 | Expo | ~54.0 | Build & development toolchain |
-| Expo Router | ~6.0 | File-based routing |
-| TypeScript | ~5.9 | Type safety |
+| Expo Router | ~6.0 | File-based navigation routing |
+| TypeScript | ~5.9 | Static type safety |
 | Zustand | ^5.0 | Global state management |
-| React Navigation | ^7.0 | Navigation & tabs |
-| Axios | ^1.16 | HTTP client |
-| React Native Reanimated | ~4.1 | Animations mượt mà |
-| React Native Draggable FlatList | ^4.0 | Kéo-thả Card/List |
-| React Native Calendars | ^1.1314 | Hiển thị lịch dueDate |
-| Zod | ^4.3 | Schema validation |
-| Day.js | ^1.11 | Xử lý ngày giờ |
-| Expo Secure Store | ~15.0 | Lưu token an toàn |
-| Inter Font (Google Fonts) | ^0.4 | Typography chất lượng |
+| React Navigation | ^7.0 | Navigation & tab management |
+| Axios | ^1.16 | HTTP client for API calls |
+| React Native Reanimated | ~4.1 | Smooth animations |
+| React Native Draggable FlatList | ^4.0 | Drag & drop for Cards/Lists |
+| React Native Calendars | ^1.1314 | Due date calendar view |
+| Zod | ^4.3 | Schema & form validation |
+| Day.js | ^1.11 | Date/time manipulation |
+| Expo Secure Store | ~15.0 | Secure token storage |
+| Inter Font (Google Fonts) | ^0.4 | Premium typography |
 
 ### ⚙️ Backend Server
-| Công nghệ | Phiên bản | Mục đích |
+| Technology | Version | Purpose |
 |---|---|---|
-| Node.js | ≥ 20 | Runtime |
-| Express | ^5.2 | Web framework |
-| TypeScript | ^5.9 | Type safety |
-| Prisma ORM | ^7.4 | Database access layer |
+| Node.js | ≥ 20 | JavaScript runtime |
+| Express | ^5.2 | Web application framework |
+| TypeScript | ^5.9 | Static type safety |
+| Prisma ORM | ^7.4 | Type-safe database access layer |
 | PostgreSQL | ≥ 15 | Relational database |
-| JSON Web Token | ^9.0 | Access & Refresh token |
+| JSON Web Token | ^9.0 | Access & Refresh token issuance |
 | bcrypt | ^6.0 | Password hashing |
-| Zod | ^4.3 | Request validation |
+| Zod | ^4.3 | Request body validation |
 | Morgan | ^1.10 | HTTP request logging |
-| CORS | ^2.8 | Cross-origin configuration |
-| tsx | ^4.21 | TypeScript runner (dev) |
+| CORS | ^2.8 | Cross-origin resource sharing |
+| tsx | ^4.21 | TypeScript runner for development |
 
 ### 🗄️ Database
-- **PostgreSQL** — Relational database với schema được quản lý bởi Prisma Migrations
-- **Prisma ORM** — Type-safe database client với Prisma Studio để quản lý dữ liệu
+- **PostgreSQL** — Relational database with schema managed through Prisma Migrations.
+- **Prisma ORM** — Type-safe database client with Prisma Studio for GUI-based data management.
 
 ### 🛠️ Dev Tools
-- **Postman** — API testing (collection có sẵn tại `Trello_API_Postman_Collection.json`)
-- **Prisma Studio** — GUI quản lý database
-- **tsx watch** — Hot-reload cho server development
+- **Postman** — API testing (ready-to-import collection at `Trello_API_Postman_Collection.json`)
+- **Prisma Studio** — Visual GUI for managing database records
+- **tsx watch** — Hot-reload TypeScript runner for server development
 
 ---
 
-## 📋 Yêu Cầu Hệ Thống (Prerequisites)
+## 📋 Prerequisites
 
-Trước khi cài đặt, hãy đảm bảo máy bạn đã có:
+Before installing, ensure your machine has the following:
 
-| Công cụ | Phiên bản tối thiểu | Kiểm tra |
+| Tool | Minimum Version | Check Command |
 |---|---|---|
 | Node.js | v20+ | `node --version` |
 | npm | v10+ | `npm --version` |
@@ -96,13 +96,13 @@ Trước khi cài đặt, hãy đảm bảo máy bạn đã có:
 | Expo CLI | Latest | `npx expo --version` |
 | Git | Any | `git --version` |
 
-> **Lưu ý cho Mobile:** Cần có Android Studio (Emulator) hoặc app **Expo Go** trên điện thoại thật để chạy client.
+> **Mobile Note:** You need Android Studio (with an emulator) or the **Expo Go** app on a physical device to run the client.
 
 ---
 
-## 🚀 Hướng Dẫn Cài Đặt & Khởi Chạy
+## 🚀 Installation & Setup
 
-### Bước 1: Clone repository
+### Step 1: Clone the repository
 
 ```bash
 git clone https://github.com/ZzzNTKzzZ/TaskFlow.git
@@ -111,160 +111,156 @@ cd TaskFlow
 
 ---
 
-### Bước 2: Cài đặt Backend (Server)
+### Step 2: Set up the Backend (Server)
 
 ```bash
 cd server
 npm install
 ```
 
-Tạo file `.env` từ mẫu và cấu hình biến môi trường:
-
-```bash
-# Tạo file .env trong thư mục server/
-```
+Create a `.env` file inside the `server/` directory and configure the environment variables:
 
 ```env
 # server/.env
 
-# Chuỗi kết nối PostgreSQL
+# PostgreSQL connection string
 DATABASE_URL="postgresql://<user>:<password>@localhost:5432/TaskFlow"
 
-# Cổng server
+# Server port
 PORT=5000
 
-# Khóa bí mật JWT (thay bằng chuỗi ngẫu nhiên mạnh của bạn)
+# JWT secrets (replace with strong random strings)
 JWT_SECRET="your_strong_jwt_access_secret_here"
 JWT_REFRESH_SECRET="your_strong_jwt_refresh_secret_here"
 ```
 
-Khởi tạo database và chạy migration:
+Initialize the database and run migrations:
 
 ```bash
-# Tạo database và chạy migration
+# Run Prisma migration to create the database schema
 npx prisma migrate dev --name init
 
-# (Tuỳ chọn) Mở Prisma Studio để quản lý dữ liệu
+# (Optional) Open Prisma Studio to browse your data
 npx prisma studio
 ```
 
-Khởi động server ở chế độ Development:
+Start the server in development mode:
 
 ```bash
 npm run dev
-# Server sẽ lắng nghe tại: http://localhost:5000
+# Server will be listening at: http://localhost:5000
 ```
 
 ---
 
-### Bước 3: Cài đặt Mobile Client
+### Step 3: Set up the Mobile Client
 
-Mở terminal mới, quay về thư mục gốc:
+Open a new terminal and navigate to the client directory:
 
 ```bash
 cd ../client
 npm install
 ```
 
-Tạo file `.env` cho client:
+Create a `.env` file inside the `client/` directory:
 
 ```env
 # client/.env
 
-# Thay bằng IP LAN của máy chạy server (KHÔNG dùng localhost)
+# Replace with the LAN IP address of the machine running the server (do NOT use localhost)
 EXPO_PUBLIC_API_URL=http://192.168.x.x:5000
 ```
 
-> **Quan trọng:** Thay `192.168.x.x` bằng địa chỉ IP thực của máy tính bạn trong mạng LAN.
-> Kiểm tra IP bằng lệnh `ipconfig` (Windows) hoặc `ifconfig` (macOS/Linux).
+> **Important:** Replace `192.168.x.x` with your machine's actual local IP address.
+> Find it with `ipconfig` (Windows) or `ifconfig` (macOS/Linux).
 
-Khởi động client:
+Start the Expo development server:
 
 ```bash
-# Khởi động Expo Development Server
+# Start the Expo development server
 npx expo start
 
-# Hoặc chạy thẳng trên Android Emulator
+# Run directly on Android Emulator
 npx expo start --android
 
-# Hoặc chạy trên iOS Simulator (chỉ macOS)
+# Run on iOS Simulator (macOS only)
 npx expo start --ios
 
-# Hoặc chạy trên trình duyệt Web
+# Run in the web browser
 npx expo start --web
 ```
 
-Quét QR code hiện ra bằng ứng dụng **Expo Go** trên điện thoại thật để xem app.
+Scan the displayed QR code with the **Expo Go** app on a physical device to preview the app instantly.
 
 ---
 
-### Chạy Production Build (Client)
+### Production Build (Client)
 
 ```bash
-# Build Android APK (cần EAS CLI)
+# Build an Android APK (requires EAS CLI)
 npx eas build --platform android --profile preview
 
-# Build iOS (cần Apple Developer Account)
+# Build for iOS (requires an Apple Developer Account)
 npx eas build --platform ios
 ```
 
 ---
 
-## 📡 Cách Sử Dụng & Ví Dụ API
+## 📡 Usage & API Examples
 
-Base URL: `http://localhost:5000/api/v1`
+**Base URL:** `http://localhost:5000/api/v1`
 
-Toàn bộ Postman Collection có sẵn tại file [`Trello_API_Postman_Collection.json`](./Trello_API_Postman_Collection.json) — import thẳng vào Postman để test ngay.
+The full Postman Collection is available at [`Trello_API_Postman_Collection.json`](./Trello_API_Postman_Collection.json) — import it directly into Postman to start testing immediately.
 
 ### 🔐 Authentication
 
 ```http
-# Đăng ký tài khoản mới
+# Register a new account
 POST /api/v1/auth/register
 Content-Type: application/json
 
 {
-  "name": "Nguyen Van A",
-  "email": "nguyenvana@example.com",
+  "name": "John Doe",
+  "email": "john.doe@example.com",
   "password": "securePassword123"
 }
 
-# Phản hồi thành công (201 Created):
+# Success response (201 Created):
 {
-  "message": "Đăng ký thành công",
+  "message": "Registration successful",
   "user": {
     "id": "uuid-here",
-    "name": "Nguyen Van A",
-    "email": "nguyenvana@example.com"
+    "name": "John Doe",
+    "email": "john.doe@example.com"
   }
 }
 ```
 
 ```http
-# Đăng nhập
+# Log in to an existing account
 POST /api/v1/auth/login
 Content-Type: application/json
 
 {
-  "email": "nguyenvana@example.com",
+  "email": "john.doe@example.com",
   "password": "securePassword123"
 }
 
-# Phản hồi (200 OK):
+# Success response (200 OK):
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR...",
-  "user": { "id": "...", "name": "Nguyen Van A", "email": "..." }
+  "user": { "id": "...", "name": "John Doe", "email": "..." }
 }
 ```
 
 ### 🗂️ Workspace & Board
 
 ```http
-# Lấy danh sách workspace của người dùng
+# Get all workspaces for the authenticated user
 GET /api/v1/workspaces
 Authorization: Bearer <accessToken>
 
-# Tạo board mới trong workspace
+# Create a new board inside a workspace
 POST /api/v1/workspaces/:workspaceId/boards
 Authorization: Bearer <accessToken>
 Content-Type: application/json
@@ -279,19 +275,19 @@ Content-Type: application/json
 ### ✅ Card Management
 
 ```http
-# Tạo card mới trong một list
+# Create a new card inside a list
 POST /api/v1/:boardId/lists/:listId/cards
 Authorization: Bearer <accessToken>
 Content-Type: application/json
 
 {
   "name": "Implement Authentication Module",
-  "description": "Xây dựng JWT Auth với refresh token",
+  "description": "Build JWT Auth with refresh token rotation",
   "priority": "high",
   "dueDate": "2026-06-30T23:59:00.000Z"
 }
 
-# Di chuyển card sang list khác (reorder)
+# Move a card to a different list (reorder)
 PATCH /api/v1/:boardId/cards/reorder
 Authorization: Bearer <accessToken>
 Content-Type: application/json
@@ -306,28 +302,28 @@ Content-Type: application/json
 ### 📊 Activity Log
 
 ```http
-# Xem toàn bộ lịch sử hoạt động của một board
+# Fetch the full activity history for a board
 GET /api/v1/activities/board/:boardId
 Authorization: Bearer <accessToken>
 
-# Xem lịch sử hoạt động cá nhân
+# Fetch the current user's personal activity history
 GET /api/v1/activities/me
 Authorization: Bearer <accessToken>
 ```
 
 ---
 
-## 📁 Cấu Trúc Dự Án
+## 📁 Project Structure
 
 ```
 TaskFlow/
-├── 📁 server/                  # Backend API
+├── 📁 server/                  # Backend REST API
 │   ├── src/
-│   │   ├── app.ts              # Entry point Express
-│   │   ├── routes/             # Đăng ký tất cả routes
-│   │   ├── middleware/         # Auth, Error, Permission
-│   │   ├── permissions/        # Định nghĩa quyền truy cập
-│   │   ├── modules/            # Business logic
+│   │   ├── app.ts              # Express entry point
+│   │   ├── routes/             # Route registration
+│   │   ├── middleware/         # Auth, Error, Permission middleware
+│   │   ├── permissions/        # Role-based permission definitions
+│   │   ├── modules/            # Feature-based business logic
 │   │   │   ├── Auth/
 │   │   │   ├── Workspace/
 │   │   │   ├── Board/
@@ -336,62 +332,62 @@ TaskFlow/
 │   │   │   ├── Checklist/
 │   │   │   ├── Activity/
 │   │   │   └── Automation/
-│   │   ├── validators/         # Zod schemas validation
-│   │   ├── lib/                # Prisma client setup
-│   │   └── utils/              # Helper functions
+│   │   ├── validators/         # Zod request schemas
+│   │   ├── lib/                # Prisma client initialization
+│   │   └── utils/              # Shared utility functions
 │   ├── prisma/
-│   │   └── schema.prisma       # Database schema
+│   │   └── schema.prisma       # Database schema definition
 │   └── package.json
 │
 ├── 📁 client/                  # React Native (Expo) App
-│   ├── app/                    # Expo Router (file-based routes)
-│   │   ├── (auth)/             # Login, Register
-│   │   ├── (tabs)/             # Tab navigation chính
+│   ├── app/                    # Expo Router file-based routes
+│   │   ├── (auth)/             # Login & Register screens
+│   │   ├── (tabs)/             # Main tab navigation
 │   │   ├── (board)/            # Board detail screens
 │   │   ├── (card)/             # Card detail screens
 │   │   └── (workspace)/        # Workspace screens
 │   ├── components/             # Reusable UI components
 │   ├── modules/                # Feature modules
-│   ├── services/               # API service calls (axios)
-│   ├── helper/                 # Utility functions
-│   ├── theme/                  # Design tokens & colors
-│   └── types/                  # TypeScript type definitions
+│   ├── services/               # Axios API service layer
+│   ├── helper/                 # Utility/helper functions
+│   ├── theme/                  # Design tokens & color palette
+│   └── types/                  # Global TypeScript type definitions
 │
-├── Api.md                      # API endpoint reference
+├── Api.md                      # Full API endpoint reference
 ├── Design.md                   # Design system documentation
-├── Mermaid.md                  # Architecture diagrams
+├── Mermaid.md                  # Architecture & flow diagrams
 └── README.md
 ```
 
 ---
 
-## 🗺️ Lộ Trình Phát Triển
+## 🗺️ Roadmap
 
-| Giai đoạn | Tính năng | Trạng thái |
+| Phase | Features | Status |
 |---|---|---|
-| **Phase 1** | Authentication, Workspace, Board, List, Card | ✅ Hoàn thành |
-| **Phase 2** | Real-time sync, Drag & Drop, Team members | ✅ Hoàn thành |
-| **Phase 3** | Todo system, Checklist, Todo-to-Card conversion | ✅ Hoàn thành |
-| **Phase 4** | Automation Rules, Notifications, Activity Log | ✅ Hoàn thành |
-| **Phase 5** | Push Notifications (FCM), Performance optimization | 🚧 Đang phát triển |
+| **Phase 1** | Authentication, Workspace, Board, List, Card | ✅ Complete |
+| **Phase 2** | Real-time sync, Drag & Drop, Team members | ✅ Complete |
+| **Phase 3** | Todo system, Checklist, Todo-to-Card conversion | ✅ Complete |
+| **Phase 4** | Automation Rules, Notifications, Activity Log | ✅ Complete |
+| **Phase 5** | Push Notifications (FCM), Performance optimization | 🚧 In Progress |
 
 ---
 
-## 🤝 Đóng Góp
+## 🤝 Contributing
 
-Mọi đóng góp đều được chào đón! Vui lòng:
+Contributions are always welcome! Please follow these steps:
 
-1. Fork repository
-2. Tạo branch mới: `git checkout -b feature/your-feature-name`
-3. Commit thay đổi: `git commit -m 'feat: add some feature'`
-4. Push lên branch: `git push origin feature/your-feature-name`
-5. Mở Pull Request
+1. Fork the repository
+2. Create a new branch: `git checkout -b feature/your-feature-name`
+3. Commit your changes: `git commit -m 'feat: add some feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Open a Pull Request
 
 ---
 
 ## 📝 License
 
-Dự án này được cấp phép theo [ISC License](./package.json).
+This project is licensed under the [ISC License](./package.json).
 
 ---
 
@@ -399,7 +395,7 @@ Dự án này được cấp phép theo [ISC License](./package.json).
 
 **Made with ❤️ by [ZzzNTKzzZ](https://github.com/ZzzNTKzzZ)**
 
-⭐ Nếu dự án này hữu ích, hãy cho một ngôi sao trên GitHub!
+⭐ If you find this project useful, please consider giving it a star on GitHub!
 
 [![GitHub stars](https://img.shields.io/github/stars/ZzzNTKzzZ/TaskFlow?style=social)](https://github.com/ZzzNTKzzZ/TaskFlow)
 
