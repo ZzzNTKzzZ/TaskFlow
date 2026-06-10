@@ -13,6 +13,7 @@ import { router } from "expo-router";
 interface WorkspaceCardProps extends Omit<WorkspaceCard, "role" | "value"> {
   checked?: boolean;
   onPress?: () => void;
+  displayType?: "Grid" | "List";
 }
 export default function WorkspaceCardUI({
   id,
@@ -22,9 +23,77 @@ export default function WorkspaceCardUI({
   icon,
   checked = false,
   onPress,
+  displayType = "Grid",
 }: WorkspaceCardProps) {
   const [checkedCard, setCheckedCard] = useState(checked);
   const [active, setActive] = useState<boolean>(false);
+  if (displayType === "List") {
+    return (
+      <View
+        style={{
+          width: "100%",
+          marginBottom: Spacing[3],
+          flexDirection: "row",
+          alignItems: "center",
+          backgroundColor: Theme.surface,
+          borderRadius: 16,
+          padding: Spacing[3],
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 4.65,
+          elevation: 8,
+        }}
+      >
+        <TouchableOpacity
+          style={{ flexDirection: "row", alignItems: "center", flex: 1, gap: Spacing[3] }}
+          onPress={onPress}
+          activeOpacity={0.7}
+        >
+          <SymbolIcon name={icon} color={color} />
+          <View style={{ flexDirection: "column", gap: 2 }}>
+            <Text
+              numberOfLines={1}
+              style={[Typography.label, { fontSize: 14, color: Theme.textPrimary }]}
+            >
+              {name}
+            </Text>
+            <Text style={[Typography.caption]}>{memberCount} members</Text>
+          </View>
+        </TouchableOpacity>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: Spacing[2] }}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => setCheckedCard((prev) => !prev)}
+          >
+            <StarIcon checked={checkedCard} />
+          </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => setActive(true)}>
+            <Icons name="KebabH" size={18} />
+          </TouchableOpacity>
+        </View>
+        <KebabMenu
+          visible={active}
+          onClose={() => setActive(false)}
+          menu={[
+            "Workspace settings",
+            "Invite members",
+            "Change role",
+            "Members",
+            "Manage boards",
+            "Leave workspace",
+            "Delete workspace",
+          ]}
+          onSelectMenu={(i) => {
+            if (i === "Workspace settings") {
+              router.navigate({ pathname: "/(workspace)/edit", params: { id } });
+            }
+          }}
+        />
+      </View>
+    );
+  }
+
   return (
     <View
       style={{
@@ -35,12 +104,8 @@ export default function WorkspaceCardUI({
         backgroundColor: Theme.surface,
         borderRadius: 16,
         padding: Spacing[4],
-
         shadowColor: "#000",
-        shadowOffset: {
-          width: 0,
-          height: 4,
-        },
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 4.65,
         elevation: 8,
@@ -90,7 +155,7 @@ export default function WorkspaceCardUI({
           "Delete workspace",
         ]}
         onSelectMenu={(i) => {
-          if(i === "Workspace settings") {
+          if (i === "Workspace settings") {
             router.navigate({ pathname: "/(workspace)/edit", params: { id } });
           }
         }}

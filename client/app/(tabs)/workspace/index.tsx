@@ -220,6 +220,7 @@ export default function Workspace() {
                 }
               }}
               key={ws.id}
+              displayType={displayType}
               {...ws}
             />
           ))}

@@ -1,10 +1,10 @@
-import { Touchable, TouchableOpacity, View } from "react-native";
+import { Touchable, TouchableOpacity, View, ScrollView, Modal } from "react-native";
 import BaseOverlay from "./BaseOverlay";
 import { Text } from "react-native";
 import Icons from "../icons/Icons";
 import { Typography } from "@/theme/typography";
 import Input from "../ui/Input";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Theme } from "@/theme/theme";
 import { Spacing } from "@/theme/spacing";
 import { Colors } from "@/theme/colors";
@@ -61,14 +61,25 @@ export default function CreateCard({
     name: "",
   });
   const [date, setDate] = useState<string>(dateNow.toString());
+  const [time, setTime] = useState<{ hour: number; minute: number }>({
+    hour: dateNow.getHours(),
+    minute: dateNow.getMinutes(),
+  });
   const [options, setOptions] = useState<{ id: string; name: string }[]>([]);
   const [isOpenCalender, setIsOpenCalender] = useState(false);
+  const [isOpenTimePicker, setIsOpenTimePicker] = useState(false);
+  const [tempTime, setTempTime] = useState<{ hour: number; minute: number }>({
+    hour: dateNow.getHours(),
+    minute: dateNow.getMinutes(),
+  });
   const handleCreate = async () => {
+    const merged = new Date(date);
+    merged.setHours(time.hour, time.minute, 0, 0);
     const payload = {
       name,
       description,
       priority: priority.name,
-      dueDate: new Date(date).toString(),
+      dueDate: merged.toString(),
     };
 
     if (onCreateCard) {
@@ -270,28 +281,215 @@ export default function CreateCard({
       >
         Due Date
       </Text>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={() => setIsOpenCalender(true)}
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderWidth: 1,
-          borderRadius: 16,
-          borderColor: Theme.border,
-          marginBottom: Spacing[4],
-          paddingHorizontal: Spacing[3],
-          paddingVertical: Spacing[4],
-        }}
-      >
-        <Text
-          style={[Typography.title, { color: Theme.textPrimary, fontSize: 16 }]}
+      <View style={{ flexDirection: "row", gap: Spacing[2], marginBottom: Spacing[4] }}>
+        {/* Date picker button */}
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => setIsOpenCalender(true)}
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderWidth: 1,
+            borderRadius: 16,
+            borderColor: Theme.border,
+            paddingHorizontal: Spacing[3],
+            paddingVertical: Spacing[4],
+          }}
         >
-          {formatYearMonthDate(date)}
-        </Text>
-        <Icons name="Calender" />
-      </TouchableOpacity>
+          <Text
+            style={[Typography.title, { color: Theme.textPrimary, fontSize: 16 }]}
+          >
+            {formatYearMonthDate(date)}
+          </Text>
+          <Icons name="Calender" />
+        </TouchableOpacity>
+
+        {/* Time picker button */}
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => {
+            setTempTime({ ...time });
+            setIsOpenTimePicker(true);
+          }}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: Spacing[2],
+            borderWidth: 1,
+            borderRadius: 16,
+            borderColor: Theme.border,
+            paddingHorizontal: Spacing[3],
+            paddingVertical: Spacing[4],
+          }}
+        >
+          <Icons name="Clock" size={18} />
+          <Text style={[Typography.title, { color: Theme.textPrimary, fontSize: 16 }]}>
+            {String(time.hour).padStart(2, "0")}:{String(time.minute).padStart(2, "0")}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Time Picker Modal */}
+      <Modal
+        visible={isOpenTimePicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsOpenTimePicker(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: Theme.surface,
+              borderRadius: 20,
+              padding: Spacing[5],
+              width: 260,
+            }}
+          >
+            <Text
+              style={[
+                Typography.heading,
+                { fontSize: 18, marginBottom: Spacing[4], textAlign: "center" },
+              ]}
+            >
+              Select Time
+            </Text>
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: Spacing[2],
+                marginBottom: Spacing[5],
+              }}
+            >
+              {/* Hour column */}
+              <View style={{ alignItems: "center" }}>
+                <Text style={[Typography.caption, { marginBottom: 4 }]}>HH</Text>
+                <ScrollView
+                  style={{
+                    height: 150,
+                    width: 64,
+                    borderWidth: 1,
+                    borderColor: Theme.border,
+                    borderRadius: 12,
+                  }}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <TouchableOpacity
+                      key={i}
+                      activeOpacity={0.7}
+                      onPress={() => setTempTime((prev) => ({ ...prev, hour: i }))}
+                      style={{
+                        paddingVertical: Spacing[2],
+                        alignItems: "center",
+                        borderRadius: 8,
+                        backgroundColor:
+                          tempTime.hour === i ? Colors.primary[200] : "transparent",
+                      }}
+                    >
+                      <Text
+                        style={[
+                          Typography.body,
+                          {
+                            color:
+                              tempTime.hour === i
+                                ? Theme.primary
+                                : Theme.textPrimary,
+                            fontWeight: tempTime.hour === i ? "700" : "400",
+                          },
+                        ]}
+                      >
+                        {String(i).padStart(2, "0")}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <Text style={[Typography.heading, { fontSize: 24, marginTop: 20 }]}>:</Text>
+
+              {/* Minute column */}
+              <View style={{ alignItems: "center" }}>
+                <Text style={[Typography.caption, { marginBottom: 4 }]}>MM</Text>
+                <ScrollView
+                  style={{
+                    height: 150,
+                    width: 64,
+                    borderWidth: 1,
+                    borderColor: Theme.border,
+                    borderRadius: 12,
+                  }}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {Array.from({ length: 60 }, (_, i) => (
+                    <TouchableOpacity
+                      key={i}
+                      activeOpacity={0.7}
+                      onPress={() => setTempTime((prev) => ({ ...prev, minute: i }))}
+                      style={{
+                        paddingVertical: Spacing[2],
+                        alignItems: "center",
+                        borderRadius: 8,
+                        backgroundColor:
+                          tempTime.minute === i ? Colors.primary[200] : "transparent",
+                      }}
+                    >
+                      <Text
+                        style={[
+                          Typography.body,
+                          {
+                            color:
+                              tempTime.minute === i
+                                ? Theme.primary
+                                : Theme.textPrimary,
+                            fontWeight: tempTime.minute === i ? "700" : "400",
+                          },
+                        ]}
+                      >
+                        {String(i).padStart(2, "0")}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+
+            {/* Actions */}
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setIsOpenTimePicker(false)}
+              >
+                <Text style={[Typography.body, { fontSize: 16, color: Theme.primary }]}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => {
+                  setTime({ ...tempTime });
+                  setIsOpenTimePicker(false);
+                }}
+              >
+                <Text style={[Typography.body, { fontSize: 16, color: Theme.primary, fontWeight: "700" }]}>
+                  Save
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <BaseOverlay
         visible={isOpenCalender}
         onClose={() => setIsOpenCalender(false)}
