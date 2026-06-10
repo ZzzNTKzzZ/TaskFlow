@@ -1,6 +1,6 @@
 # TaskFlow 📋
 
-> **Kanban-inspired mobile task management — built for individuals and teams.**
+> **A Kanban-inspired task management platform built for both individuals and teams.**
 
 TaskFlow is a modern mobile task management application that combines Trello-style collaborative Kanban boards with a personal Todo system inspired by Todoist — all in a single platform. It enables real-time synchronization across devices and supports automation workflows, helping teams work smarter, not just harder.
 
