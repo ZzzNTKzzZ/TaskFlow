@@ -176,6 +176,47 @@ export default function Timeline() {
     }, [id])
   );
 
+  // Sync timeline cards in real-time when any card is updated
+  React.useEffect(() => {
+    let offCardUpdated: any;
+
+    (async () => {
+      try {
+        const eventBus = await import("@/services/eventBus");
+        offCardUpdated = eventBus.on("card:updated", ({ cardId, payload }: any) => {
+          setCards((prev) =>
+            prev.map((c) => {
+              if (c.id !== cardId) return c;
+
+              const total = payload.stats?.checkListCount !== undefined
+                ? payload.stats.checkListCount
+                : c.checklistTotal;
+              const completed = payload.stats?.checkListCompelete !== undefined
+                ? payload.stats.checkListCompelete
+                : c.checklistCompleted;
+
+              return {
+                ...c,
+                name: payload.name || c.name,
+                priority: payload.priority || c.priority,
+                checklistTotal: total,
+                checklistCompleted: completed,
+              };
+            })
+          );
+        });
+      } catch (e) {
+        console.error("Timeline eventBus subscribe error:", e);
+      }
+    })();
+
+    return () => {
+      try {
+        if (offCardUpdated) offCardUpdated();
+      } catch (e) {}
+    };
+  }, []);
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchTimeline();
@@ -202,6 +243,7 @@ export default function Timeline() {
   // ─── Render a single card ───
   const renderItem = ({ item, index, section }: { item: TimelineItem; index: number; section: TimelineSection }) => {
     const isLast = index === section.data.length - 1;
+    const isCompleted = item.checklistTotal > 0 && item.checklistCompleted === item.checklistTotal;
     const clColors = item.checklistTotal > 0
       ? getChecklistColors(item.checklistCompleted, item.checklistTotal)
       : null;
@@ -212,11 +254,13 @@ export default function Timeline() {
         <View style={styles.connectorCol}>
           <View style={[
             styles.dot,
-            item.isOverdue
-              ? { backgroundColor: Colors.error }
-              : section.isToday
-                ? { backgroundColor: Theme.primary }
-                : { backgroundColor: Colors.gray[300] },
+            isCompleted
+              ? { backgroundColor: Colors.success }
+              : item.isOverdue
+                ? { backgroundColor: Colors.error }
+                : section.isToday
+                  ? { backgroundColor: Theme.primary }
+                  : { backgroundColor: Colors.gray[300] },
           ]} />
           {!isLast && (
             <View style={[
@@ -233,8 +277,12 @@ export default function Timeline() {
           style={[
             styles.card,
             {
-              borderLeftColor: item.isOverdue ? Colors.gray[400] : item.boardColor,
-              opacity: item.isOverdue ? 0.75 : 1,
+              borderLeftColor: isCompleted
+                ? Colors.success
+                : item.isOverdue
+                  ? Colors.gray[400]
+                  : item.boardColor,
+              opacity: isCompleted ? 0.6 : item.isOverdue ? 0.75 : 1,
             },
           ]}
           activeOpacity={0.7}
@@ -245,7 +293,7 @@ export default function Timeline() {
             <Text
               style={[
                 styles.cardTitle,
-                item.isOverdue && { textDecorationLine: 'line-through', color: Colors.gray[500] },
+                (isCompleted || item.isOverdue) && { textDecorationLine: 'line-through', color: Colors.gray[500] },
               ]}
               numberOfLines={2}
             >
@@ -280,9 +328,33 @@ export default function Timeline() {
               <Badges
                 name={dayjs(item.dueDate).format("MMM D • h:mm A")}
                 size={10}
-                color={item.isOverdue ? Colors.error + '12' : Colors.primary[500] + '12'}
-                style={{ color: item.isOverdue ? Colors.error : Colors.primary[500] }}
-                icon={<Icons name="Calender" size={11} color={item.isOverdue ? Colors.error : Colors.primary[500]} />}
+                color={
+                  isCompleted
+                    ? Colors.success + '12'
+                    : item.isOverdue
+                      ? Colors.error + '12'
+                      : Colors.primary[500] + '12'
+                }
+                style={{
+                  color: isCompleted
+                    ? Colors.success
+                    : item.isOverdue
+                      ? Colors.error
+                      : Colors.primary[500]
+                }}
+                icon={
+                  <Icons
+                    name="Calender"
+                    size={11}
+                    color={
+                      isCompleted
+                        ? Colors.success
+                        : item.isOverdue
+                          ? Colors.error
+                          : Colors.primary[500]
+                    }
+                  />
+                }
               />
             )}
           </View>
