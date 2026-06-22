@@ -3,9 +3,11 @@ import { Activity } from "./activity";
 import { ApiResponse } from "@/types/types";
 
 export const getGlobalActivitiesApi = async (limit: number = 20, skip: number = 0): Promise<ApiResponse<Activity[]>> => {
+  const safeLimit = Math.max(1, Math.floor(limit) || 20);
+  const safeSkip = Math.max(0, Math.floor(skip) || 0);
   try {
     const response = await api.get<ApiResponse<Activity[]>>("/activities/me", {
-      params: { limit, skip },
+      params: { limit: safeLimit, skip: safeSkip },
     });
     return response.data;
   } catch (error: any) {
@@ -15,9 +17,14 @@ export const getGlobalActivitiesApi = async (limit: number = 20, skip: number = 
 };
 
 export const getBoardActivitiesApi = async (boardId: string, limit: number = 20, skip: number = 0): Promise<ApiResponse<Activity[]>> => {
+  if (!boardId || boardId === "undefined") {
+    return { success: false, data: [] as any, message: "Invalid board ID" };
+  }
+  const safeLimit = Math.max(1, Math.floor(limit) || 20);
+  const safeSkip = Math.max(0, Math.floor(skip) || 0);
   try {
     const response = await api.get<ApiResponse<Activity[]>>(`/activities/board/${boardId}`, {
-      params: { limit, skip },
+      params: { limit: safeLimit, skip: safeSkip },
     });
     return response.data;
   } catch (error: any) {
@@ -27,9 +34,14 @@ export const getBoardActivitiesApi = async (boardId: string, limit: number = 20,
 };
 
 export const getWorkspaceActivitiesApi = async (workspaceId: string, limit: number = 20, skip: number = 0): Promise<ApiResponse<Activity[]>> => {
+  if (!workspaceId || workspaceId === "undefined") {
+    return { success: false, data: [] as any, message: "Invalid workspace ID" };
+  }
+  const safeLimit = Math.max(1, Math.floor(limit) || 20);
+  const safeSkip = Math.max(0, Math.floor(skip) || 0);
   try {
     const response = await api.get<ApiResponse<Activity[]>>(`/activities/workspace/${workspaceId}`, {
-      params: { limit, skip },
+      params: { limit: safeLimit, skip: safeSkip },
     });
     return response.data;
   } catch (error: any) {
@@ -39,9 +51,14 @@ export const getWorkspaceActivitiesApi = async (workspaceId: string, limit: numb
 };
 
 export const getCardActivitiesApi = async (cardId: string, limit: number = 20, skip: number = 0): Promise<ApiResponse<Activity[]>> => {
+  if (!cardId || cardId === "undefined") {
+    return { success: false, data: [] as any, message: "Invalid card ID" };
+  }
+  const safeLimit = Math.max(1, Math.floor(limit) || 20);
+  const safeSkip = Math.max(0, Math.floor(skip) || 0);
   try {
     const response = await api.get<ApiResponse<Activity[]>>(`/activities/card/${cardId}`, {
-      params: { limit, skip },
+      params: { limit: safeLimit, skip: safeSkip },
     });
     return response.data;
   } catch (error: any) {
