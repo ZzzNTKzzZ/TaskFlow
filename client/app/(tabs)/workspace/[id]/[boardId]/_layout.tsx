@@ -20,6 +20,7 @@ export default function WorkspaceIdLayout() {
                 icon={routeParams.workspaceIcon}
                 color={routeParams.workspaceColor}
                 parentName={routeParams.parentName}
+                workspaceId={routeParams.id}
                 menu={[
                   "Create list",
                   "Members",

@@ -21,6 +21,7 @@ export default function TopBar({
   icon,
   color,
   parentName,
+  workspaceId,
   menu = [],
   onBack = () => router.back(),
 }: {
@@ -28,6 +29,7 @@ export default function TopBar({
   icon?: SymbolName;
   color?: SymbolColor;
   parentName?: string;
+  workspaceId?: string;
   onBack?: () => void
   menu: KebabMenuType[]
 }) {
@@ -35,11 +37,14 @@ export default function TopBar({
   const [active, setActive] = useState<boolean>(false)
   const [isCreateListVisible, setIsCreateListVisible] = useState(false)
   
-  const { id, boardId, cardId } = useGlobalSearchParams<{
+  const { id: searchId, boardId, cardId } = useGlobalSearchParams<{
     id: string;
     boardId: string;
     cardId: string;
   }>();
+
+  const rawId = workspaceId || searchId;
+  const id = rawId && rawId !== "undefined" && !rawId.startsWith("(") ? rawId : undefined;
 
   const handleSelectMenu = (item: KebabMenuType) => {
     if (item === "Create list") {
@@ -80,15 +85,19 @@ export default function TopBar({
           } catch (e) {}
           const success = await BoardService.deleteBoard(boardId);
           if (success) {
-            router.replace({
-              pathname: `/(tabs)/workspace/${id}/(workspace-detail)`,
-              params: {
-                id,
-                name: parentName || "",
-                icon: icon || "",
-                color: color || "",
-              },
-            } as any);
+            if (id) {
+              router.replace({
+                pathname: `/(tabs)/workspace/${id}/(workspace-detail)`,
+                params: {
+                  id,
+                  name: parentName || "",
+                  icon: icon || "",
+                  color: color || "",
+                },
+              } as any);
+            } else {
+              router.replace("/(tabs)/" as any);
+            }
           } else {
             Alert.alert("Error", "Failed to delete board. You might not have permission.");
           }
