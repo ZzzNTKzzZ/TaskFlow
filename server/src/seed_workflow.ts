@@ -123,7 +123,28 @@ async function main() {
         const selectedCards = getRandomSubset(cardNames, 2);
         for (let c = 0; c < selectedCards.length; c++) {
           const cardName = selectedCards[c];
-          console.log(`      🗂️ Creating Card: "${cardName}"...`);
+          
+          let dueDate: Date | null = null;
+          const rand = Math.random();
+          if (rand > 0.25) { // 75% chance to have a due date
+            const now = new Date();
+            if (rand <= 0.45) {
+              // Yesterday (Overdue)
+              now.setDate(now.getDate() - 1);
+            } else if (rand <= 0.65) {
+              // Today
+              now.setHours(now.getHours() + Math.floor(Math.random() * 8) - 4);
+            } else if (rand <= 0.85) {
+              // Tomorrow
+              now.setDate(now.getDate() + 1);
+            } else {
+              // Next week
+              now.setDate(now.getDate() + 7);
+            }
+            dueDate = now;
+          }
+
+          console.log(`      🗂️ Creating Card: "${cardName}" (dueDate: ${dueDate ? dueDate.toISOString() : 'none'})...`);
           const card = await prisma.card.create({
             data: {
               name: cardName!,
@@ -131,6 +152,7 @@ async function main() {
               position: (c + 1) * 1000,
               priority: getRandomItem(["low", "medium", "high", "urgent"]),
               listId: list.id,
+              dueDate: dueDate,
             },
           });
 
