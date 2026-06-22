@@ -25,7 +25,7 @@ export const getWorkspacesApi = async (
 export const getWorkspaceApi = async (
   id: string,
 ): Promise<ResponseApi<WorkspaceResponse>> => {
-  if (!id || id === "undefined") {
+  if (!id || id === "undefined" || id.startsWith("(")) {
     return { success: false, data: null };
   }
   try {
@@ -43,7 +43,7 @@ export const getWorkspaceBoardsApi = async (
   workspaceId: string,
   limit?: number,
 ): Promise<ResponseApi<BoardResponse[]>> => {
-  if (!workspaceId || workspaceId === "undefined") {
+  if (!workspaceId || workspaceId === "undefined" || workspaceId.startsWith("(")) {
     return { success: false, data: [] };
   }
   try {
@@ -76,7 +76,7 @@ export const createWorkspaceApi = async (
 };
 
 export const deleteWorkspaceApi = async (id: string) => {
-   if (!id || id === "undefined") {
+   if (!id || id === "undefined" || id.startsWith("(")) {
      return { success: false } as unknown as ResponseApi<WorkspaceResponse>;
    }
    try {
@@ -93,7 +93,7 @@ export const deleteWorkspaceApi = async (id: string) => {
 export const createWorkspaceBoardApi = async (
   data: Partial<BoardResponse> = {},
 ) => {
-  if (!data.workspaceId || data.workspaceId === "undefined") {
+  if (!data.workspaceId || data.workspaceId === "undefined" || data.workspaceId.startsWith("(")) {
     return { success: false } as unknown as ResponseApi<BoardResponse>;
   }
   try {
@@ -115,7 +115,7 @@ export const createWorkspaceBoardApi = async (
 export const updateWorkspaceApi = async (
   data: Partial<WorkspaceResponse> = {},
 ) => {
-  if (!data.id || data.id === "undefined") {
+  if (!data.id || data.id === "undefined" || data.id.startsWith("(")) {
     return { success: false } as unknown as ResponseApi<WorkspaceResponse>;
   }
   try {
@@ -132,7 +132,7 @@ export const updateWorkspaceApi = async (
   }
 };
 export const getWorkspaceMembersApi = async (id: string) => {
-  if (!id || id === "undefined") {
+  if (!id || id === "undefined" || id.startsWith("(")) {
     return { success: false } as unknown as ResponseApi<WorkspaceMemberRespone[]>;
   }
   try {
@@ -147,7 +147,7 @@ export const getWorkspaceMembersApi = async (id: string) => {
 };
 
 export const addWorkspaceMemberApi = async (id: string, email: string, role: WorkspaceRole) => {
-    if (!id || id === "undefined") {
+    if (!id || id === "undefined" || id.startsWith("(")) {
       return { success: false } as unknown as ResponseApi<WorkspaceMemberRespone>;
     }
     try {
@@ -166,7 +166,7 @@ export const addWorkspaceMemberApi = async (id: string, email: string, role: Wor
 }
 
 export const updateWorkspaceMemberRoleApi = async (workspaceId: string, memberId: string, role: WorkspaceRole) => {
-  if (!workspaceId || workspaceId === "undefined" || !memberId || memberId === "undefined") {
+  if (!workspaceId || workspaceId === "undefined" || workspaceId.startsWith("(") || !memberId || memberId === "undefined" || memberId.startsWith("(")) {
     return { success: false } as unknown as ResponseApi<WorkspaceMemberRespone>;
   }
   try {
@@ -201,7 +201,7 @@ export type TimelineCard = {
 export const getWorkspaceTimelineApi = async (
   workspaceId: string,
 ): Promise<ResponseApi<TimelineCard[]>> => {
-  if (!workspaceId || workspaceId === "undefined") {
+  if (!workspaceId || workspaceId === "undefined" || workspaceId.startsWith("(")) {
     return { success: false, data: [] };
   }
   try {
