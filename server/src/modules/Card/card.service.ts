@@ -12,7 +12,7 @@ export default class CardService {
     const { _count, ...rest} = card
     return {
       stats: {
-        checkListCount: _count.checklists,
+        checkListCount: rest.checklists.reduce((total, item) => total + item.items.length, 0),
         checkListCompelete: rest.checklists.reduce((total, item) => total + item.items.filter((v) => v.isCompleted === true).length, 0),
       },
       ...rest,

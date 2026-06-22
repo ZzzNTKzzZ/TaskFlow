@@ -296,6 +296,38 @@ export default function Card() {
   };
 
   useEffect(() => {
+    if (!card) return;
+
+    // Calculate completed vs total checklist items
+    const totalCompleted = (card.checklists || []).reduce((total, checklist) => {
+      return total + (checklist.items || []).filter((item) => item.isCompleted).length;
+    }, 0);
+    const total = (card.checklists || []).reduce((total, checklist) => {
+      return total + (checklist.items || []).length;
+    }, 0);
+
+    const updatedStats = {
+      checkListCount: total,
+      checkListCompelete: totalCompleted,
+    };
+
+    (async () => {
+      try {
+        const eventBus = await import("@/services/eventBus");
+        eventBus.emit("card:updated", {
+          cardId: card.id,
+          payload: {
+            stats: updatedStats,
+            checklists: card.checklists,
+          },
+        });
+      } catch (e) {
+        console.error("Failed to emit card:updated:", e);
+      }
+    })();
+  }, [JSON.stringify(card?.checklists || [])]);
+
+  useEffect(() => {
     if (!boardId || !cardId || boardId === "undefined" || cardId === "undefined") {
       return;
     }
