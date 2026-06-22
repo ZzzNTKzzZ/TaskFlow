@@ -1,7 +1,7 @@
 import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
 import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, Alert } from "react-native";
 import SymbolIcon from "../icons/SymbolIcon";
 import { WorkspaceCard } from "@/modules/workspace/workspace";
 import { Theme } from "@/theme/theme";
@@ -9,6 +9,7 @@ import StarIcon from "../icons/StarIcon";
 import Icons from "../icons/Icons";
 import KebabMenu from "../overlays/KebabMenu";
 import { router } from "expo-router";
+import WorkspaceService from "@/modules/workspace/workspace.service";
 
 interface WorkspaceCardProps extends Omit<WorkspaceCard, "role" | "value"> {
   checked?: boolean;
@@ -27,6 +28,23 @@ export default function WorkspaceCardUI({
 }: WorkspaceCardProps) {
   const [checkedCard, setCheckedCard] = useState(checked);
   const [active, setActive] = useState<boolean>(false);
+
+  const handleDeleteWorkspace = () => {
+    Alert.alert("Delete Workspace", `Are you sure you want to delete "${name}"?`, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: async () => {
+        const success = await WorkspaceService.deleteWorkspace(id);
+        if (success) {
+          try {
+            const eventBus = await import("@/services/eventBus");
+            eventBus.emit("workspace:deleted", id);
+          } catch (e) {}
+        } else {
+          Alert.alert("Error", "Failed to delete workspace. You might not have permission.");
+        }
+      }},
+    ]);
+  };
   if (displayType === "List") {
     return (
       <View
@@ -87,6 +105,9 @@ export default function WorkspaceCardUI({
           onSelectMenu={(i) => {
             if (i === "Workspace settings") {
               router.navigate({ pathname: "/(workspace)/edit", params: { id } });
+            }
+            if (i === "Delete workspace") {
+              handleDeleteWorkspace();
             }
           }}
         />
@@ -157,6 +178,9 @@ export default function WorkspaceCardUI({
         onSelectMenu={(i) => {
           if (i === "Workspace settings") {
             router.navigate({ pathname: "/(workspace)/edit", params: { id } });
+          }
+          if (i === "Delete workspace") {
+            handleDeleteWorkspace();
           }
         }}
       />

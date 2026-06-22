@@ -104,11 +104,12 @@ export default function HomeScreen() {
     }
   }, [isFocused]);
 
-  // subscribe to workspace create events
+  // subscribe to workspace events
   useEffect(() => {
     let offCreating: any;
     let offCreated: any;
     let offFailed: any;
+    let offDeleted: any;
 
     (async () => {
       try {
@@ -130,6 +131,35 @@ export default function HomeScreen() {
             setWorkspaces((prev) => prev.filter((w) => w.id !== tempId));
           },
         );
+        offDeleted = eventBus.on("workspace:deleted", (deletedWorkspaceId: string) => {
+          setWorkspaces((prevWorkspaces) => {
+            const remaining = prevWorkspaces.filter((w) => w.id !== deletedWorkspaceId);
+            
+            setSelected((currentSelected) => {
+              if (currentSelected.id === deletedWorkspaceId) {
+                setBoards([]); // Clear boards
+                if (remaining.length > 0) {
+                  return {
+                    id: remaining[0].id,
+                    name: remaining[0].name,
+                    icon: remaining[0].icon,
+                    color: remaining[0].color,
+                  };
+                } else {
+                  return {
+                    name: "",
+                    id: "",
+                    icon: "Company",
+                    color: "Primary",
+                  };
+                }
+              }
+              return currentSelected;
+            });
+
+            return remaining;
+          });
+        });
       } catch (e) {
         console.error("eventBus subscribe error:", e);
       }
@@ -140,6 +170,7 @@ export default function HomeScreen() {
         if (offCreating) offCreating();
         if (offCreated) offCreated();
         if (offFailed) offFailed();
+        if (offDeleted) offDeleted();
       } catch (e) {}
     };
   }, []);

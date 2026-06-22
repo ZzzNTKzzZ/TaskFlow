@@ -76,6 +76,28 @@ export default function Workspace() {
     setPage(1);
   }, [search, sort]);
 
+  // subscribe to workspace delete events
+  useEffect(() => {
+    let offDeleted: any;
+
+    (async () => {
+      try {
+        const eventBus = await import("@/services/eventBus");
+        offDeleted = eventBus.on("workspace:deleted", (deletedWorkspaceId: string) => {
+          setData((prev) => prev.filter((w) => w.id !== deletedWorkspaceId));
+        });
+      } catch (e) {
+        console.error("eventBus subscribe error:", e);
+      }
+    })();
+
+    return () => {
+      try {
+        if (offDeleted) offDeleted();
+      } catch (e) {}
+    };
+  }, []);
+
   // Hàm xử lý khi chọn Menu Sort
   const handleSortSelect = (sortType: string) => {
     setSort(sortType);

@@ -66,6 +66,10 @@ export default function TopBar({
           if (!id) return;
           const success = await WorkspaceService.deleteWorkspace(id);
           if (success) {
+            try {
+              const eventBus = await import("@/services/eventBus");
+              eventBus.emit("workspace:deleted", id);
+            } catch (e) {}
             router.replace("/(tabs)/" as any);
           } else {
             Alert.alert("Error", "Failed to delete workspace. You might not have permission.");
