@@ -16,28 +16,41 @@ export default function CreateCheckListItem({
   cardId,
   checkListId
 }: {
-  cardId: string
-  checkListId: string
+  cardId: string;
+  checkListId: string;
   active: boolean;
   onClose: () => void;
 }) {
   const {boardId} = useLocalSearchParams<{boardId: string}>()
   const [name, setName] = useState<string>("");
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const handleSave = async () => {
+    if (!name.trim()) {
+      setHasError(true);
+      setErrorMessage("Item name is required");
+      return;
+    }
+    setHasError(false);
+    setErrorMessage(null);
+
     const tempId = `tmp-${Date.now()}`;
-    const tempItem = { id: tempId, name, isCompleted: false, checklistId: checkListId, cardId } as any;
+    const tempItem = { id: tempId, name: name.trim(), isCompleted: false, checklistId: checkListId, cardId } as any;
     try {
       const eventBus = await import("@/services/eventBus");
       eventBus.emit("checklistItem:creating", { checklistId: checkListId, item: tempItem });
     } catch (e) {}
 
     try {
-      const response = await ChecklistService.createChecklistItem(boardId, cardId, checkListId, name);
+      const response = await ChecklistService.createChecklistItem(boardId, cardId, checkListId, name.trim());
       if (response && response.id) {
         try {
           const eventBus = await import("@/services/eventBus");
           eventBus.emit("checklistItem:created", { tempId, created: response });
         } catch (e) {}
+        setName("");
+        onClose();
       } else {
         const eventBus = await import("@/services/eventBus");
         eventBus.emit("checklistItem:create_failed", { tempId });
@@ -50,8 +63,16 @@ export default function CreateCheckListItem({
       console.error("Create checklist item error:", error);
     }
   }
+
+  const handleClose = () => {
+    setName("");
+    setHasError(false);
+    setErrorMessage(null);
+    onClose();
+  }
+
   return (
-    <BaseOverlay visible={active} onClose={onClose}>
+    <BaseOverlay visible={active} onClose={handleClose}>
       <View
         style={{
           flexDirection: "row",
@@ -63,16 +84,28 @@ export default function CreateCheckListItem({
         <Text style={[Typography.heading, { fontSize: 24, letterSpacing: 1 }]}>
           Create CheckList Item
         </Text>
-        <TouchableOpacity activeOpacity={0.7} onPress={onClose}>
+        <TouchableOpacity activeOpacity={0.7} onPress={handleClose}>
           <Icons name="Cross" size={24} />
         </TouchableOpacity>
       </View>
       <Input
         label="Name"
         value={name}
-        setValue={setName}
+        setValue={(val) => {
+          setName(val);
+          if (val.trim()) {
+            setHasError(false);
+            setErrorMessage(null);
+          }
+        }}
+        error={hasError}
         placeholder="e.g. Create board"
       />
+      {hasError && errorMessage && (
+        <Text style={{ color: "red", marginTop: -Spacing[3], marginBottom: Spacing[3], fontSize: 14 }}>
+          {errorMessage}
+        </Text>
+      )}
       <Button onPress={handleSave}>Create checklist</Button>
     </BaseOverlay>
   );

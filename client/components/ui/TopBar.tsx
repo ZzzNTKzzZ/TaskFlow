@@ -61,7 +61,7 @@ export default function TopBar({
           if (!id) return;
           const success = await WorkspaceService.deleteWorkspace(id);
           if (success) {
-            router.replace("/(tabs)/");
+            router.replace("/(tabs)/" as any);
           } else {
             Alert.alert("Error", "Failed to delete workspace. You might not have permission.");
           }
@@ -76,7 +76,7 @@ export default function TopBar({
           if (!boardId) return;
           const success = await BoardService.deleteBoard(boardId);
           if (success) {
-            router.replace(`/(tabs)/workspace/${id}`);
+            router.replace(`/(tabs)/workspace/${id}` as any);
           } else {
             Alert.alert("Error", "Failed to delete board. You might not have permission.");
           }

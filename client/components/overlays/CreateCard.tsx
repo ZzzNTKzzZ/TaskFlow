@@ -33,6 +33,8 @@ export default function CreateCard({
   const {id ,boardId } = useLocalSearchParams();
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const priorities: { id: number; name: Priority }[] = [
     {
@@ -72,12 +74,28 @@ export default function CreateCard({
     hour: dateNow.getHours(),
     minute: dateNow.getMinutes(),
   });
+  const handleClose = () => {
+    setName("");
+    setDescription("");
+    setHasError(false);
+    setErrorMessage(null);
+    onClose();
+  };
+
   const handleCreate = async () => {
+    if (!name.trim()) {
+      setHasError(true);
+      setErrorMessage("Card name is required");
+      return;
+    }
+    setHasError(false);
+    setErrorMessage(null);
+
     const merged = new Date(date);
     merged.setHours(time.hour, time.minute, 0, 0);
     const payload = {
-      name,
-      description,
+      name: name.trim(),
+      description: description.trim(),
       priority: priority.name,
       dueDate: merged.toString(),
     };
@@ -101,6 +119,8 @@ export default function CreateCard({
       }
     }
 
+    setName("");
+    setDescription("");
     onClose();
   };
   useEffect(() => {
@@ -134,7 +154,7 @@ export default function CreateCard({
   if (loading && boardId) return;
 
   return (
-    <BaseOverlay visible={visible} onClose={onClose}>
+    <BaseOverlay visible={visible} onClose={handleClose}>
       <View
         style={{
           flexDirection: "row",
@@ -146,20 +166,32 @@ export default function CreateCard({
         <Text style={[Typography.heading, { fontSize: 24, letterSpacing: 1 }]}>
           Create Card
         </Text>
-        <TouchableOpacity activeOpacity={0.7} onPress={onClose}>
+        <TouchableOpacity activeOpacity={0.7} onPress={handleClose}>
           <Icons name="Cross" size={24} />
         </TouchableOpacity>
       </View>
       <Input
         label="Card title"
         value={name}
-        setValue={setName}
+        setValue={(val) => {
+          setName(val);
+          if (val.trim()) {
+            setHasError(false);
+            setErrorMessage(null);
+          }
+        }}
+        error={hasError}
         placeholder="e.g.Design landing page"
         stylesLabel={[
           Typography.title,
           { color: Theme.textPrimary, fontSize: 16 },
         ]}
       />
+      {hasError && errorMessage && (
+        <Text style={{ color: "red", marginTop: -Spacing[3], marginBottom: Spacing[3], fontSize: 14 }}>
+          {errorMessage}
+        </Text>
+      )}
       <Text
         style={[Typography.title, { color: Theme.textPrimary, fontSize: 16 }]}
       >

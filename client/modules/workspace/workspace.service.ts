@@ -62,7 +62,7 @@ export default class WorkspaceService {
     const response = await createWorkspaceApi({ name: workspaceName });
 
     if (!response || !response.data) {
-      return [];
+      return null;
     }
 
     const data = response.data;
@@ -77,7 +77,7 @@ export default class WorkspaceService {
      const response = await deleteWorkspaceApi(workspaceId);
 
     if (!response || !response.data) {
-      return [];
+      return null;
     }
 
     const data = response.data;
@@ -91,7 +91,7 @@ export default class WorkspaceService {
   static async updateWorkspace(id: string, name: string) {
     const response = await updateWorkspaceApi({ id, name });
     if (!response || !response.data) {
-      return [];
+      return null;
     }
 
     const data = response.data;
@@ -132,7 +132,7 @@ export default class WorkspaceService {
   }) {
     const response = await createWorkspaceBoardApi(payload);
     if (!response || !response.data) {
-      return [];
+      return null;
     }
 
     const data = response.data;

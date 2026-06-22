@@ -3,6 +3,7 @@ import ListController from "./list.controller.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { validateMiddleware } from "../../middleware/validate.middleware.js";
 import { updateListSchema } from "../../validators/list.schema.js";
+import { createCardSchema } from "../../validators/card.schema.js";
 import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
 import { boardAccessMiddleware } from "../../middleware/boardAccess.middleware.js";
 import { workspaceAccess } from "../../middleware/workspaceAccess.middleware.js";
@@ -26,6 +27,7 @@ listRoutes.get("/:listId/cards", asyncHandler(ListController.getCards));
 // POST /lists/:listId/cards
 listRoutes.post(
   "/:listId/cards",
+  validateMiddleware(createCardSchema),
   permissionMiddleware("card:create"),
   asyncHandler(ListController.createCard),
 );

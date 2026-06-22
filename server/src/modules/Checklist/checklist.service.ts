@@ -23,9 +23,7 @@ export default class ChecklistService {
         name,
         cardId,
         items: [
-          { name: "Item 1" },
-          { name: "Item 2" },
-          { name: "Item 3" },
+          { name: "Default Item" }
         ],
       },
     });

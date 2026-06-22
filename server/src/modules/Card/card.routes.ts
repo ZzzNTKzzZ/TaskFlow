@@ -3,7 +3,7 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import CardController from "./card.controller.js";
 import checklistRoutes from "../Checklist/checklist.routes.js";
 import { validateMiddleware } from "../../middleware/validate.middleware.js";
-import { cardSchema, updateCardSchema } from "../../validators/card.schema.js";
+import { updateCardSchema } from "../../validators/card.schema.js";
 import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
 
 const cardRoutes = Router({ mergeParams: true });

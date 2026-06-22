@@ -45,7 +45,7 @@ export default class CardService {
     if (!existing) throw new AppError("Card not found", 404);
 
     const payload = removeUndefined({
-      title: data.title,
+      name: data.name,
       description: data.description,
       priority: data.priority,
       dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
@@ -124,7 +124,7 @@ export default class CardService {
       await tx.notification.createMany({
         data: validUserIds.map((userId) => ({
           userId,
-          title: "Assigned to card",
+          name: "Assigned to card",
           message: `You were assigned to card ${card.name}`,
         })),
       });

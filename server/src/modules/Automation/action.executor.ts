@@ -1,7 +1,7 @@
-import { createTodoAction } from "./actions/create-todo.action";
-import { assignUserAction } from "./actions/assign-user.action";
+import { createTodoAction } from "./actions/create-todo.action.js";
+import { assignUserAction } from "./actions/assign-user.action.js";
 
-const ACTION_MAP = {
+const ACTION_MAP: Record<string, Function> = {
   create_todo: createTodoAction,
   assign_user: assignUserAction,
 };

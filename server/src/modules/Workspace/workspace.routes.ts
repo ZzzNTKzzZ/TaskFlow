@@ -2,7 +2,8 @@ import { Router } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import WorkspaceController from "./workspace.controller.js";
 import { validateMiddleware } from "../../middleware/validate.middleware.js";
-import { workspaceSchema } from "../../validators/workspace.schema.js";
+import { workspaceSchema, updateWorkspaceSchema } from "../../validators/workspace.schema.js";
+import { createBoardSchema } from "../../validators/board.schema.js";
 import { workspaceAccess } from "../../middleware/workspaceAccess.middleware.js";
 import { permissionMiddleware } from "../../middleware/permissions.middleware.js";
 
@@ -31,6 +32,7 @@ workspaceRoutes.get(
 // PATCH  /workspaces/:workspaceId
 workspaceRoutes.patch(
   "/:workspaceId",
+  validateMiddleware(updateWorkspaceSchema),
   workspaceAccess,
   asyncHandler(WorkspaceController.editWorkspace)
 )
@@ -96,6 +98,7 @@ workspaceRoutes.get(
 // POST boards
 workspaceRoutes.post(
   "/:workspaceId/boards",
+  validateMiddleware(createBoardSchema),
   workspaceAccess,
   permissionMiddleware("board:create"),
   asyncHandler(WorkspaceController.createBoard)

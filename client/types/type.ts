@@ -158,3 +158,7 @@ export interface RefreshToken {
   expiresAt: Date | string;
   createdAt: Date | string;
 }
+
+export type Visibility = BoardVisibility;
+export type RoleWorkspace = WorkspaceRole;
+

@@ -1,19 +1,22 @@
 import { z } from "zod";
 
 const gradientRegex = /^linear-gradient\(.*\)$/i;
-export const boardSchema = z.object({
-  title: z.string().min(1),
-  workspaceId: z.uuid(),
+
+export const createBoardSchema = z.object({
+  name: z.string().min(1, "Board name is required"),
   visibility: z.enum(["private", "workspace", "public"]),
+  background: z.string().optional().nullable(),
 });
 
 export const updateBoardSchema = z.object({
-  title: z.string().optional(),
+  name: z.string().min(1).optional(),
+  visibility: z.enum(["private", "workspace", "public"]).optional(),
   background: z.union([
-    z.string().optional(),
-    z.url().refine((url) => /\.(jpg|jpeg|png|webp|avif)$/i.test(url), {
+    z.string().url().refine((url) => /\.(jpg|jpeg|png|webp|avif)$/i.test(url), {
         message: "must be .jpg .jpeg .png .webp .avif"
     }),
-    z.string().regex(gradientRegex).optional()
-  ]),
+    z.string().regex(gradientRegex),
+    z.string(),
+  ]).optional().nullable(),
+  position: z.number().optional(),
 });

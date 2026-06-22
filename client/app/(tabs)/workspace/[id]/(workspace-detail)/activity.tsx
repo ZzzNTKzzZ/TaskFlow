@@ -6,9 +6,10 @@ import { Typography } from "@/theme/typography";
 import { Spacing } from "@/theme/spacing";
 import dayjs from "dayjs";
 import { useCallback, useMemo, useState } from "react";
-import { SectionList, Text, View, RefreshControl, ScrollView, TouchableOpacity } from "react-native";
+import { SectionList, Text, View, RefreshControl, ScrollView, TouchableOpacity, TextInput } from "react-native";
 import { useFocusEffect, useGlobalSearchParams } from "expo-router";
 import { ActivityItem } from "@/components/ui/ActivityItem";
+import Icons from "@/components/icons/Icons";
 import { Colors } from "@/theme/colors";
 
 type ActivitySection = {
@@ -50,6 +51,7 @@ export default function WorkspaceActivityTab() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchActivities = async () => {
     try {
@@ -75,25 +77,38 @@ export default function WorkspaceActivityTab() {
   };
 
   const filteredLogs = useMemo(() => {
-    if (activeFilter === "All") return activityLogs;
-    return activityLogs.filter((log) => {
-      const action = log.action || "";
-      switch (activeFilter) {
-        case "Boards":
-          return action.startsWith("BOARD_");
-        case "Lists":
-          return action.startsWith("LIST_");
-        case "Cards":
-          return action.startsWith("CARD_") || action.startsWith("MEMBER_");
-        case "Checklists":
-          return action.startsWith("CHECKLIST_");
-        case "Comments":
-          return action.startsWith("COMMENT_");
-        default:
-          return true;
-      }
-    });
-  }, [activityLogs, activeFilter]);
+    let logs = activityLogs;
+    if (activeFilter !== "All") {
+      logs = activityLogs.filter((log) => {
+        const action = log.action || "";
+        switch (activeFilter) {
+          case "Boards":
+            return action.startsWith("BOARD_");
+          case "Lists":
+            return action.startsWith("LIST_");
+          case "Cards":
+            return action.startsWith("CARD_") || action.startsWith("MEMBER_");
+          case "Checklists":
+            return action.startsWith("CHECKLIST_");
+          case "Comments":
+            return action.startsWith("COMMENT_");
+          default:
+            return true;
+        }
+      });
+    }
+
+    if (searchQuery.trim().length > 0) {
+      const q = searchQuery.toLowerCase();
+      logs = logs.filter(
+        (log) =>
+          log.user.name.toLowerCase().includes(q) ||
+          (log.description && log.description.toLowerCase().includes(q))
+      );
+    }
+
+    return logs;
+  }, [activityLogs, activeFilter, searchQuery]);
 
   const sections = useMemo(
     () => groupActivitiesByDate(filteredLogs),

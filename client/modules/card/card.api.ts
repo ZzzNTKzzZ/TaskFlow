@@ -9,6 +9,9 @@ import {
 } from "@/types/types";
 
 export const getCardApi = async (boardId: string, cardId: string): Promise<ApiResponse<GetCardResponse>> => {
+  if (!boardId || !cardId || boardId === "undefined" || cardId === "undefined") {
+    return { success: false, data: null as any, message: "Invalid parameters" };
+  }
   try {
     const response = await api.get<ApiResponse<GetCardResponse>>(`/${boardId}/cards/${cardId}`);
     return response.data;

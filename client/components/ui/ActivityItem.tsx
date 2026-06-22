@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { Activity } from "@/modules/activity/activity";
+import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import { Spacing } from "@/theme/spacing";
@@ -41,7 +42,7 @@ export function ActivityItem({ item }: { item: Activity }) {
           ]}
         >
           <Text style={{ fontWeight: "600" }}>{item.user.name}</Text>{" "}
-          {item.description}
+          {capitalizeFirstLetter(item.description)}
         </Text>
 
         <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 }}>

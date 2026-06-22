@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Text, View } from "react-native";
 import Avatar from "../ui/Avatar";
+import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
 import { getTimeDifference } from "@/helper/Day";
 import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
@@ -33,7 +34,7 @@ export function ActivityCard({
       <Avatar name={name} size={36} />
       <View style={{ flexDirection: "row", flex: 1, justifyContent: "center" }}>
         <View style={{ flex: 1 }}>
-          <Text numberOfLines={1}>{`${name} ${action}`}</Text>
+          <Text numberOfLines={1}>{`${name} ${capitalizeFirstLetter(action)}`}</Text>
           <Text>in {boardName}</Text>
         </View>
         <View style={{justifyContent: "center"}}>

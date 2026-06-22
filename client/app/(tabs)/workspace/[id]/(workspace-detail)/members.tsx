@@ -7,11 +7,12 @@ import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
 import { useGlobalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { FlatList, Text, View, Alert, TouchableOpacity } from "react-native";
+import { FlatList, Text, View, Alert, TouchableOpacity, TextInput } from "react-native";
 import { WorkspaceMemberRespone } from "@/modules/workspace/workspace";
 import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
 import Button from "@/components/ui/Button";
 import InviteMembers from "@/components/overlays/InviteMembers";
+import Icons from "@/components/icons/Icons";
 
 function MemberItem({
   item,
@@ -103,6 +104,13 @@ export default function Members() {
   const [members, setMembers] = useState<WorkspaceMemberRespone[]>([]);
   const [loading, setLoading] = useState(true);
   const currentUser = useCurrentUser();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredMembers = members.filter(
+    (member) =>
+      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   const [isInviteVisible, setIsInviteVisible] = useState(false);
 
   const fetchMembers = async () => {
@@ -204,7 +212,7 @@ export default function Members() {
           </Text>
         ) : (
           <FlatList
-            data={members}
+            data={filteredMembers}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={

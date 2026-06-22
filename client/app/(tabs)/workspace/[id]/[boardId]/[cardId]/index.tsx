@@ -74,11 +74,12 @@ function ChecklistItem({
   onDeleteChecklist: (checklist: Checklist) => void;
   onDeleteItem: (item: ChecklistItemType) => void;
 }) {
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(true);
   const [isOpenCreate, setIsOpenCreate] = useState(false);
-  const completedCount = checklist.items.filter((i) => i.isCompleted).length;
+  const items = checklist.items || [];
+  const completedCount = items.filter((i) => i.isCompleted).length;
   const progress =
-    checklist.items.length > 0 ? completedCount / checklist.items.length : 0;
+    items.length > 0 ? completedCount / items.length : 0;
 
   return (
     <View
@@ -116,7 +117,7 @@ function ChecklistItem({
           >
             {checklist.name}
           </Text>
-          {checklist.items.length > 0 && (
+          {items.length > 0 && (
             <View
               style={{
                 flexDirection: "row",
@@ -126,7 +127,7 @@ function ChecklistItem({
               }}
             >
               <Text style={{ color: Theme.success, fontSize: 12 }}>
-                {completedCount}/{checklist.items.length}
+                {completedCount}/{items.length}
               </Text>
               <ProgressBar
                 progress={progress}
@@ -152,7 +153,7 @@ function ChecklistItem({
             gap: Spacing[3],
           }}
         >
-          {checklist.items.map((item) => (
+          {items.map((item) => (
             <InnerTodoItem
               key={item.id}
               item={item}
@@ -295,6 +296,9 @@ export default function Card() {
   };
 
   useEffect(() => {
+    if (!boardId || !cardId || boardId === "undefined" || cardId === "undefined") {
+      return;
+    }
     const getCard = async () => {
       try {
         const response = await CardService.getCard(
@@ -311,17 +315,15 @@ export default function Card() {
     getCard();
 
     // subscribe to checklist events for optimistic updates
-    let offCreating: any;
-    let offCreated: any;
-    let offFailed: any;
-    let offItemCreating: any;
-    let offItemCreated: any;
-    let offItemFailed: any;
-    let offCardUpdated: any;
+    let isMounted = true;
+    const unsubscribers: (() => void)[] = [];
+
     (async () => {
       try {
         const eventBus = await import("@/services/eventBus");
-        offCreating = eventBus.on(
+        if (!isMounted) return;
+
+        const offCreating = eventBus.on(
           "checklist:creating",
           ({ cardId: targetCardId, checklist }: any) => {
             if (targetCardId === cardId) {
@@ -332,7 +334,9 @@ export default function Card() {
             }
           },
         );
-        offCreated = eventBus.on(
+        unsubscribers.push(offCreating);
+
+        const offCreated = eventBus.on(
           "checklist:created",
           ({ tempId, created }: any) => {
             setCard((prev) => ({
@@ -343,7 +347,9 @@ export default function Card() {
             }));
           },
         );
-        offFailed = eventBus.on(
+        unsubscribers.push(offCreated);
+
+        const offFailed = eventBus.on(
           "checklist:create_failed",
           ({ tempId }: any) => {
             setCard((prev) => ({
@@ -354,9 +360,10 @@ export default function Card() {
             }));
           },
         );
+        unsubscribers.push(offFailed);
 
         // checklist item events
-        offItemCreating = eventBus.on(
+        const offItemCreating = eventBus.on(
           "checklistItem:creating",
           ({ checklistId, item }: any) => {
             setCard((prev) => ({
@@ -369,7 +376,9 @@ export default function Card() {
             }));
           },
         );
-        offItemCreated = eventBus.on(
+        unsubscribers.push(offItemCreating);
+
+        const offItemCreated = eventBus.on(
           "checklistItem:created",
           ({ tempId, created }: any) => {
             setCard((prev) => ({
@@ -383,7 +392,9 @@ export default function Card() {
             }));
           },
         );
-        offItemFailed = eventBus.on(
+        unsubscribers.push(offItemCreated);
+
+        const offItemFailed = eventBus.on(
           "checklistItem:create_failed",
           ({ tempId }: any) => {
             setCard((prev) => ({
@@ -395,8 +406,9 @@ export default function Card() {
             }));
           },
         );
+        unsubscribers.push(offItemFailed);
 
-        offCardUpdated = eventBus.on(
+        const offCardUpdated = eventBus.on(
           "card:updated",
           ({ cardId: targetCardId, payload }: any) => {
             if (targetCardId === cardId) {
@@ -407,21 +419,19 @@ export default function Card() {
             }
           }
         );
+        unsubscribers.push(offCardUpdated);
       } catch (e) {
         console.error("eventBus subscribe error:", e);
       }
     })();
 
     return () => {
-      try {
-        if (offCreating) offCreating();
-        if (offCreated) offCreated();
-        if (offFailed) offFailed();
-        if (offItemCreating) offItemCreating();
-        if (offItemCreated) offItemCreated();
-        if (offItemFailed) offItemFailed();
-        if (offCardUpdated) offCardUpdated();
-      } catch (e) {}
+      isMounted = false;
+      unsubscribers.forEach((unsub) => {
+        try {
+          unsub();
+        } catch (e) {}
+      });
     };
   }, [boardId, cardId]);
 

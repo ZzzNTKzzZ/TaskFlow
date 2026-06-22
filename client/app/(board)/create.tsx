@@ -45,6 +45,8 @@ export default function Create() {
   const [boardName, setBoardName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [workspaces, setWorkspaces] = useState<WorkspaceCard[]>([]);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // --- LOCAL DATA ---
   const backgroundColors: { color: string; name: BackgroundColor }[] = [
@@ -101,9 +103,11 @@ export default function Create() {
       eventBus.emit("board:creating", { workspaceId: payload.workspaceId, board: tempBoard });
     } catch (e) {}
 
+    let createdBoard: any = null;
     try {
        const response = await WorkspaceService.createWorkspaceBoard(payload);
        if (response && response.id) {
+         createdBoard = response;
          try {
            const eventBus = await import("@/services/eventBus");
            eventBus.emit("board:created", { tempId, created: response });
@@ -118,9 +122,45 @@ export default function Create() {
         eventBus.emit("board:create_failed", { tempId });
       } catch (e) {}
       console.error("Lỗi khi tạo board", error)
-    } finally {
-      router.back()
     }
+
+    if (createdBoard) {
+      const ws = workspaces.find((w) => w.id === payload.workspaceId) || workspaces[0];
+      router.replace({
+        pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
+        params: {
+          id: payload.workspaceId,
+          boardId: createdBoard.id,
+          name: createdBoard.name,
+          parentName: ws?.name || "",
+          workspaceIcon: ws?.icon || "",
+          workspaceColor: ws?.color || "",
+        },
+      });
+    } else {
+      router.back();
+    }
+  };
+
+  const handlePressCreate = () => {
+    if (!boardName.trim()) {
+      setHasError(true);
+      setErrorMessage("Board name is required");
+      return;
+    }
+    if (!selected.id) {
+      setHasError(true);
+      setErrorMessage("Please select a workspace");
+      return;
+    }
+    setHasError(false);
+    setErrorMessage(null);
+    handleCreate({
+      workspaceId: selected.id,
+      name: boardName.trim(),
+      visibility: visibility.name,
+      background,
+    });
   };
 
   return (
@@ -196,16 +236,28 @@ export default function Create() {
               label="Board name"
               placeholder="e.g. Q2 Campaign"
               value={boardName}
-              setValue={setBoardName}
+              setValue={(val) => {
+                setBoardName(val);
+                if (val.trim()) {
+                  setHasError(false);
+                  setErrorMessage(null);
+                }
+              }}
+              error={hasError}
               stylesLabel={[
                 Typography.title,
                 {
-                  color: Theme.textPrimary,
+                  color: hasError ? Theme.error : Theme.textPrimary,
                   marginBottom: Spacing[2],
                   fontSize: 16,
                 },
               ]}
             />
+            {hasError && errorMessage && (
+              <Text style={{ color: Theme.error, marginTop: -Spacing[3], marginBottom: Spacing[3], fontSize: 14 }}>
+                {errorMessage}
+              </Text>
+            )}
           </View>
 
           {/* VISIBILITY SELECTION */}
@@ -336,7 +388,7 @@ export default function Create() {
         </View>
       </View>
       <View style={{ paddingTop: Spacing[2], marginBottom: Spacing[4] }}>
-        <Button onPress={() => handleCreate({ workspaceId: selected.id, name: boardName, visibility: visibility.name,background  })} style={{ marginBottom: Spacing[3] }}>
+        <Button onPress={handlePressCreate} style={{ marginBottom: Spacing[3] }}>
           Create Board
         </Button>
         <Button

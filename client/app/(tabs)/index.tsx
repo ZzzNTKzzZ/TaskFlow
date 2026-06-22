@@ -29,7 +29,7 @@ import { Typography } from "@/theme/typography";
 import { Priority } from "@/types/type";
 import { router } from "expo-router";
 import React, { ReactNode, useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, TextInput } from "react-native";
 
 export default function HomeScreen() {
   const user = useCurrentUser();
@@ -49,6 +49,30 @@ export default function HomeScreen() {
   const [workspaces, setWorkspaces] = useState<WorkspaceCard[]>([]);
   const [boards, setBoards] = useState<BoardCardUI[]>([]);
   const [activities, setActivities] = useState<ActivityCardProps[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredWorkspaces = workspaces.filter((w) =>
+    w.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+  const filteredBoards = boards.filter((b) =>
+    b.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  useEffect(() => {
+    if (searchQuery.length > 0 && filteredWorkspaces.length > 0) {
+      const isStillValid = filteredWorkspaces.some((w) => w.id === selected.id);
+      if (!isStillValid) {
+        setSelected({
+          id: filteredWorkspaces[0].id,
+          name: filteredWorkspaces[0].name,
+          icon: filteredWorkspaces[0].icon,
+          color: filteredWorkspaces[0].color,
+        });
+      }
+    }
+  }, [searchQuery]);
+
   useEffect(() => {
     const initWorkspaces = async () => {
       try {
@@ -182,24 +206,81 @@ export default function HomeScreen() {
   return (
     <Screen padding={Spacing[4]}>
       <View style={styles.container}>
-        <View style={styles.headline}>
-          <Avatar />
-
-          <View style={{ flex: 1 }}>
-            <Text style={[Typography.title, { fontSize: 16 }]}>
-              Hello, {user?.name || "User"}
-            </Text>
-            <Text style={Typography.label}>Let's get things done</Text>
-          </View>
-
-          <TouchableOpacity
-            onPress={() => {}}
-            activeOpacity={0.7}
-            style={styles.searchButton}
+        {isSearching ? (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: Spacing[2],
+              marginBottom: Spacing[4],
+              width: "100%",
+            }}
           >
-            <Icons name="Search" size={18} />
-          </TouchableOpacity>
-        </View>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                alignItems: "center",
+                borderWidth: 1.5,
+                borderColor: Theme.border,
+                borderRadius: 16,
+                backgroundColor: Theme.surface,
+                paddingHorizontal: Spacing[3],
+                height: 48,
+              }}
+            >
+              <Icons name="Search" size={18} color={Theme.textSecondary} />
+              <TextInput
+                style={{
+                  flex: 1,
+                  marginLeft: Spacing[2],
+                  color: Theme.textPrimary,
+                  fontSize: 16,
+                }}
+                placeholder="Search workspaces & boards..."
+                placeholderTextColor={Theme.textSecondary}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoFocus
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchQuery("")}>
+                  <Icons name="Cross" size={18} color={Theme.textSecondary} />
+                </TouchableOpacity>
+              )}
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                setIsSearching(false);
+                setSearchQuery("");
+              }}
+              style={{ padding: Spacing[2] }}
+            >
+              <Text style={[Typography.title, { color: Theme.primary }]}>
+                Cancel
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.headline}>
+            <Avatar />
+
+            <View style={{ flex: 1 }}>
+              <Text style={[Typography.title, { fontSize: 16 }]}>
+                Hello, {user?.name || "User"}
+              </Text>
+              <Text style={Typography.label}>Let's get things done</Text>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => setIsSearching(true)}
+              activeOpacity={0.7}
+              style={styles.searchButton}
+            >
+              <Icons name="Search" size={18} />
+            </TouchableOpacity>
+          </View>
+        )}
 
         <SectionCard style={{ paddingVertical: Spacing[4] }}>
           <Text
@@ -224,7 +305,7 @@ export default function HomeScreen() {
             <ActionCard type="automation" onPress={() => {}} />
           </View>
         </SectionCard>
-        {workspaces && (
+        {filteredWorkspaces && filteredWorkspaces.length > 0 ? (
           <SectionCard
             style={{
               paddingTop: Spacing[4],
@@ -234,7 +315,7 @@ export default function HomeScreen() {
             <DropDown
               icon={((): ReactNode => {
                 const ws =
-                  workspaces.find((w) => w.id === selected.id) ?? workspaces[0];
+                  filteredWorkspaces.find((w) => w.id === selected.id) ?? filteredWorkspaces[0] ?? workspaces[0];
                 return (
                   <SymbolIcon
                     name={ws?.icon as SymbolName}
@@ -246,7 +327,7 @@ export default function HomeScreen() {
               label="Workspace:"
               selected={selected.name}
               setSelected={setSelected}
-              options={workspaces}
+              options={filteredWorkspaces}
               renderItem={(item) => (
                 <CardDropDown
                   icon={
@@ -260,7 +341,18 @@ export default function HomeScreen() {
               )}
             />
           </SectionCard>
-        )}
+        ) : searchQuery.length > 0 ? (
+          <SectionCard
+            style={{
+              paddingTop: Spacing[4],
+              paddingHorizontal: Spacing[4],
+            }}
+          >
+            <Text style={[Typography.caption, { color: Theme.textSecondary, textAlign: "center" }]}>
+              No workspaces found
+            </Text>
+          </SectionCard>
+        ) : null}
         <View>
           <View style={styles.boardHeader}>
             <Text style={[Typography.title, { fontSize: 16 }]}>
@@ -291,33 +383,39 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.boardList}>
-            {boards.map((b) => (
-              <BoardCard
-                showMembers={true}
-                onPress={async () => {
-                  try {
-                    await BoardService.getBoard(b.id);
-                    router.push({
-                      pathname:
-                        "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
-                      params: {
-                        id: selected.id,
-                        boardId: b.id,
-                        name: b.name,
-                        parentName: selected.name,
-                        workspaceIcon: selected.icon,
-                        workspaceColor: selected.color,
-                      },
-                    });
-                  } catch (e) {
-                    console.error(e);
-                  }
-                }}
-                key={b.id}
-                {...b}
-                styleCard={{ width: "32%" }}
-              />
-            ))}
+            {filteredBoards.length > 0 ? (
+              filteredBoards.map((b) => (
+                <BoardCard
+                  showMembers={true}
+                  onPress={async () => {
+                    try {
+                      await BoardService.getBoard(b.id);
+                      router.push({
+                        pathname:
+                          "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
+                        params: {
+                          id: selected.id,
+                          boardId: b.id,
+                          name: b.name,
+                          parentName: selected.name,
+                          workspaceIcon: selected.icon,
+                          workspaceColor: selected.color,
+                        },
+                      });
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  key={b.id}
+                  {...b}
+                  styleCard={{ width: "32%" }}
+                />
+              ))
+            ) : (
+              <Text style={[Typography.caption, { padding: Spacing[4], color: Theme.textSecondary }]}>
+                No boards found
+              </Text>
+            )}
           </View>
         </View>
 

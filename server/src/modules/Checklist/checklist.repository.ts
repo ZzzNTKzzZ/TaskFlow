@@ -36,6 +36,11 @@ export default class ChecklistRepository {
 
     return prisma.checklist.create({
       data: checklistData,
+      include: {
+        items: {
+          orderBy: { id: "asc" },
+        },
+      },
     });
   }
 

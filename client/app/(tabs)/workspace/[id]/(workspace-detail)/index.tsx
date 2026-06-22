@@ -11,7 +11,7 @@ import { Typography } from "@/theme/typography";
 import { useIsFocused } from "@react-navigation/core";
 import { router, useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, TextInput } from "react-native";
 
 export default function WorkspaceDetail() {
   const { id, name, icon, color } = useGlobalSearchParams<{ id: string; name: string; icon?: string; color?: string }>();
@@ -163,28 +163,34 @@ export default function WorkspaceDetail() {
             gap: Spacing[3],
           }}
         >
-          {displayBoards.map((b) => (
-            <BoardCard
-              key={b.id}
-              {...b}
-              onPress={() =>
-                router.push({
-                  pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
-                  params: {
-                    id: id,
-                    boardId: b.id,
-                    name: b.name,
-                    parentName: name,
-                    workspaceIcon: icon,
-                    workspaceColor: color
-                  },
-                })
-              }
-              styleCard={{ width: "48%" }}
-              styleText={{ fontSize: 14 }}
-              showMembers={false}
-            />
-          ))}
+          {displayBoards.length > 0 ? (
+            displayBoards.map((b) => (
+              <BoardCard
+                key={b.id}
+                {...b}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
+                    params: {
+                      id: id,
+                      boardId: b.id,
+                      name: b.name,
+                      parentName: name,
+                      workspaceIcon: icon,
+                      workspaceColor: color
+                    },
+                  })
+                }
+                styleCard={{ width: "48%" }}
+                styleText={{ fontSize: 14 }}
+                showMembers={false}
+              />
+            ))
+          ) : (
+            <Text style={[Typography.caption, { padding: Spacing[4], color: Theme.textSecondary, width: "100%", textAlign: "center" }]}>
+              No boards found
+            </Text>
+          )}
         </View>
       </View>
 

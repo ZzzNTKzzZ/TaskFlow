@@ -81,7 +81,7 @@ export default class CardRepository {
   }: {
     cardId: string;
     data: Partial<{
-      title: string;
+      name: string;
       description: string;
       priority: "low" | "medium" | "high" | "urgent";
       dueDate: Date | null;
