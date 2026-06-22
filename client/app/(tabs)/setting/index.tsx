@@ -107,7 +107,9 @@ function UserCard() {
   const user = useCurrentUser();
 
   return (
-    <View
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => router.push("/(tabs)/setting/profile")}
       style={{
         flexDirection: "row",
         alignItems: "center",
@@ -137,13 +139,21 @@ function UserCard() {
       </View>
 
       <LeftRightIcon direction="right" />
-    </View>
+    </TouchableOpacity>
   );
 }
 
 function SettingItem({ item }: { item: SettingItemType }) {
+  const handlePress = () => {
+    if (item.name === "Profile") {
+      router.push("/(tabs)/setting/profile");
+    }
+  };
+
   return (
-    <View
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={handlePress}
       style={{
         flexDirection: "row",
         justifyContent: "space-between",
@@ -181,7 +191,7 @@ function SettingItem({ item }: { item: SettingItemType }) {
       </View>
 
       <LeftRightIcon direction="right" />
-    </View>
+    </TouchableOpacity>
   );
 }
 

@@ -8,6 +8,7 @@ export default function SettingLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: "Setting" }} />
+      <Stack.Screen name="profile" options={{ title: "Profile Info" }} />
     </Stack>
   );
 }
