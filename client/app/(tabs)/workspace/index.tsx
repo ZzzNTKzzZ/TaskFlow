@@ -14,9 +14,11 @@ import { Typography } from "@/theme/typography";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { useIsFocused } from "@react-navigation/core";
 
 export default function Workspace() {
   const ITEM_ONE_PAGE = 8;
+  const isFocused = useIsFocused();
 
   const [data, setData] = useState<WorkspaceCard[]>([]);
   const [displayType, setDisplayType] = useState<"Grid" | "List">("Grid");
@@ -29,7 +31,7 @@ export default function Workspace() {
   const user = useCurrentUser();
   const [active, setActive] = useState<boolean>(false);
 
-  // 1. Chỉ gọi API lấy dữ liệu thô một lần duy nhất khi vào trang
+  // 1. Chỉ gọi API lấy dữ liệu thô mỗi khi vào trang (khi được focus)
   useEffect(() => {
     const initWorkspaces = async () => {
       try {
@@ -42,8 +44,10 @@ export default function Workspace() {
         setLoading(false);
       }
     };
-    initWorkspaces();
-  }, []);
+    if (isFocused) {
+      initWorkspaces();
+    }
+  }, [isFocused]);
 
   // 2. TỰ ĐỘNG XỬ LÝ: Tìm kiếm -> Sắp xếp -> Phân trang mỗi khi các state liên quan thay đổi
   useEffect(() => {

@@ -30,9 +30,11 @@ import { Priority } from "@/types/type";
 import { router } from "expo-router";
 import React, { ReactNode, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, TextInput } from "react-native";
+import { useIsFocused } from "@react-navigation/core";
 
 export default function HomeScreen() {
   const user = useCurrentUser();
+  const isFocused = useIsFocused();
 
   const [selected, setSelected] = useState<{
     name: string;
@@ -81,11 +83,14 @@ export default function HomeScreen() {
         setWorkspaces(list);
 
         if (list.length > 0) {
-          setSelected({
-            id: list[0].id,
-            name: list[0].name,
-            icon: list[0].icon,
-            color: list[0].color,
+          setSelected((prev) => {
+            if (prev.id && list.some(w => w.id === prev.id)) return prev;
+            return {
+              id: list[0].id,
+              name: list[0].name,
+              icon: list[0].icon,
+              color: list[0].color,
+            };
           });
         }
       } catch (error) {
@@ -94,8 +99,10 @@ export default function HomeScreen() {
         setLoading(false);
       }
     };
-    initWorkspaces();
-  }, []);
+    if (isFocused) {
+      initWorkspaces();
+    }
+  }, [isFocused]);
 
   // subscribe to workspace create events
   useEffect(() => {
@@ -154,8 +161,10 @@ export default function HomeScreen() {
       }
     };
 
-    fetchActivities();
-  }, []);
+    if (isFocused) {
+      fetchActivities();
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     if (!selected.id) return;
@@ -172,8 +181,10 @@ export default function HomeScreen() {
       }
     };
 
-    fetchBoards();
-  }, [selected.id]);
+    if (isFocused) {
+      fetchBoards();
+    }
+  }, [selected.id, isFocused]);
   if (loading && !workspaces) return;
 
   const todos = [
