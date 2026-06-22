@@ -73,6 +73,12 @@ export default function RootLayout() {
                 presentation: "modal",
               }}
             />
+            <Stack.Screen
+              name="(board)/edit"
+              options={{
+                presentation: "modal",
+              }}
+            />
             <Stack.Screen name="(auth)" />
           </Stack>
         </View>

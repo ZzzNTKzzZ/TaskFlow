@@ -68,3 +68,19 @@ export const deleteBoardApi = async (boardId: string): Promise<ApiResponse<any>>
     return { success: false, data: null, message: error.message };
   }
 };
+
+export const updateBoardApi = async (
+  boardId: string,
+  payload: { name?: string; background?: string; visibility?: string }
+): Promise<ApiResponse<any>> => {
+  if (!boardId || boardId === "undefined" || boardId.startsWith("(")) {
+    return { success: false, data: null, message: "Invalid board ID" };
+  }
+  try {
+    const response = await api.patch<ApiResponse<any>>(`/boards/${boardId}`, payload);
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error [updateBoardApi]:", error);
+    return { success: false, data: null, message: error.message };
+  }
+};

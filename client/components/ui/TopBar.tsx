@@ -59,6 +59,19 @@ export default function TopBar({
         params: { id, boardId, cardId }
       });
     }
+    if (item === "Board settings") {
+      router.push({
+        pathname: "/(board)/edit",
+        params: {
+          id,
+          boardId,
+          name,
+          parentName,
+          workspaceIcon: icon,
+          workspaceColor: color,
+        },
+      });
+    }
     if (item === "Delete workspace") {
       Alert.alert("Delete Workspace", "Are you sure you want to delete this workspace?", [
         { text: "Cancel", style: "cancel" },

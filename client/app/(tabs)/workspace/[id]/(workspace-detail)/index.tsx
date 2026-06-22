@@ -41,6 +41,7 @@ export default function WorkspaceDetail() {
     let offCreating: any;
     let offCreated: any;
     let offFailed: any;
+    let offUpdated: any;
 
     (async () => {
       try {
@@ -56,6 +57,9 @@ export default function WorkspaceDetail() {
         offFailed = eventBus.on("board:create_failed", ({ tempId }: any) => {
           setBoards((prev) => prev.filter((b) => b.id !== tempId));
         });
+        offUpdated = eventBus.on("board:updated", (updated: any) => {
+          setBoards((prev) => prev.map((b) => (b.id === updated.id ? { ...b, ...updated } : b)));
+        });
       } catch (e) {
         console.error("eventBus subscribe error:", e);
       }
@@ -66,6 +70,7 @@ export default function WorkspaceDetail() {
         if (offCreating) offCreating();
         if (offCreated) offCreated();
         if (offFailed) offFailed();
+        if (offUpdated) offUpdated();
       } catch (e) {}
     };
   }, [id]);

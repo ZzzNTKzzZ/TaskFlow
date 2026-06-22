@@ -4,6 +4,7 @@ import {
   getBoardListsApi,
   reorderListsApi,
   deleteBoardApi,
+  updateBoardApi,
 } from "./board.api";
 
 export default class BoardService {
@@ -48,5 +49,16 @@ export default class BoardService {
       return false;
     }
     return true;
+  }
+
+  static async updateBoard(
+    boardId: string,
+    payload: { name?: string; background?: string; visibility?: string }
+  ) {
+    const response = await updateBoardApi(boardId, payload);
+    if (!response || !response.success || !response.data) {
+      return null;
+    }
+    return response.data;
   }
 }
