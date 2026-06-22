@@ -3,9 +3,16 @@ import { LoginData, LoginResponse, SignUpData } from "../types/auth";
 
 export default class AuthService {
   static async login(data: LoginData): Promise<LoginResponse> {
-    const { success, data: payload}  = await loginApi(data);
+    const res = await loginApi(data);
+    if (!res.success) {
+      return {
+        success: false,
+        errMsg: res.errMsg,
+      } as any;
+    }
+    const payload = res.data;
     return {
-      success,
+      success: true,
       user: payload.user,
       accessToken: payload.accessToken,
       refreshToken: payload.refreshToken,
@@ -13,8 +20,20 @@ export default class AuthService {
   }
 
   static async signup(data: SignUpData): Promise<LoginResponse> {
-    const response = await signupApi(data);
-    return response;
+    const res = await signupApi(data);
+    if (!res.success) {
+      return {
+        success: false,
+        errMsg: res.errMsg,
+      } as any;
+    }
+    const payload = res.data;
+    return {
+      success: true,
+      user: payload.user,
+      accessToken: payload.accessToken,
+      refreshToken: payload.refreshToken,
+    };
   }
 
   static async refresh() {
