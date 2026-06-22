@@ -33,7 +33,7 @@ async function main() {
   ];
 
   // Helper to get random item
-  const getRandomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+  const getRandomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]!;
   const getRandomSubset = <T>(arr: T[], size: number): T[] => {
     const shuffled = [...arr].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, size);
@@ -102,7 +102,7 @@ async function main() {
         console.log(`    📁 Creating List: "${listName}"...`);
         const list = await prisma.list.create({
           data: {
-            name: listName,
+            name: listName!,
             position: (l + 1) * 1000,
             boardId: board.id,
           },
@@ -126,7 +126,7 @@ async function main() {
           console.log(`      🗂️ Creating Card: "${cardName}"...`);
           const card = await prisma.card.create({
             data: {
-              name: cardName,
+              name: cardName!,
               description: `This is a randomly generated test card for "${cardName}".`,
               position: (c + 1) * 1000,
               priority: getRandomItem(["low", "medium", "high", "urgent"]),
@@ -160,7 +160,7 @@ async function main() {
             console.log(`        📝 Creating Checklist: "${chName}"...`);
             const checklist = await prisma.checklist.create({
               data: {
-                name: chName,
+                name: chName!,
                 cardId: card.id,
               },
             });
@@ -185,7 +185,7 @@ async function main() {
               console.log(`          ✅ Creating Checklist Item: "${itemName}" (completed: ${isCompleted})...`);
               await prisma.checklistItem.create({
                 data: {
-                  name: itemName,
+                  name: itemName!,
                   isCompleted: isCompleted,
                   checklistId: checklist.id,
                 },
