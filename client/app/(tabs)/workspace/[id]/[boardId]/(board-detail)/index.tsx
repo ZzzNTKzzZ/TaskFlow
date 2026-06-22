@@ -25,9 +25,11 @@ export default function Board() {
   const [list, setList] = useState<ListCardUI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   // Fetch Board Details on Mount / Refresh
   const getBoardData = async () => {
+    if (isDeleting) return;
     try {
       setLoading(true);
       setError(null);
@@ -48,10 +50,10 @@ export default function Board() {
   };
 
   useEffect(() => {
-    if (boardId) {
+    if (boardId && !isDeleting) {
       getBoardData();
     }
-  }, [refresh, boardId]);
+  }, [refresh, boardId, isDeleting]);
 
   // EventBus Subscriptions for Live List CRUD Sync
   useEffect(() => {
@@ -59,6 +61,7 @@ export default function Board() {
     let offCreated: any;
     let offFailed: any;
     let offCardUpdated: any;
+    let offDeleting: any;
 
     (async () => {
       try {
@@ -75,6 +78,12 @@ export default function Board() {
 
         offFailed = eventBus.on("list:create_failed", ({ tempId }: any) => {
           setList((prev) => prev.filter((l) => l.id !== tempId));
+        });
+
+        offDeleting = eventBus.on("board:deleting", (deletedId: string) => {
+          if (deletedId === boardId) {
+            setIsDeleting(true);
+          }
         });
 
         offCardUpdated = eventBus.on("card:updated", ({ cardId: targetCardId, payload }: any) => {
@@ -123,6 +132,7 @@ export default function Board() {
         if (offCreated) offCreated();
         if (offFailed) offFailed();
         if (offCardUpdated) offCardUpdated();
+        if (offDeleting) offDeleting();
       } catch (e) {}
     };
   }, [boardId]);

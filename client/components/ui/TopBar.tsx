@@ -74,6 +74,10 @@ export default function TopBar({
         { text: "Cancel", style: "cancel" },
         { text: "Delete", style: "destructive", onPress: async () => {
           if (!boardId) return;
+          try {
+            const eventBus = await import("@/services/eventBus");
+            eventBus.emit("board:deleting", boardId);
+          } catch (e) {}
           const success = await BoardService.deleteBoard(boardId);
           if (success) {
             router.replace({

@@ -2,6 +2,9 @@ import { api } from "@/services/api";
 import { ApiResponse, BoardResponse, List } from "@/types/types";
 
 export const getBoardApi = async (boardId: string): Promise<ApiResponse<BoardResponse>> => {
+  if (!boardId || boardId === "undefined") {
+    return { success: false, data: null as any, message: "Invalid board ID" };
+  }
   try {
     const response = await api.get<ApiResponse<BoardResponse>>(`/boards/${boardId}`);
     return response.data;
@@ -12,6 +15,9 @@ export const getBoardApi = async (boardId: string): Promise<ApiResponse<BoardRes
 };
 
 export const getBoardListsApi = async (boardId: string): Promise<ApiResponse<List[]>> => {
+  if (!boardId || boardId === "undefined") {
+    return { success: false, data: [], message: "Invalid board ID" };
+  }
   try {
     const response = await api.get<ApiResponse<List[]>>(`/boards/${boardId}/lists`);
     return response.data;
@@ -22,6 +28,9 @@ export const getBoardListsApi = async (boardId: string): Promise<ApiResponse<Lis
 };
 
 export const createBoardListApi = async (boardId: string, name: string): Promise<ApiResponse<List>> => {
+  if (!boardId || boardId === "undefined") {
+    return { success: false, data: null as any, message: "Invalid board ID" };
+  }
   try {
     const response = await api.post<ApiResponse<List>>(`/boards/${boardId}/lists`, { name });
     return response.data;
@@ -35,6 +44,9 @@ export const reorderListsApi = async (
   boardId: string,
   payload: { listId: string; beforeId?: string | null; afterId?: string | null }
 ): Promise<ApiResponse<List>> => {
+  if (!boardId || boardId === "undefined") {
+    return { success: false, data: null as any, message: "Invalid board ID" };
+  }
   try {
     const response = await api.patch<ApiResponse<List>>(`/boards/${boardId}/lists/reorder`, payload);
     return response.data;
@@ -45,6 +57,9 @@ export const reorderListsApi = async (
 };
 
 export const deleteBoardApi = async (boardId: string): Promise<ApiResponse<any>> => {
+  if (!boardId || boardId === "undefined") {
+    return { success: false, data: null, message: "Invalid board ID" };
+  }
   try {
     const response = await api.delete<ApiResponse<any>>(`/boards/${boardId}`);
     return response.data;
