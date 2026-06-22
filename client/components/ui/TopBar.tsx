@@ -76,7 +76,15 @@ export default function TopBar({
           if (!boardId) return;
           const success = await BoardService.deleteBoard(boardId);
           if (success) {
-            router.replace(`/(tabs)/workspace/${id}` as any);
+            router.replace({
+              pathname: `/(tabs)/workspace/${id}/(workspace-detail)`,
+              params: {
+                id,
+                name: parentName || "",
+                icon: icon || "",
+                color: color || "",
+              },
+            } as any);
           } else {
             Alert.alert("Error", "Failed to delete board. You might not have permission.");
           }
