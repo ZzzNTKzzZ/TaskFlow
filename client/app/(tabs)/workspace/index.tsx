@@ -222,7 +222,7 @@ export default function Workspace() {
           style={{
             flexDirection: displayType === "Grid" ? "row" : "column",
             flexWrap: displayType === "Grid" ? "wrap" : "nowrap",
-            justifyContent: "space-between",
+            justifyContent: displayType === "Grid" ? "space-between" : "flex-start",
             minHeight: 500,
             marginBottom: Spacing[3],
           }}
