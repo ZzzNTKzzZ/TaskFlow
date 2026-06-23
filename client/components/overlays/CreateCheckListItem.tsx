@@ -7,7 +7,7 @@ import { Spacing } from "@/theme/spacing";
 import { Text } from "react-native";
 import Icons from "../icons/Icons";
 import Button from "../ui/Button";
-import ChecklistService from "@/modules/checklist/checklist.service";
+import ChecklistService from "@/services/checklist.service";
 import { useLocalSearchParams } from "expo-router";
 
 export default function CreateCheckListItem({

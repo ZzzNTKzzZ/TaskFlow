@@ -8,13 +8,13 @@ import Button from "@/components/ui/Button";
 import Checked from "@/components/ui/Checked";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { formatMonthDate } from "@/helper/Day";
-import { CardRespone } from "@/modules/card/card";
-import CardService from "@/modules/card/card.service";
-import ChecklistService from "@/modules/checklist/checklist.service";
+import { CardRespone } from "@/types/card";
+import CardService from "@/services/card.service";
+import ChecklistService from "@/services/checklist.service";
 import {
   Checklist,
   ChecklistItem as ChecklistItemType,
-} from "@/modules/checklist/checklist"; // Assuming item type name
+} from "@/types/checklist"; // Assuming item type name
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";

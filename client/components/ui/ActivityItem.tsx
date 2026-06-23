@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { Activity } from "@/modules/activity/activity";
+import { Activity } from "@/types/activity";
 import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";

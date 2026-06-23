@@ -1,12 +1,12 @@
 import { Screen } from "@/components/layout/Screen";
 import ListCard from "@/components/list/ListCard";
-import BoardService from "@/modules/board/board.service";
-import { ListCardUI } from "@/modules/list/list";
+import BoardService from "@/services/board.service";
+import { ListCardUI } from "@/types/list";
 import { Spacing } from "@/theme/spacing";
 import { useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Text, View, Alert } from "react-native";
-import ListService from "@/modules/list/list.service";
+import ListService from "@/services/list.service";
 
 export default function List() {
   const { boardId } = useGlobalSearchParams();

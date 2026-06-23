@@ -20,7 +20,7 @@ export default function WorkspaceIdLayout() {
             headerShown: true,
             header: () => (
               <TopBar
-              onBack={() => router.back()}
+              onBack={() => router.navigate("/(tabs)/workspace")}
                 name={routeParams.name}
                 icon={routeParams.icon}
                 color={routeParams.color}

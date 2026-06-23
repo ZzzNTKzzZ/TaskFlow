@@ -11,8 +11,8 @@ import { router, useLocalSearchParams, usePathname } from "expo-router";
 import { Colors } from "@/theme/colors";
 import { Typography } from "@/theme/typography";
 import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
-import WorkspaceService from "@/modules/workspace/workspace.service";
-import BoardService from "@/modules/board/board.service";
+import WorkspaceService from "@/services/workspace.service";
+import BoardService from "@/services/board.service";
 
 export default function CreateList({
   visible,

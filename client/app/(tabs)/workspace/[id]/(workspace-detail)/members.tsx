@@ -1,6 +1,6 @@
 import { Screen } from "@/components/layout/Screen";
 import Avatar from "@/components/ui/Avatar";
-import WorkspaceService from "@/modules/workspace/workspace.service";
+import WorkspaceService from "@/services/workspace.service";
 import { Theme } from "@/theme/theme";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
@@ -8,8 +8,8 @@ import { Typography } from "@/theme/typography";
 import { useGlobalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Text, View, Alert, TouchableOpacity, TextInput } from "react-native";
-import { WorkspaceMemberRespone } from "@/modules/workspace/workspace";
-import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
+import { WorkspaceMemberRespone } from "@/types/workspace";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import Button from "@/components/ui/Button";
 import InviteMembers from "@/components/overlays/InviteMembers";
 import Icons from "@/components/icons/Icons";

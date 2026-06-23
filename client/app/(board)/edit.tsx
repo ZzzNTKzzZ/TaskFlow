@@ -17,7 +17,7 @@ import Input from "@/components/ui/Input";
 
 // Các Helper & Design Tokens (Theme)
 import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
-import BoardService from "@/modules/board/board.service";
+import BoardService from "@/services/board.service";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";

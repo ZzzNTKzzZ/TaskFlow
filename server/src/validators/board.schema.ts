@@ -20,3 +20,13 @@ export const updateBoardSchema = z.object({
   ]).optional().nullable(),
   position: z.number().optional(),
 });
+
+export const addBoardMembersSchema = z.object({
+  memberIds: z.array(z.string().uuid()).min(1, "At least one member ID is required"),
+});
+
+export const reorderListSchema = z.object({
+  listId: z.string().uuid(),
+  beforeId: z.string().uuid().optional().nullable(),
+  afterId: z.string().uuid().optional().nullable(),
+});

@@ -1,6 +1,6 @@
 import { Screen } from "@/components/layout/Screen";
-import { Activity } from "@/modules/activity/activity";
-import ActivityService from "@/modules/activity/activity.service";
+import { Activity } from "@/types/activity";
+import ActivityService from "@/services/activity.service";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import { Spacing } from "@/theme/spacing";

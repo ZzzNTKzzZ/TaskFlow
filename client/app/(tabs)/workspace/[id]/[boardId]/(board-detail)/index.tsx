@@ -12,9 +12,9 @@ import DraggableFlatList from "react-native-draggable-flatlist";
 
 import { Screen } from "@/components/layout/Screen";
 import ListCard from "@/components/list/ListCard";
-import BoardService from "@/modules/board/board.service";
-import ListService from "@/modules/list/list.service";
-import { ListCardUI } from "@/modules/list/list";
+import BoardService from "@/services/board.service";
+import ListService from "@/services/list.service";
+import { ListCardUI } from "@/types/list";
 import { Spacing } from "@/theme/spacing";
 import { Colors } from "@/theme/colors";
 import { Theme } from "@/theme/theme";

@@ -1,5 +1,5 @@
-import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
-import { useAuthStore } from "@/modules/auth/store/auth.store";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useAuthStore } from "@/store/auth.store";
 import * as SecureStore from "expo-secure-store"
 import { Redirect } from "expo-router";
 import { useEffect } from "react";

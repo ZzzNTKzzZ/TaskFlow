@@ -13,8 +13,18 @@ import {
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export { ErrorBoundary } from "expo-router";
 
@@ -48,41 +58,43 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-        <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: {
-                backgroundColor: "#F9FAFB",
-              },
-            }}
-          >
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen
-              name="(workspace)/create"
-              options={{
-                presentation: "modal",
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+          <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: {
+                  backgroundColor: "#F9FAFB",
+                },
               }}
-            />
-            <Stack.Screen
-              name="(board)/create"
-              options={{
-                presentation: "modal",
-              }}
-            />
-            <Stack.Screen
-              name="(board)/edit"
-              options={{
-                presentation: "modal",
-              }}
-            />
-            <Stack.Screen name="(auth)" />
-          </Stack>
-        </View>
-      </SafeAreaView>
-    </GestureHandlerRootView>
+            >
+              <Stack.Screen name="index" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen
+                name="(workspace)/create"
+                options={{
+                  presentation: "modal",
+                }}
+              />
+              <Stack.Screen
+                name="(board)/create"
+                options={{
+                  presentation: "modal",
+                }}
+              />
+              <Stack.Screen
+                name="(board)/edit"
+                options={{
+                  presentation: "modal",
+                }}
+              />
+              <Stack.Screen name="(auth)" />
+            </Stack>
+          </View>
+        </SafeAreaView>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }

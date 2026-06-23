@@ -14,9 +14,9 @@ import { Typography } from "@/theme/typography";
 import { Theme } from "@/theme/theme";
 import GoogleIcon from "@/assets/icon/GoogleIcon.svg";
 import FacebookIcon from "@/assets/icon/FacebookIcon.svg";
-import { LoginData } from "@/modules/auth/types/auth";
-import { useAuth } from "@/modules/auth/hook/useAuth";
-import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
+import { LoginData } from "@/types/auth";
+import { useAuth } from "@/hooks/useAuth";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function Login() {
   const [email, setEmail] = useState("test@example.com");

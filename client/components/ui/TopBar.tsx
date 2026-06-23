@@ -12,9 +12,9 @@ import {
 } from "expo-router";
 import { useState } from "react";
 import KebabMenu, { KebabMenuType } from "../overlays/KebabMenu";
-import WorkspaceService from "@/modules/workspace/workspace.service";
-import BoardService from "@/modules/board/board.service";
-import CardService from "@/modules/card/card.service";
+import WorkspaceService from "@/services/workspace.service";
+import BoardService from "@/services/board.service";
+import CardService from "@/services/card.service";
 
 export default function TopBar({
   name,

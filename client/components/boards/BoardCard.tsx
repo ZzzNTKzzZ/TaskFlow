@@ -11,7 +11,7 @@ import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
 import { Theme } from "@/theme/theme";
 import { Colors } from "@/theme/colors";
-import { BoardCardUI } from "@/modules/board/board";
+import { BoardCardUI } from "@/types/board";
 
 interface BoardCardProps extends BoardCardUI {
   styleCard?: StyleProp<ViewStyle>;

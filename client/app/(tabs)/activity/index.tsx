@@ -9,8 +9,8 @@ import { useCallback, useMemo, useState } from "react";
 import { SectionList, Text, TouchableOpacity, View, RefreshControl, ScrollView } from "react-native";
 import { useFocusEffect } from "expo-router";
 
-import { Activity } from "@/modules/activity/activity";
-import ActivityService from "@/modules/activity/activity.service";
+import { Activity } from "@/types/activity";
+import ActivityService from "@/services/activity.service";
 import { ActivityItem } from "@/components/ui/ActivityItem";
 
 type ActivitySection = {

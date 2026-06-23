@@ -5,55 +5,44 @@ import KebabMenu from "@/components/overlays/KebabMenu";
 import Input from "@/components/ui/Input";
 import Pagination from "@/components/ui/Pagination";
 import WorkspaceCardUI from "@/components/workspaces/WorkspaceCard";
-import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
-import { WorkspaceCard } from "@/modules/workspace/workspace";
-import WorkspaceService from "@/modules/workspace/workspace.service";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { WorkspaceCard } from "@/types/workspace";
+import { useWorkspaces } from "@/hooks/useWorkspaces";
+import WorkspaceService from "@/services/workspace.service";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { useIsFocused } from "@react-navigation/core";
 
 export default function Workspace() {
   const ITEM_ONE_PAGE = 8;
-  const isFocused = useIsFocused();
 
   const [data, setData] = useState<WorkspaceCard[]>([]);
   const [displayType, setDisplayType] = useState<"Grid" | "List">("Grid");
   const [search, setSearch] = useState<string>("");
-  const [sort, setSort] = useState<string>("Recently"); // State giữ kiểu sort
-  const [loading, setLoading] = useState(true);
+  const [sort, setSort] = useState<string>("Recently");
   const [workspaces, setWorkspaces] = useState<WorkspaceCard[]>([]);
   const [totalPage, setToltalPage] = useState<number>(1);
   const [page, setPage] = useState(1);
   const user = useCurrentUser();
   const [active, setActive] = useState<boolean>(false);
 
-  // 1. Chỉ gọi API lấy dữ liệu thô mỗi khi vào trang (khi được focus)
-  useEffect(() => {
-    const initWorkspaces = async () => {
-      try {
-        setLoading(true);
-        const list = await WorkspaceService.getWorkspaces(24);
-        setData(list);
-      } catch (error) {
-        console.error("Lỗi khởi tạo Workspace:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (isFocused) {
-      initWorkspaces();
-    }
-  }, [isFocused]);
+  // 1. Fetch workspaces using TanStack React Query custom hook
+  const { data: serverData = [], isLoading } = useWorkspaces(24);
 
-  // 2. TỰ ĐỘNG XỬ LÝ: Tìm kiếm -> Sắp xếp -> Phân trang mỗi khi các state liên quan thay đổi
+  // 2. Synchronize local processing state with React Query server state
+  useEffect(() => {
+    if (serverData) {
+      setData(serverData);
+    }
+  }, [serverData]);
+
+  // 3. AUTO PROCESSING: Search -> Sort -> Paginate local list
   useEffect(() => {
     if (data.length === 0) return;
 
-    // Bước A: Lọc theo tìm kiếm (Search)
     let processedData = data.filter((item) =>
       item.name.toLowerCase().includes(search.toLowerCase())
     );
@@ -76,35 +65,12 @@ export default function Workspace() {
     setPage(1);
   }, [search, sort]);
 
-  // subscribe to workspace delete events
-  useEffect(() => {
-    let offDeleted: any;
-
-    (async () => {
-      try {
-        const eventBus = await import("@/services/eventBus");
-        offDeleted = eventBus.on("workspace:deleted", (deletedWorkspaceId: string) => {
-          setData((prev) => prev.filter((w) => w.id !== deletedWorkspaceId));
-        });
-      } catch (e) {
-        console.error("eventBus subscribe error:", e);
-      }
-    })();
-
-    return () => {
-      try {
-        if (offDeleted) offDeleted();
-      } catch (e) {}
-    };
-  }, []);
-
-  // Hàm xử lý khi chọn Menu Sort
   const handleSortSelect = (sortType: string) => {
     setSort(sortType);
     setActive(false);
   };
 
-  if (loading) return <Text style={{ padding: Spacing[4] }}>Loading...</Text>;
+  if (isLoading) return <Text style={{ padding: Spacing[4] }}>Loading...</Text>;
 
   return (
     <Screen>

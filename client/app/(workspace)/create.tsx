@@ -5,7 +5,7 @@ import DropDown from "@/components/overlays/DropDown";
 import InviteMembers from "@/components/overlays/InviteMembers";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import WorkspaceService from "@/modules/workspace/workspace.service";
+import WorkspaceService from "@/services/workspace.service";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";

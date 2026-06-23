@@ -3,13 +3,13 @@ import { Typography } from "@/theme/typography";
 import { useState } from "react";
 import { Text, TouchableOpacity, View, Alert } from "react-native";
 import SymbolIcon from "../icons/SymbolIcon";
-import { WorkspaceCard } from "@/modules/workspace/workspace";
+import { WorkspaceCard } from "@/types/workspace";
 import { Theme } from "@/theme/theme";
 import StarIcon from "../icons/StarIcon";
 import Icons from "../icons/Icons";
 import KebabMenu from "../overlays/KebabMenu";
 import { router } from "expo-router";
-import WorkspaceService from "@/modules/workspace/workspace.service";
+import WorkspaceService from "@/services/workspace.service";
 
 interface WorkspaceCardProps extends Omit<WorkspaceCard, "role" | "value"> {
   checked?: boolean;

@@ -1,4 +1,4 @@
-import { ListCardUI } from "@/modules/list/list";
+import { ListCardUI } from "@/types/list";
 import {
   StyleProp,
   Text,

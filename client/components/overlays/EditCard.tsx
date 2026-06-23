@@ -10,13 +10,13 @@ import { Spacing } from "@/theme/spacing";
 import { Colors } from "@/theme/colors";
 import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
 import DropDown from "./DropDown";
-import BoardService from "@/modules/board/board.service";
+import BoardService from "@/services/board.service";
 import { router, useLocalSearchParams } from "expo-router";
 import Calendar from "../ui/Calendar";
 import Button from "../ui/Button";
 import { formatYearMonthDate } from "@/helper/Day";
 import { Priority } from "@/types/type";
-import CardService from "@/modules/card/card.service";
+import CardService from "@/services/card.service";
 
 interface CardData {
   id: string;

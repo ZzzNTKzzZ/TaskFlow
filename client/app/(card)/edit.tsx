@@ -12,8 +12,8 @@ import Input from "@/components/ui/Input";
 
 import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
 import { formatYearMonthDate } from "@/helper/Day";
-import BoardService from "@/modules/board/board.service";
-import CardService from "@/modules/card/card.service";
+import BoardService from "@/services/board.service";
+import CardService from "@/services/card.service";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";

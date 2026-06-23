@@ -1,4 +1,4 @@
-import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Image, StyleSheet, View } from "react-native";
 
 export default function Avatar({ size = 42, name }: {size?: number, name?: string}) {

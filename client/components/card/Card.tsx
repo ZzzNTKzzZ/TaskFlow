@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { CardRespone } from "@/modules/card/card";
+import { CardRespone } from "@/types/card";
 import Badges from "../ui/Badges";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";

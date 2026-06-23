@@ -6,12 +6,12 @@ import DropDown from "@/components/overlays/DropDown";
 import InviteMembers from "@/components/overlays/InviteMembers";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { useCurrentUser } from "@/modules/auth/hook/useCurrentUser";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   WorkspaceCard,
   WorkspaceMemberRespone,
-} from "@/modules/workspace/workspace";
-import WorkspaceService from "@/modules/workspace/workspace.service";
+} from "@/types/workspace";
+import WorkspaceService from "@/services/workspace.service";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";

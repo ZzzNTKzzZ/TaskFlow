@@ -18,8 +18,8 @@ import CardDropDown from "@/components/workspaces/CardDropDown";
 
 // Các Helper & Design Tokens (Theme)
 import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
-import { WorkspaceCard } from "@/modules/workspace/workspace";
-import WorkspaceService from "@/modules/workspace/workspace.service";
+import { WorkspaceCard } from "@/types/workspace";
+import WorkspaceService from "@/services/workspace.service";
 import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";

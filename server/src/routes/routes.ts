@@ -1,15 +1,15 @@
 import type { Express } from "express";
-import authRoutes from "../modules/Auth/auth.routes.js";
+import authRoutes from "./auth.routes.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
-import workspaceRoutes from "../modules/Workspace/workspace.routes.js";
-import boardRoutes from "../modules/Board/board.routes.js";
+import workspaceRoutes from "./workspace.routes.js";
+import boardRoutes from "./board.routes.js";
 import { boardAccessMiddleware } from "../middleware/boardAccess.middleware.js";
 import { permissionMiddleware } from "../middleware/permissions.middleware.js";
-import listRoutes from "../modules/List/list.routes.js";
-import cardRoutes from "../modules/Card/card.routes.js";
+import listRoutes from "./list.routes.js";
+import cardRoutes from "./card.routes.js";
 import { workspaceAccess } from "../middleware/workspaceAccess.middleware.js";
-import checklistRoutes from "../modules/Checklist/checklist.routes.js";
-import activityRoutes from "../modules/Activity/activity.routes.js";
+import checklistRoutes from "./checklist.routes.js";
+import activityRoutes from "./activity.routes.js";
 
 export const routes = (app: Express) => {
   app.use("/auth", authRoutes);
