@@ -25,15 +25,13 @@ TaskFlow is a modern mobile task management application that combines Trello-sty
 ## ✨ Key Features
 
 - 🗂️ **Full-featured Kanban Board** — Organize work through a Workspace → Board → List → Card hierarchy with flexible drag & drop support.
-- 👥 **Team Collaboration** — Invite members to Workspaces and Boards with a granular role-based permission system (OWNER, ADMIN, MEMBER, VIEWER).
+- 👥 **Team Collaboration & RBAC** — Invite members to Workspaces with a granular Role-Based Access Control system (ADMIN, MEMBER, VIEWER) that dynamically secures API endpoints and UI elements.
+- 💬 **Real-time Comments System** — Full-stack comment threads on Cards with optimistic UI updates and strict ownership authorization (users can only delete their own comments).
 - ✅ **Personal Todo List** — Each user has a private Todo list with priority levels (low / medium / high / urgent), due dates, and statuses (todo / doing / done).
 - 🔄 **Todo → Card Conversion** — Promote a personal Todo into a Kanban Card on any Board in just a few taps.
 - 📝 **Detailed Checklists** — Each Card can contain multiple Checklists with completable sub-items to track granular progress.
 - 🏷️ **Labels & Tags** — Attach custom color-coded labels to Cards for fast visual categorization.
-- 🤖 **Automation Rules** — Build workflow automations using a Trigger → Condition → Action model (e.g., when a Card moves to "Done" → automatically create a new Todo).
-- 🔔 **Real-time Notifications** — Get notified when you are assigned to a task, when a Card is updated, or when a deadline is approaching.
-- 📊 **Activity Log** — Full audit history of all actions, scoped to a Board, a Card, or a specific user.
-- 🔐 **Secure Authentication** — JWT Access Token + Refresh Token stored in HttpOnly Cookies, with passwords hashed using bcrypt.
+- 🔐 **Robust Authentication** — Advanced JWT Access Token + Refresh Token system stored in HttpOnly Cookies, complete with concurrent refresh race-condition handling (Queue system) and bcrypt password hashing.
 - 📱 **Cross-platform** — Runs on Android, iOS, and Web from a single codebase powered by Expo.
 
 ---
@@ -46,7 +44,7 @@ TaskFlow is a modern mobile task management application that combines Trello-sty
 | React Native | 0.81.5 | Cross-platform UI framework |
 | Expo | ~54.0 | Build & development toolchain |
 | Expo Router | ~6.0 | File-based navigation routing |
-| TypeScript | ~5.9 | Static type safety |
+| TypeScript | ~5.9 | Static type safety and Central Contracts |
 | Zustand | ^5.0 | Global state management |
 | React Navigation | ^7.0 | Navigation & tab management |
 | Axios | ^1.16 | HTTP client for API calls |
@@ -134,11 +132,14 @@ JWT_SECRET="your_strong_jwt_access_secret_here"
 JWT_REFRESH_SECRET="your_strong_jwt_refresh_secret_here"
 ```
 
-Initialize the database and run migrations:
+Initialize the database, run migrations, and seed data:
 
 ```bash
 # Run Prisma migration to create the database schema
 npx prisma migrate dev --name init
+
+# Seed initial database records
+npm run seed
 
 # (Optional) Open Prisma Studio to browse your data
 npx prisma studio
@@ -299,16 +300,17 @@ Content-Type: application/json
 }
 ```
 
-### 📊 Activity Log
+### 💬 Comments
 
 ```http
-# Fetch the full activity history for a board
-GET /api/v1/activities/board/:boardId
+# Create a comment on a Card
+POST /api/v1/:boardId/cards/:cardId/comments
 Authorization: Bearer <accessToken>
+Content-Type: application/json
 
-# Fetch the current user's personal activity history
-GET /api/v1/activities/me
-Authorization: Bearer <accessToken>
+{
+  "content": "This is a new comment!"
+}
 ```
 
 ---
@@ -317,41 +319,34 @@ Authorization: Bearer <accessToken>
 
 ```
 TaskFlow/
-├── 📁 server/                  # Backend REST API
+├── 📁 server/                  # Backend REST API (Express.js)
 │   ├── src/
-│   │   ├── app.ts              # Express entry point
-│   │   ├── routes/             # Route registration
-│   │   ├── middleware/         # Auth, Error, Permission middleware
-│   │   ├── permissions/        # Role-based permission definitions
-│   │   ├── modules/            # Feature-based business logic
-│   │   │   ├── Auth/
-│   │   │   ├── Workspace/
-│   │   │   ├── Board/
-│   │   │   ├── List/
-│   │   │   ├── Card/
-│   │   │   ├── Checklist/
-│   │   │   ├── Activity/
-│   │   │   └── Automation/
-│   │   ├── validators/         # Zod request schemas
-│   │   ├── lib/                # Prisma client initialization
-│   │   └── utils/              # Shared utility functions
+│   │   ├── app.ts              # Express application entry point
+│   │   ├── routes/             # Route mapping (Nested endpoints)
+│   │   ├── controllers/        # Request handling & HTTP responses
+│   │   ├── services/           # Core business logic
+│   │   ├── repositories/       # Database interactions (Prisma queries)
+│   │   ├── middleware/         # Auth, Error, and RBAC middleware
+│   │   ├── validators/         # Zod schema definitions
+│   │   ├── lib/                # Config & 3rd party instances
+│   │   └── utils/              # Shared helper functions
 │   ├── prisma/
-│   │   └── schema.prisma       # Database schema definition
+│   │   └── schema.prisma       # Relational database schema
 │   └── package.json
 │
 ├── 📁 client/                  # React Native (Expo) App
-│   ├── app/                    # Expo Router file-based routes
-│   │   ├── (auth)/             # Login & Register screens
-│   │   ├── (tabs)/             # Main tab navigation
-│   │   ├── (board)/            # Board detail screens
-│   │   ├── (card)/             # Card detail screens
-│   │   └── (workspace)/        # Workspace screens
-│   ├── components/             # Reusable UI components
-│   ├── modules/                # Feature modules
-│   ├── services/               # Axios API service layer
-│   ├── helper/                 # Utility/helper functions
-│   ├── theme/                  # Design tokens & color palette
-│   └── types/                  # Global TypeScript type definitions
+│   ├── app/                    # Expo Router file-based navigation
+│   │   ├── (auth)/             # Authentication flows
+│   │   ├── (tabs)/             # Main dashboard
+│   │   ├── (board)/            # Board details
+│   │   ├── (card)/             # Card overlays
+│   │   └── (workspace)/        # Workspace management
+│   ├── components/             # Reusable & Dumb UI components
+│   ├── services/               # API clients and EventBus
+│   ├── api/                    # Typed API fetch wrappers
+│   ├── theme/                  # Design tokens & Typography
+│   ├── store/                  # Zustand global state (AuthStore)
+│   └── types/                  # Central TS Contracts (types.ts)
 │
 ├── Api.md                      # Full API endpoint reference
 ├── Design.md                   # Design system documentation
@@ -366,10 +361,10 @@ TaskFlow/
 | Phase | Features | Status |
 |---|---|---|
 | **Phase 1** | Authentication, Workspace, Board, List, Card | ✅ Complete |
-| **Phase 2** | Real-time sync, Drag & Drop, Team members | ✅ Complete |
-| **Phase 3** | Todo system, Checklist, Todo-to-Card conversion | ✅ Complete |
-| **Phase 4** | Automation Rules, Notifications, Activity Log | ✅ Complete |
-| **Phase 5** | Push Notifications (FCM), Performance optimization | 🚧 In Progress |
+| **Phase 2** | Centralized TypeScript Contracts, Comments System | ✅ Complete |
+| **Phase 3** | Role-Based Access Control, Concurrent Auth Handling | ✅ Complete |
+| **Phase 4** | Drag & Drop, Search functionality | ✅ Complete |
+| **Phase 5** | WebSockets (Real-time sync), Redis Caching | 🚧 Planned |
 
 ---
 
