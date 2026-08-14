@@ -1,6 +1,7 @@
 import { Router } from "express";
 import CardController from "../controllers/card.controller.js";
 import checklistRoutes from "./checklist.routes.js";
+import commentRoutes from "./comment.routes.js";
 import { validateMiddleware } from "../middleware/validate.middleware.js";
 import { updateCardSchema, reorderCardSchema } from "../validators/card.schema.js";
 import { permissionMiddleware } from "../middleware/permissions.middleware.js";
@@ -36,5 +37,6 @@ cardRoutes.delete(
 );
 
 cardRoutes.use("/:cardId/checklists", checklistRoutes);
+cardRoutes.use("/:cardId/comments", commentRoutes);
 
 export default cardRoutes;

@@ -10,17 +10,23 @@ import ProgressBar from "@/components/ui/ProgressBar";
 import { formatMonthDate } from "@/helper/Day";
 import { CardRespone } from "@/types/card";
 import CardService from "@/services/card.service";
+import BoardService from "@/services/board.service";
 import ChecklistService from "@/services/checklist.service";
 import {
   Checklist,
   ChecklistItem as ChecklistItemType,
 } from "@/types/checklist"; // Assuming item type name
 import { Spacing } from "@/theme/spacing";
+import { Colors } from "@/theme/colors";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
+import BaseOverlay from "@/components/overlays/BaseOverlay";
 import { useGlobalSearchParams, usePathname } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Text, TouchableOpacity, View, TextInput } from "react-native";
+import CommentService from "@/services/comment.service";
+import { Comment } from "@/types/comment";
+import { useAuthStore } from "@/store/auth.store";
 
 function InnerTodoItem({
   item,
@@ -195,6 +201,12 @@ export default function Card() {
   const [card, setCard] = useState<CardRespone>();
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<boolean>(false);
+  const [isOpenAssignee, setIsOpenAssignee] = useState<boolean>(false);
+  const [boardMembers, setBoardMembers] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const currentUserId = useAuthStore((state) => state.user?.id);
+
   const handleToggleChecklistItem = async (
     checklistId: string,
     item: ChecklistItemType,
@@ -295,6 +307,35 @@ export default function Card() {
     ]);
   };
 
+  const handlePostComment = async () => {
+    if (!newComment.trim()) return;
+    try {
+      const created = await CommentService.createComment(boardId as string, cardId as string, newComment.trim());
+      if (created) {
+        setComments(prev => [created, ...prev]);
+        setNewComment("");
+      }
+    } catch (e) {
+      console.error("Failed to post comment", e);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    Alert.alert("Delete Comment", "Are you sure you want to delete this comment?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: async () => {
+        try {
+          const success = await CommentService.deleteComment(boardId as string, cardId as string, commentId);
+          if (success) {
+            setComments(prev => prev.filter(c => c.id !== commentId));
+          }
+        } catch (e) {
+          console.error("Failed to delete comment", e);
+        }
+      }}
+    ]);
+  };
+
   useEffect(() => {
     if (!card) return;
 
@@ -338,6 +379,10 @@ export default function Card() {
           cardId as string,
         );
         setCard(response as any);
+        const members = await BoardService.getBoardMembers(boardId as string);
+        setBoardMembers(members || []);
+        const loadedComments = await CommentService.getComments(boardId as string, cardId as string);
+        setComments(loadedComments);
       } catch (error) {
         console.error("Failed to fetch card:", error);
       } finally {
@@ -530,6 +575,48 @@ export default function Card() {
       <View
         style={{
           gap: Spacing[2],
+          paddingVertical: Spacing[4],
+          paddingHorizontal: Spacing[6],
+          borderBottomColor: Theme.border,
+          borderBottomWidth: 2,
+        }}
+      >
+        <Text style={[Typography.heading, { fontSize: 20 }]}>Assignees</Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: Spacing[2], alignItems: "center" }}>
+          {card.assignees?.map((assignee: any) => (
+            <View
+              key={assignee.id || assignee.userId}
+              style={{
+                backgroundColor: Colors.primary[100],
+                paddingVertical: Spacing[1],
+                paddingHorizontal: Spacing[3],
+                borderRadius: 16,
+              }}
+            >
+              <Text style={{ color: Theme.textPrimary }}>
+                {assignee.user?.name || assignee.user?.email || "Unknown"}
+              </Text>
+            </View>
+          ))}
+          <TouchableOpacity
+            onPress={() => setIsOpenAssignee(true)}
+            style={{
+              backgroundColor: Theme.border,
+              paddingVertical: Spacing[1],
+              paddingHorizontal: Spacing[3],
+              borderRadius: 16,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Icons name="Plus" size={16} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View
+        style={{
+          gap: Spacing[2],
           paddingVertical: Spacing[2],
           paddingHorizontal: Spacing[6],
           borderBottomColor: Theme.border,
@@ -566,12 +653,168 @@ export default function Card() {
           />
         ))}
       </View>
+      <View
+        style={{
+          gap: Spacing[2],
+          paddingVertical: Spacing[4],
+          paddingHorizontal: Spacing[6],
+          borderBottomColor: Theme.border,
+          borderBottomWidth: 2,
+        }}
+      >
+        <Text style={[Typography.heading, { fontSize: 20, marginBottom: Spacing[2] }]}>Comments</Text>
+        <View style={{ flexDirection: "row", gap: Spacing[2], marginBottom: Spacing[4], alignItems: "center" }}>
+          <View style={{ flex: 1 }}>
+            <TextInput
+              value={newComment}
+              onChangeText={setNewComment}
+              placeholder="Write a comment..."
+              placeholderTextColor={Theme.textSecondary}
+              style={{
+                borderWidth: 1,
+                borderColor: Theme.border,
+                borderRadius: 16,
+                paddingHorizontal: Spacing[3],
+                paddingVertical: Spacing[2],
+                color: Theme.textPrimary,
+              }}
+              multiline
+            />
+          </View>
+          <TouchableOpacity
+            onPress={handlePostComment}
+            style={{
+              backgroundColor: Theme.primary,
+              paddingVertical: Spacing[2],
+              paddingHorizontal: Spacing[3],
+              borderRadius: 12,
+            }}
+          >
+            <Text style={{ color: "white", fontWeight: "bold" }}>Post</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ gap: Spacing[4] }}>
+          {comments.map((comment) => (
+            <View key={comment.id} style={{ flexDirection: "row", gap: Spacing[3] }}>
+              <View
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  backgroundColor: Colors.primary[200],
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: Theme.textPrimary, fontWeight: "bold" }}>
+                  {(comment.author?.name || comment.author?.email || "?")[0].toUpperCase()}
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: Spacing[1] }}>
+                  <Text style={[Typography.title, { fontSize: 14, color: Theme.textPrimary }]}>
+                    {comment.author?.name || comment.author?.email || "Unknown"}
+                  </Text>
+                  {comment.authorId === currentUserId && (
+                    <TouchableOpacity onPress={() => handleDeleteComment(comment.id)}>
+                      <Text style={{ color: Theme.error, fontSize: 12 }}>Delete</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <View
+                  style={{
+                    backgroundColor: Theme.border,
+                    padding: Spacing[3],
+                    borderRadius: 12,
+                  }}
+                >
+                  <Text style={{ color: Theme.textPrimary, fontSize: 14 }}>{comment.content}</Text>
+                </View>
+                <Text style={{ color: Theme.textSecondary, fontSize: 10, marginTop: Spacing[1] }}>
+                  {new Date(comment.createdAt).toLocaleString()}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
       <CreateCheckList
         active={active}
         onClose={() => setActive(false)}
         cardId={cardId as string}
       />
-    
+
+      <BaseOverlay
+        visible={isOpenAssignee}
+        onClose={() => setIsOpenAssignee(false)}
+      >
+        <Text style={[Typography.heading, { fontSize: 20, marginBottom: Spacing[4], color: Theme.textPrimary }]}>
+          Assign Members
+        </Text>
+        <View style={{ gap: Spacing[3] }}>
+          {boardMembers.map((member) => {
+            const isAssigned = (card.assignees || []).some((a: any) => a.userId === member.userId || a.user?.id === member.userId);
+            return (
+              <TouchableOpacity
+                key={member.userId || member.id}
+                onPress={async () => {
+                  try {
+                    const mId = member.userId || member.id;
+                    if (isAssigned) {
+                      await CardService.unassignUserFromCard(boardId as string, cardId as string, mId);
+                      setCard(prev => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          assignees: (prev.assignees || []).filter((a: any) => a.userId !== mId && a.user?.id !== mId)
+                        } as any;
+                      });
+                    } else {
+                      await CardService.assignUsersToCard(boardId as string, cardId as string, [mId]);
+                      setCard(prev => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          assignees: [
+                            ...(prev.assignees || []),
+                            {
+                              id: Math.random().toString(),
+                              userId: mId,
+                              cardId,
+                              user: { id: mId, name: member.name, email: member.email || "", createdAt: "" },
+                            },
+                          ]
+                        } as any;
+                      });
+                    }
+                    // Emit event bus to update board detail view immediately
+                    const eventBus = await import("@/services/eventBus");
+                    eventBus.default.emit("card:updated", {
+                      cardId,
+                      payload: { assignees: card.assignees }
+                    });
+                  } catch (e) {
+                    console.error("Assign error", e);
+                  }
+                }}
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  padding: Spacing[3],
+                  borderWidth: 1,
+                  borderColor: isAssigned ? Theme.primary : Theme.border,
+                  borderRadius: 12,
+                  backgroundColor: isAssigned ? Colors.primary[100] : "transparent",
+                }}
+              >
+                <Text style={{ color: Theme.textPrimary, fontSize: 16 }}>{member.name || member.email || "Unknown"}</Text>
+                {isAssigned && <Icons name="Checked" size={20} color={Theme.primary} />}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </BaseOverlay>
     </Screen>
   );
 }

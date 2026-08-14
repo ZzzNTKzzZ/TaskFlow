@@ -16,4 +16,6 @@ export interface CardRespone {
     checkListCompelete: number
   }
   checklists: Checklist[];
+  assignees?: any[];
+  comments?: import("./comment").Comment[];
 }
