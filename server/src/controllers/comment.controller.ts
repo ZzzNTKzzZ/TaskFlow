@@ -6,8 +6,7 @@ import { AppError } from "../utils/appError.js";
 export default class CommentController {
   // GET: /boards/:boardId/cards/:cardId/comments
   static async getComments(req: Request, res: Response) {
-    const { cardId } = req.params;
-
+    const cardId  = req.params.cardId as string;
     const comments = await prisma.comment.findMany({
       where: { cardId },
       include: {
@@ -17,13 +16,12 @@ export default class CommentController {
       },
       orderBy: { createdAt: "desc" }, // Newest first
     });
-
     res.status(200).json(responseHandler.success(comments));
   }
 
   // POST: /boards/:boardId/cards/:cardId/comments
   static async createComment(req: Request, res: Response) {
-    const { cardId } = req.params;
+    const cardId  = req.params.cardId as string;
     const { content } = req.body;
     const userId = req.user?.userId;
 
@@ -48,7 +46,7 @@ export default class CommentController {
 
   // PATCH: /boards/:boardId/cards/:cardId/comments/:commentId
   static async updateComment(req: Request, res: Response) {
-    const { commentId } = req.params;
+    const commentId  = req.params.commentId as string;
     const { content } = req.body;
     const userId = req.user?.userId;
 
@@ -76,7 +74,7 @@ export default class CommentController {
 
   // DELETE: /boards/:boardId/cards/:cardId/comments/:commentId
   static async deleteComment(req: Request, res: Response) {
-    const { commentId } = req.params;
+    const commentId  = req.params.commentId as string;
     const userId = req.user?.userId;
 
     const existingComment = await prisma.comment.findUnique({

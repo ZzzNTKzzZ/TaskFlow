@@ -5,7 +5,7 @@ import { Theme } from "@/theme/theme";
 import capitalizeFirstLetter from "@/helper/capitalizeFirstLetter";
 import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
-import { Priority } from "@/types/type";
+import { Priority } from "@/types/types";
 
 interface BadgesProps {
   name: string | Priority;

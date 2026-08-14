@@ -15,7 +15,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import Calendar from "../ui/Calendar";
 import Button from "../ui/Button";
 import { formatYearMonthDate } from "@/helper/Day";
-import { Priority } from "@/types/type";
+import { Priority } from "@/types/types";
 import ListService from "@/services/list.service";
 
 export default function CreateCard({

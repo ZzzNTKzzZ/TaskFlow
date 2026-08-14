@@ -7,7 +7,7 @@ import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { formatMonthDate } from "@/helper/Day";
 import Icons from "../icons/Icons";
-import { Priority } from "@/types/type";
+import { Priority } from "@/types/types";
 
 
 interface TodoCardProps {

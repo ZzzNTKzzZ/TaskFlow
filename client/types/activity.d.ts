@@ -1,4 +1,4 @@
-import { ActivityType } from "@/types/type";
+import { ActivityType } from "@/types/types";
 
 export type Activity = {
   id: string;

@@ -26,7 +26,7 @@ import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { Priority } from "@/types/type";
+import { Priority } from "@/types/types";
 import { router } from "expo-router";
 import React, { ReactNode, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, TextInput } from "react-native";

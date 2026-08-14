@@ -1,5 +1,5 @@
 import { SymbolColor, SymbolName } from "@/components/icons/SymbolIcon";
-import { RoleWorkspace } from "@/types/type";
+import { RoleWorkspace } from "@/types/types";
 
 type StatsWorkspace = {
   memberCount: number;

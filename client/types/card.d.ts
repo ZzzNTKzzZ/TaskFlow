@@ -1,4 +1,4 @@
-import { Priority } from "@/types/type";
+import { Priority } from "@/types/types";
 import { Checklist } from "./checklist";
 
 export interface CardRespone {

@@ -18,7 +18,7 @@ import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { Priority } from "@/types/type";
+import { Priority } from "@/types/types";
 
 export default function EditCardScreen() {
   const dateNow = new Date();

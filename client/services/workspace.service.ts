@@ -15,7 +15,7 @@ import {
   getWorkspaceTimelineApi,
   TimelineCard,
 } from "@/api/workspace.api";
-import { RoleWorkspace, Visibility } from "@/types/type";
+import { RoleWorkspace, Visibility } from "@/types/types";
 import { BoardCardUI } from "@/types/board";
 import { BackgroundColor } from "@/components/illustrations/BackgroundCard";
 

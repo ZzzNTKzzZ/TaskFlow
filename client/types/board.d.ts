@@ -1,5 +1,5 @@
 import { BackgroundColor } from "@/components/illustrations/BackgroundCard";
-import { Visibility } from "@/types/type";
+import { Visibility } from "@/types/types";
 
 interface BoardResponse {
     id: string,

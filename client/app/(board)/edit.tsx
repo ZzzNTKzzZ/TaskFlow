@@ -22,7 +22,7 @@ import { Colors } from "@/theme/colors";
 import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
-import { Visibility } from "@/types/type";
+import { Visibility } from "@/types/types";
 
 export default function EditBoard() {
   const {
