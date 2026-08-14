@@ -19,8 +19,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function Login() {
-  const [email, setEmail] = useState("test@example.com");
-  const [password, setPassword] = useState("TestPass123");
+  const [email, setEmail] = useState("admin@test.com");
+  const [password, setPassword] = useState("123456");
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const [errMsg, setErrMsg] = useState<string | null>("");
