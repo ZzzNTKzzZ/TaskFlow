@@ -55,6 +55,10 @@ export default function EditCardScreen() {
   const [options, setOptions] = useState<{ id: string; name: string }[]>([]);
   const [isOpenCalender, setIsOpenCalender] = useState<boolean>(false);
 
+  const [assignees, setAssignees] = useState<any[]>([]);
+  const [boardMembers, setBoardMembers] = useState<any[]>([]);
+  const [isOpenAssignee, setIsOpenAssignee] = useState<boolean>(false);
+
   // Fetch Lists on Board & Card Data
   useEffect(() => {
     const initData = async () => {
@@ -74,6 +78,10 @@ export default function EditCardScreen() {
         );
         setOptions(filteredOptions);
 
+        // Fetch board members
+        const membersRes = await BoardService.getBoardMembers(boardId);
+        setBoardMembers(membersRes);
+
         // Fetch card details
         const cardRes = await CardService.getCard(boardId, cardId);
         if (cardRes) {
@@ -82,6 +90,7 @@ export default function EditCardScreen() {
           const p = priorities.find((pr) => pr.name === cardRes.priority) || priorities[0];
           setPriority(p);
           setDate(cardRes.dueDate || dateNow.toString());
+          setAssignees(cardRes.assignees || []);
 
           if (filteredOptions.length > 0) {
             const activeList = filteredOptions.find((opt: any) => opt.id === cardRes.listId) || filteredOptions[0];
@@ -114,7 +123,7 @@ export default function EditCardScreen() {
       await CardService.updateCard(boardId, cardId, payload);
       try {
         const eventBus = await import("@/services/eventBus");
-        eventBus.emit("card:updated", { cardId, payload });
+        eventBus.default.emit("card:updated", { cardId, payload });
       } catch (e) {}
       router.back();
     } catch (error) {
@@ -223,6 +232,44 @@ export default function EditCardScreen() {
                   </View>
                 )}
               />
+            </View>
+          </View>
+
+          <View style={{ marginBottom: Spacing[4] }}>
+            <Text
+              style={[Typography.title, { color: Theme.textPrimary, fontSize: 16, marginBottom: Spacing[2] }]}
+            >
+              Assignees
+            </Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: Spacing[2], alignItems: "center" }}>
+              {assignees.map((assignee) => (
+                <View
+                  key={assignee.id || assignee.userId}
+                  style={{
+                    backgroundColor: Colors.primary[100],
+                    paddingVertical: Spacing[1],
+                    paddingHorizontal: Spacing[3],
+                    borderRadius: 16,
+                  }}
+                >
+                  <Text style={{ color: Theme.textPrimary }}>
+                    {assignee.user?.name || assignee.user?.email || "Unknown"}
+                  </Text>
+                </View>
+              ))}
+              <TouchableOpacity
+                onPress={() => setIsOpenAssignee(true)}
+                style={{
+                  backgroundColor: Theme.border,
+                  paddingVertical: Spacing[1],
+                  paddingHorizontal: Spacing[3],
+                  borderRadius: 16,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Icons name="Plus" size={16} />
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -353,6 +400,59 @@ export default function EditCardScreen() {
           </Text>
         </View>
         <Calendar value={date} setValue={setDate} />
+      </BaseOverlay>
+
+      <BaseOverlay
+        visible={isOpenAssignee}
+        onClose={() => setIsOpenAssignee(false)}
+      >
+        <Text style={[Typography.heading, { fontSize: 20, marginBottom: Spacing[4], color: Theme.textPrimary }]}>
+          Assign Members
+        </Text>
+        <View style={{ gap: Spacing[3] }}>
+          {boardMembers.map((member) => {
+            const isAssigned = assignees.some((a) => a.userId === member.userId || a.user?.id === member.userId);
+            return (
+              <TouchableOpacity
+                key={member.userId || member.id}
+                onPress={async () => {
+                  try {
+                    const mId = member.userId || member.id;
+                    if (isAssigned) {
+                      await CardService.unassignUserFromCard(boardId, cardId, mId);
+                      setAssignees((prev) => prev.filter((a) => a.userId !== mId && a.user?.id !== mId));
+                    } else {
+                      await CardService.assignUsersToCard(boardId, cardId, [mId]);
+                      setAssignees((prev) => [
+                        ...prev,
+                        {
+                          id: Math.random().toString(),
+                          userId: mId,
+                          cardId,
+                          user: { id: mId, name: member.name, email: member.email || "", createdAt: "" },
+                        },
+                      ]);
+                    }
+                  } catch (e) {
+                    console.error("Assign error", e);
+                  }
+                }}
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  padding: Spacing[3],
+                  borderWidth: 1,
+                  borderColor: isAssigned ? Theme.primary : Theme.border,
+                  borderRadius: 12,
+                  backgroundColor: isAssigned ? Colors.primary[100] : "transparent",
+                }}
+              >
+                <Text style={{ color: Theme.textPrimary, fontSize: 16 }}>{member.name || member.email || "Unknown"}</Text>
+                {isAssigned && <Icons name="Checked" size={20} color={Theme.primary} />}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </BaseOverlay>
 
       <View style={{ paddingTop: Spacing[2], marginBottom: Spacing[4] }}>

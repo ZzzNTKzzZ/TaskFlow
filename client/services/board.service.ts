@@ -2,6 +2,7 @@ import {
   createBoardListApi,
   getBoardApi,
   getBoardListsApi,
+  getBoardMembersApi,
   reorderListsApi,
   deleteBoardApi,
   updateBoardApi,
@@ -12,6 +13,14 @@ export default class BoardService {
     const response = await getBoardApi(boardId);
     if (!response || !response.success || !response.data) {
       return null;
+    }
+    return response.data;
+  }
+
+  static async getBoardMembers(boardId: string) {
+    const response = await getBoardMembersApi(boardId);
+    if (!response || !response.success || !response.data) {
+      return [];
     }
     return response.data;
   }

@@ -33,6 +33,17 @@ class BoardRepository extends BaseRepository<any> {
                 position: "asc",
               },
               include: {
+                assignees: {
+                  include: {
+                    user: {
+                      select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                      }
+                    }
+                  }
+                },
                 checklists: {
                   orderBy: {
                     createdAt: "asc",

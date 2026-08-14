@@ -117,7 +117,7 @@ export default function EditCard({
       dueDate: date ? new Date(date).toISOString() : null,
       listId: selected.id,
     };
-
+    console.log(payload)
     if (onUpdateCard) {
       try {
         await onUpdateCard(card.id, payload);

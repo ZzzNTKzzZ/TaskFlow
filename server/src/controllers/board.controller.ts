@@ -7,7 +7,8 @@ export default class BoardController {
   // GET /boards/:boardId
   static async getBoard(req: Request, res: Response) {
     const { boardId } = req.params;
-    const board = await BoardService.getBoard({ boardId: boardId as string });
+    const userId = req.user.userId;
+    const board = await BoardService.getBoard({ boardId: boardId as string, userId });
     res.status(200).json(responseHandler.success(board));
   }
 

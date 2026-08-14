@@ -1,5 +1,5 @@
 import { api } from "@/services/api";
-import { ApiResponse, BoardResponse, List } from "@/types/types";
+import { ApiResponse, BoardResponse, List, GetBoardMembersResponse } from "@/types/types";
 
 export const getBoardApi = async (boardId: string): Promise<ApiResponse<BoardResponse>> => {
   if (!boardId || boardId === "undefined" || boardId.startsWith("(")) {
@@ -11,6 +11,19 @@ export const getBoardApi = async (boardId: string): Promise<ApiResponse<BoardRes
   } catch (error: any) {
     console.error("API Error [getBoardApi]:", error);
     return { success: false, data: null as any, message: error.message };
+  }
+};
+
+export const getBoardMembersApi = async (boardId: string): Promise<ApiResponse<GetBoardMembersResponse>> => {
+  if (!boardId || boardId === "undefined" || boardId.startsWith("(")) {
+    return { success: false, data: [], message: "Invalid board ID" };
+  }
+  try {
+    const response = await api.get<ApiResponse<GetBoardMembersResponse>>(`/boards/${boardId}/members`);
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error [getBoardMembersApi]:", error);
+    return { success: false, data: [], message: error.message };
   }
 };
 

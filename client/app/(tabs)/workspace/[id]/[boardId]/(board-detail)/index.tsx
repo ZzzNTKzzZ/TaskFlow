@@ -26,6 +26,9 @@ export default function Board() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [boardMembers, setBoardMembers] = useState<any[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
   // Fetch Board Details on Mount / Refresh
   const getBoardData = async () => {
@@ -34,7 +37,13 @@ export default function Board() {
       setLoading(true);
       setError(null);
       const response = await BoardService.getBoard(boardId);
+      const members = await BoardService.getBoardMembers(boardId);
+      setBoardMembers(members || []);
+
       if (response && response.lists) {
+        if (response.currentUser?.role) {
+          setCurrentUserRole(response.currentUser.role);
+        }
         // Sort lists based on position before mapping to UI
         const sortedLists = [...response.lists].sort((a, b) => a.position - b.position);
         setList(sortedLists as any);
@@ -211,13 +220,26 @@ export default function Board() {
         payload,
       );
       if (response) {
+        // Assign users immediately if selected
+        if (payload.assignees && payload.assignees.length > 0) {
+          try {
+            const CardService = (await import("@/services/card.service")).default;
+            await CardService.assignUsersToCard(boardIdParam, response.id, payload.assignees);
+            
+            // Re-fetch the full card or just append the basic assignments to the UI
+            // For now, we rely on the realtime eventBus if implemented, or user will see it on refresh
+          } catch (e) {
+            console.error("Assign error on create:", e);
+          }
+        }
+
         setList((prev) =>
           prev.map((l) =>
             l.id === listIdParam
               ? {
                   ...l,
                   cards: l.cards.map((c: any) =>
-                    c.id === tempId ? response : c,
+                    c.id === tempId ? { ...response, assignees: payload.assignees.map((id: string) => ({ userId: id, user: boardMembers.find(m => m.userId === id || m.id === id) || { id } })) } : c,
                   ),
                 }
               : l,
@@ -274,10 +296,59 @@ export default function Board() {
     );
   }
 
+  const filteredList = selectedUserId
+    ? list.map((l) => ({
+        ...l,
+        cards: l.cards?.filter((c: any) =>
+          c.assignees?.some(
+            (a: any) =>
+              a.userId === selectedUserId || a.user?.id === selectedUserId
+          )
+        ),
+      }))
+    : list;
+
   return (
     <Screen isScroll={false} padding={Spacing[4]}>
+      {(currentUserRole === "ADMIN" || currentUserRole === "OWNER") && boardMembers.length > 0 && (
+        <View style={{ marginBottom: Spacing[4] }}>
+          <Text style={[Typography.subtitle, { marginBottom: Spacing[2], color: Theme.textSecondary }]}>
+            Filter by member
+          </Text>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: Spacing[2] }}>
+            <TouchableOpacity
+              onPress={() => setSelectedUserId(null)}
+              style={{
+                backgroundColor: selectedUserId === null ? Theme.primary : Colors.gray[200],
+                paddingVertical: Spacing[1],
+                paddingHorizontal: Spacing[3],
+                borderRadius: 16,
+              }}
+            >
+              <Text style={{ color: selectedUserId === null ? Theme.surface : Theme.textPrimary }}>All</Text>
+            </TouchableOpacity>
+            {boardMembers.map((m) => (
+              <TouchableOpacity
+                key={m.userId || m.id}
+                onPress={() => setSelectedUserId(m.userId || m.id)}
+                style={{
+                  backgroundColor: selectedUserId === (m.userId || m.id) ? Theme.primary : Colors.gray[200],
+                  paddingVertical: Spacing[1],
+                  paddingHorizontal: Spacing[3],
+                  borderRadius: 16,
+                }}
+              >
+                <Text style={{ color: selectedUserId === (m.userId || m.id) ? Theme.surface : Theme.textPrimary }}>
+                  {m.name || m.email || "Unknown"}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      )}
+
       <DraggableFlatList
-        data={list}
+        data={filteredList}
         horizontal
         nestedScrollEnabled
         activationDistance={20}

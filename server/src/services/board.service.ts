@@ -4,28 +4,48 @@ import { AppError } from "../utils/appError.js";
 import { removeUndefined } from "../utils/removeUndefined.js";
 import ListRepository from "../repositories/list.repository.js";
 import BoardRepository from "../repositories/board.repository.js";
+import { prisma } from "../lib/prisma.js";
 
 export default class BoardService {
   // ========================== BOARD ==========================
 
   static async getBoard({
     boardId,
+    userId,
   }: {
     boardId: string;
+    userId: string;
   }): Promise<BoardResponse> {
     if (!boardId) throw new AppError("Board id is required", 400);
 
     const board = await BoardRepository.findBoard({ boardId });
     if (!board) throw new AppError("Board not found", 404);
     const { _count, ...rest } = board;
+
+    const workspaceMember = await prisma.workspaceMember.findFirst({
+      where: { workspaceId: board.workspaceId, userId },
+    });
+    const role = workspaceMember?.role || "VIEWER";
+    const isAdmin = role === "ADMIN" || role === "OWNER";
+
     return {
       ...rest,
-      lists: rest?.lists.map((list) => ({
-        ...list,
-        cardCount: list._count.cards,
-        _count: undefined,
-      })),
+      lists: rest?.lists.map((list) => {
+        const visibleCards = isAdmin
+          ? list.cards
+          : list.cards.filter((c: any) =>
+              c.assignees?.some((a: any) => a.userId === userId)
+            );
+
+        return {
+          ...list,
+          cards: visibleCards,
+          cardCount: visibleCards.length,
+          _count: undefined,
+        };
+      }),
       memberCount: _count.members,
+      currentUser: { role },
     };
   }
 

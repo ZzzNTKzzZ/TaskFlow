@@ -241,6 +241,7 @@ export interface ReorderListsBody {
 export interface BoardResponse extends Board {
   lists: (List & { cardCount: number })[];
   memberCount: number;
+  currentUser?: { role: WorkspaceRole };
 }
 
 export type EditBoardResponse = Board & { memberCount: number };
@@ -392,6 +393,7 @@ export interface GetCardResponse extends Card {
     checkListCount: number;
     checkListCompelete: number;
   };
+  assignees: CardAssignee[];
   checklists: (Checklist & { items: ChecklistItem[] })[];
 }
 

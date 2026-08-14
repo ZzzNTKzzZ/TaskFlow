@@ -74,11 +74,16 @@ export default function CreateCard({
     hour: dateNow.getHours(),
     minute: dateNow.getMinutes(),
   });
+  const [assignees, setAssignees] = useState<string[]>([]);
+  const [boardMembers, setBoardMembers] = useState<any[]>([]);
+  const [isOpenAssignee, setIsOpenAssignee] = useState<boolean>(false);
+
   const handleClose = () => {
     setName("");
     setDescription("");
     setHasError(false);
     setErrorMessage(null);
+    setAssignees([]);
     onClose();
   };
 
@@ -98,6 +103,7 @@ export default function CreateCard({
       description: description.trim(),
       priority: priority.name,
       dueDate: merged.toString(),
+      assignees,
     };
 
     if (onCreateCard) {
@@ -135,6 +141,9 @@ export default function CreateCard({
           }),
         );
         setOptions(filteredOptions);
+
+        const membersRes = await BoardService.getBoardMembers(boardId as string);
+        setBoardMembers(membersRes || []);
 
         setSelected(
           () =>
@@ -252,9 +261,50 @@ export default function CreateCard({
         setValue={setDescription}
         stylesLabel={[
           Typography.title,
-          { color: Theme.textPrimary, fontSize: 16 },
+          { color: Theme.textPrimary, fontSize: 16, marginBottom: Spacing[2] },
         ]}
       />
+
+      <View style={{ marginBottom: Spacing[4] }}>
+        <Text
+          style={[Typography.title, { color: Theme.textPrimary, fontSize: 16, marginBottom: Spacing[2] }]}
+        >
+          Assignees
+        </Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: Spacing[2], alignItems: "center" }}>
+          {assignees.map((userId) => {
+            const member = boardMembers.find(m => m.userId === userId || m.id === userId);
+            return (
+              <View
+                key={userId}
+                style={{
+                  backgroundColor: Colors.primary[100],
+                  paddingVertical: Spacing[1],
+                  paddingHorizontal: Spacing[3],
+                  borderRadius: 16,
+                }}
+              >
+                <Text style={{ color: Theme.textPrimary }}>
+                  {member?.name || member?.email || "Unknown"}
+                </Text>
+              </View>
+            );
+          })}
+          <TouchableOpacity
+            onPress={() => setIsOpenAssignee(true)}
+            style={{
+              backgroundColor: Theme.border,
+              paddingVertical: Spacing[1],
+              paddingHorizontal: Spacing[3],
+              borderRadius: 16,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Icons name="Plus" size={16} />
+          </TouchableOpacity>
+        </View>
+      </View>
           <Text
     style={[Typography.title, { color: Theme.textPrimary, fontSize: 16 }]}
   >
@@ -551,8 +601,48 @@ export default function CreateCard({
         </View>
         <Calendar value={date} setValue={setDate} />
       </BaseOverlay>
-            <View style={{width: 100}}/>
-      <Button onPress={handleCreate}>Create board</Button>
+
+      <BaseOverlay
+        visible={isOpenAssignee}
+        onClose={() => setIsOpenAssignee(false)}
+      >
+        <Text style={[Typography.heading, { fontSize: 20, marginBottom: Spacing[4], color: Theme.textPrimary }]}>
+          Assign Members
+        </Text>
+        <View style={{ gap: Spacing[3] }}>
+          {boardMembers.map((member) => {
+            const mId = member.userId || member.id;
+            const isAssigned = assignees.includes(mId);
+            return (
+              <TouchableOpacity
+                key={mId}
+                onPress={() => {
+                  if (isAssigned) {
+                    setAssignees(prev => prev.filter(id => id !== mId));
+                  } else {
+                    setAssignees(prev => [...prev, mId]);
+                  }
+                }}
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  padding: Spacing[3],
+                  borderWidth: 1,
+                  borderColor: isAssigned ? Theme.primary : Theme.border,
+                  borderRadius: 12,
+                  backgroundColor: isAssigned ? Colors.primary[100] : "transparent",
+                }}
+              >
+                <Text style={{ color: Theme.textPrimary, fontSize: 16 }}>{member.name || member.email || "Unknown"}</Text>
+                {isAssigned && <Icons name="Checked" size={20} color={Theme.primary} />}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </BaseOverlay>
+
+      <View style={{width: 100}}/>
+      <Button onPress={handleCreate}>Create card</Button>
     </BaseOverlay>
   );
 }

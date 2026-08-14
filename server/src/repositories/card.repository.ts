@@ -21,6 +21,17 @@ class CardRepository extends BaseRepository<any> {
               orderBy: { isCompleted: "asc"}
             }
           }
+        },
+        assignees: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              }
+            }
+          }
         }
       },
     });

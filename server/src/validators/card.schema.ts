@@ -28,6 +28,8 @@ export const updateCardSchema = z.object({
     return null;
   }, z.date().nullable()).optional(),
   priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+  listId: z.string().uuid().optional(),
+  position: z.number().optional(),
 });
 
 export const reorderCardSchema = z.object({

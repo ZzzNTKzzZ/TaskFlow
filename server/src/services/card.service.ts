@@ -52,7 +52,6 @@ export default class CardService {
       listId: data.listId,
       position: data.position,
     });
-
     if (!Object.keys(payload).length) {
       throw new AppError("No fields provided for update", 400);
     }

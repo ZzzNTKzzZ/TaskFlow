@@ -12,7 +12,10 @@ interface BoardResponse extends BaseItem {
   createdAt: Date;
   updatedAt: Date;
   memberCount: number;
-  lists?: any
+  lists?: any;
+  currentUser?: {
+    role: string;
+  };
 }
 
 interface CreateBoard {
