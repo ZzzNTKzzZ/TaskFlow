@@ -183,6 +183,21 @@ export const updateWorkspaceMemberRoleApi = async (workspaceId: string, memberId
   }
 }
 
+export const removeWorkspaceMemberApi = async (workspaceId: string, memberId: string) => {
+  if (!workspaceId || workspaceId === "undefined" || !memberId || memberId === "undefined") {
+    return { success: false } as unknown as ResponseApi<{ message: string }>;
+  }
+  try {
+    const response = await api.delete<ResponseApi<{ message: string }>>(
+      `/workspaces/${workspaceId}/members/${memberId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("API Error [removeWorkspaceMemberApi]:", error);
+    return { success: false } as unknown as ResponseApi<{ message: string }>;
+  }
+}
+
 export type TimelineCard = {
   id: string;
   name: string;

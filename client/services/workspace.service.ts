@@ -11,6 +11,7 @@ import {
   addWorkspaceMemberApi,
   deleteWorkspaceApi,
   updateWorkspaceMemberRoleApi,
+  removeWorkspaceMemberApi,
   getWorkspaceTimelineApi,
   TimelineCard,
 } from "@/api/workspace.api";
@@ -175,6 +176,11 @@ export default class WorkspaceService {
 
     const data = response.data;
     return data;
+  }
+
+  static async removeWorkspaceMember(workspaceId: string, memberId: string) {
+    const response = await removeWorkspaceMemberApi(workspaceId, memberId);
+    return response?.success ?? false;
   }
 
   static async getWorkspaceTimeline(workspaceId: string): Promise<TimelineCard[]> {

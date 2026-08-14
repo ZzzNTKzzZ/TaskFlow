@@ -12,10 +12,13 @@ interface InviteMembersProps {
   visible: boolean;
   onClose: () => void;
   onInvite: (email: string) => void;
+  members?: any[];
+  onChangeRole?: (memberId: string, newRole: string) => void;
 }
 
-export default function InviteMembers({ visible, onClose, onInvite }: InviteMembersProps) {
+export default function InviteMembers({ visible, onClose, onInvite, members = [], onChangeRole }: InviteMembersProps) {
   const [email, setEmail] = useState<string>("");
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
   const handleInvite = () => {
     if (email.trim()) {
@@ -30,7 +33,7 @@ export default function InviteMembers({ visible, onClose, onInvite }: InviteMemb
       {/* Header của Overlay */}
       <View style={styles.header}>
         <Text style={[Typography.heading, { fontSize: 20, color: Theme.textPrimary }]}>
-          Invite Members
+          Workspace Members
         </Text>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
           <Icons name="Cross" size={20} color={Theme.textSecondary} />
@@ -59,6 +62,93 @@ export default function InviteMembers({ visible, onClose, onInvite }: InviteMemb
       <Button onPress={handleInvite} disable={!email.trim()}>
         Send Invitation
       </Button>
+
+      {members && members.length > 0 && (
+        <View style={{ marginTop: Spacing[4] }}>
+          <Text style={[Typography.title, { fontSize: 16, marginBottom: Spacing[3], color: Theme.textPrimary }]}>
+            Current Members
+          </Text>
+          <View style={{ gap: Spacing[3] }}>
+            {members.map((member) => (
+              <View
+                key={member.id || member.userId}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+                  <View
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 18,
+                      backgroundColor: Theme.primary,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginRight: Spacing[3],
+                    }}
+                  >
+                    <Text style={{ color: Theme.surface, ...Typography.heading, fontSize: 16 }}>
+                      {(member.name || member.email || "U").charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text style={[Typography.title, { fontSize: 14, color: Theme.textPrimary }]}>
+                      {member.name || member.email || "Unknown"}
+                    </Text>
+                    {member.role && (
+                      <Text style={[Typography.caption, { fontSize: 12, color: Theme.textSecondary }]}>
+                        {member.role}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                
+                {onChangeRole && (
+                  <View style={{ position: "relative" }}>
+                    <TouchableOpacity
+                      onPress={() => setSelectedMemberId(selectedMemberId === (member.id || member.userId) ? null : (member.id || member.userId))}
+                      style={{ padding: Spacing[2], backgroundColor: Theme.border, borderRadius: 8 }}
+                    >
+                      <Text style={[Typography.caption, { fontSize: 12, color: Theme.textPrimary }]}>Change Role</Text>
+                    </TouchableOpacity>
+                    
+                    {selectedMemberId === (member.id || member.userId) && (
+                      <View style={{
+                        position: "absolute",
+                        top: 40,
+                        right: 0,
+                        backgroundColor: Theme.background,
+                        borderWidth: 1,
+                        borderColor: Theme.border,
+                        borderRadius: 8,
+                        padding: Spacing[2],
+                        zIndex: 100,
+                        minWidth: 120,
+                      }}>
+                        {["ADMIN", "MEMBER", "VIEWER"].map((r) => (
+                          <TouchableOpacity
+                            key={r}
+                            onPress={() => {
+                              onChangeRole(member.userId || member.id, r);
+                              setSelectedMemberId(null);
+                            }}
+                            style={{ paddingVertical: Spacing[2], paddingHorizontal: Spacing[3] }}
+                          >
+                            <Text style={[Typography.body, { color: member.role === r ? Theme.primary : Theme.textPrimary }]}>{r}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                )}
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
     </BaseOverlay>
   );
 }
