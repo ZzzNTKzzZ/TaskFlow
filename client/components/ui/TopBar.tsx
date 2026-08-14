@@ -3,6 +3,10 @@ import LeftRightIcon from "../icons/LeftRightIcon";
 import SymbolIcon, { SymbolColor, SymbolName } from "../icons/SymbolIcon";
 import Icons from "../icons/Icons";
 import CreateList from "../overlays/CreateList";
+import MoveCard from "../overlays/MoveCard";
+import InviteMembers from "../overlays/InviteMembers";
+import ManageBoards from "../overlays/ManageBoards";
+import SearchOverlay from "../overlays/SearchOverlay";
 import { Theme } from "@/theme/theme";
 import { Spacing } from "@/theme/spacing";
 import { Typography } from "@/theme/typography";
@@ -36,6 +40,11 @@ export default function TopBar({
 
   const [active, setActive] = useState<boolean>(false)
   const [isCreateListVisible, setIsCreateListVisible] = useState(false)
+  const [isMoveCardVisible, setIsMoveCardVisible] = useState(false)
+  const [isInviteMembersVisible, setIsInviteMembersVisible] = useState(false)
+  const [isManageBoardsVisible, setIsManageBoardsVisible] = useState(false)
+  const [isSearchVisible, setIsSearchVisible] = useState(false)
+  const [members, setMembers] = useState<any[]>([])
   
   const { id: searchId, boardId, cardId } = useGlobalSearchParams<{
     id: string;
@@ -46,9 +55,21 @@ export default function TopBar({
   const rawId = workspaceId || searchId;
   const id = rawId && rawId !== "undefined" && !rawId.startsWith("(") ? rawId : undefined;
 
-  const handleSelectMenu = (item: KebabMenuType) => {
+  const handleSelectMenu = async (item: KebabMenuType) => {
     if (item === "Create list") {
       setIsCreateListVisible(true)
+    }
+    if (item === "Members" || item === "Change role" || item === "Invite members") {
+      setIsInviteMembersVisible(true)
+      if (id) {
+        try {
+          const workspaceMembers = await WorkspaceService.getWorkspaceMembers(id);
+          // Only show users, filter out OWNER
+          setMembers(workspaceMembers?.filter((m: any) => m.role !== "OWNER") || []);
+        } catch (e) {
+          console.error("Failed to fetch workspace members", e);
+        }
+      }
     }
     if(item === "Create board") {
       router.navigate("/(board)/create")
@@ -59,6 +80,11 @@ export default function TopBar({
         params: { id, boardId, cardId }
       });
     }
+
+    if(item === "Move card") {
+      setIsMoveCardVisible(true)
+    }
+
     if (item === "Board settings") {
       router.push({
         pathname: "/(board)/edit",
@@ -136,6 +162,52 @@ export default function TopBar({
         }},
       ]);
     }
+    if (item === "Workspace settings") {
+      if (id) {
+        router.push({
+          pathname: "/(workspace)/edit",
+          params: { id, name, workspaceIcon: icon, workspaceColor: color }
+        });
+      }
+    }
+
+    if (item === "Manage boards") {
+      setIsManageBoardsVisible(true)
+    }
+
+    if (item === "Leave workspace") {
+      Alert.alert("Leave Workspace", "Are you sure you want to leave this workspace?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Leave", style: "destructive", onPress: async () => {
+          if (!id) return;
+          const { useAuthStore } = await import("@/store/auth.store");
+          const userId = useAuthStore.getState().user?.id;
+          if (!userId) return;
+          const success = await WorkspaceService.removeWorkspaceMember(id, userId);
+          if (success) {
+            try {
+              const eventBus = await import("@/services/eventBus");
+              eventBus.default.emit("workspace:deleted", id);
+            } catch (e) {}
+            router.replace("/(tabs)/" as any);
+          } else {
+            Alert.alert("Error", "Failed to leave workspace.");
+          }
+        }},
+      ]);
+    }
+
+    if (item === "Join board") {
+      Alert.alert("Join Board", "Feature coming soon.");
+    }
+    
+    if (item === "Sort") {
+      Alert.alert("Sort", "Sort options coming soon.");
+    }
+
+    if (item === "Help & feedback") {
+      Alert.alert("Help & feedback", "Contact support@taskflow.com");
+    }
   }
 
   return (
@@ -165,7 +237,9 @@ export default function TopBar({
         </View>
       </View>
       <View style={{flexDirection: "row", gap: Spacing[3], alignItems: "center"}}>
-        <Icons name="Search" size={20}/>
+        <TouchableOpacity onPress={() => setIsSearchVisible(true)}>
+          <Icons name="Search" size={20}/>
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => {setActive(true)}}>
           <Icons name="KebabV" size={20}/>
         </TouchableOpacity>
@@ -179,6 +253,59 @@ export default function TopBar({
       <CreateList
         visible={isCreateListVisible}
         onClose={() => setIsCreateListVisible(false)}
+      />
+      <MoveCard
+        visible={isMoveCardVisible}
+        onClose={() => setIsMoveCardVisible(false)}
+        boardId={boardId}
+        cardId={cardId}
+      />
+      <InviteMembers
+        visible={isInviteMembersVisible}
+        onClose={() => setIsInviteMembersVisible(false)}
+        members={members}
+        onChangeRole={async (memberId, newRole) => {
+          if (id) {
+            try {
+              const res = await WorkspaceService.updateWorkspaceMemberRole(id, memberId, newRole);
+              if (res) {
+                // Refresh members list and filter
+                const workspaceMembers = await WorkspaceService.getWorkspaceMembers(id);
+                setMembers(workspaceMembers?.filter((m: any) => m.role !== "OWNER") || []);
+              } else {
+                Alert.alert("Error", "Failed to update role. You might not have permission.");
+              }
+            } catch (e) {
+              Alert.alert("Error", "Failed to update role.");
+            }
+          }
+        }}
+        onInvite={async (email) => {
+          if (id) {
+            try {
+              await WorkspaceService.addWorkspaceMember(id, email);
+              Alert.alert("Success", "Invitation sent to " + email);
+              // Refresh members list and filter again
+              const workspaceMembers = await WorkspaceService.getWorkspaceMembers(id);
+              setMembers(workspaceMembers?.filter((m: any) => m.role !== "OWNER") || []);
+            } catch (e) {
+              Alert.alert("Error", "Failed to invite member.");
+            }
+          } else {
+            Alert.alert("Error", "Workspace not found.");
+          }
+        }}
+      />
+      {id && (
+        <ManageBoards
+          visible={isManageBoardsVisible}
+          onClose={() => setIsManageBoardsVisible(false)}
+          workspaceId={id}
+        />
+      )}
+      <SearchOverlay
+        visible={isSearchVisible}
+        onClose={() => setIsSearchVisible(false)}
       />
     </View>
   );
