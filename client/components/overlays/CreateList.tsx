@@ -60,7 +60,38 @@ export default function CreateList({
 
   const handleCreate = async (payload: { boardId: string; name: string }) => {
     const tempId = `tmp-${Date.now()}`;
-    const tempList = { id: tempId, name: payload.name, cards: [], cardCount: 0, boardId: payload.boardId } as any;
+    const tempCardId = `tmp-card-${Date.now()}`;
+    const tempList = {
+      id: tempId,
+      name: payload.name,
+      boardId: payload.boardId,
+      position: 0,
+      cards: [
+        {
+          id: tempCardId,
+          name: "New Task",
+          description: null,
+          listId: tempId,
+          position: 0,
+          priority: "low",
+          dueDate: null,
+          assignees: [],
+          labels: [],
+          checklists: [
+            {
+              id: `tmp-checklist-${Date.now()}`,
+              name: "Task Checklist",
+              items: [
+                { id: `i1-${Date.now()}`, name: "Item 1", isCompleted: false },
+                { id: `i2-${Date.now()}`, name: "Item 2", isCompleted: false },
+                { id: `i3-${Date.now()}`, name: "Item 3", isCompleted: false },
+              ],
+            },
+          ],
+        },
+      ],
+      cardCount: 1,
+    } as any;
 
     // optimistic notify
     try {
