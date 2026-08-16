@@ -19,6 +19,7 @@ import { Spacing } from "@/theme/spacing";
 import { Colors } from "@/theme/colors";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
+import MultiSelectDropDown from "@/components/ui/MultiSelectDropDown";
 
 export default function Board() {
   const { boardId, refresh } = useLocalSearchParams<{ boardId: string; refresh?: string }>();
@@ -27,7 +28,7 @@ export default function Board() {
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [boardMembers, setBoardMembers] = useState<any[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
   // Fetch Board Details on Mount / Refresh
@@ -296,13 +297,13 @@ export default function Board() {
     );
   }
 
-  const filteredList = selectedUserId
+  const filteredList = selectedUserIds.length > 0
     ? list.map((l) => ({
         ...l,
         cards: l.cards?.filter((c: any) =>
           c.assignees?.some(
             (a: any) =>
-              a.userId === selectedUserId || a.user?.id === selectedUserId
+              selectedUserIds.includes(a.userId) || selectedUserIds.includes(a.user?.id)
           )
         ),
       }))
@@ -311,40 +312,14 @@ export default function Board() {
   return (
     <Screen isScroll={false} padding={Spacing[4]}>
       {(currentUserRole === "ADMIN" || currentUserRole === "OWNER") && boardMembers.length > 0 && (
-        <View style={{ marginBottom: Spacing[4] }}>
-          <Text style={[Typography.subtitle, { marginBottom: Spacing[2], color: Theme.textSecondary }]}>
-            Filter by member
-          </Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: Spacing[2] }}>
-            <TouchableOpacity
-              onPress={() => setSelectedUserId(null)}
-              style={{
-                backgroundColor: selectedUserId === null ? Theme.primary : Colors.gray[200],
-                paddingVertical: Spacing[1],
-                paddingHorizontal: Spacing[3],
-                borderRadius: 16,
-              }}
-            >
-              <Text style={{ color: selectedUserId === null ? Theme.surface : Theme.textPrimary }}>All</Text>
-            </TouchableOpacity>
-            {boardMembers.map((m) => (
-              <TouchableOpacity
-                key={m.userId || m.id}
-                onPress={() => setSelectedUserId(m.userId || m.id)}
-                style={{
-                  backgroundColor: selectedUserId === (m.userId || m.id) ? Theme.primary : Colors.gray[200],
-                  paddingVertical: Spacing[1],
-                  paddingHorizontal: Spacing[3],
-                  borderRadius: 16,
-                }}
-              >
-                <Text style={{ color: selectedUserId === (m.userId || m.id) ? Theme.surface : Theme.textPrimary }}>
-                  {m.name || m.email || "Unknown"}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        <MultiSelectDropDown
+          options={boardMembers.map((m) => ({
+            id: m.userId || m.id,
+            name: m.name || m.email || "Unknown",
+          }))}
+          selectedIds={selectedUserIds}
+          onChange={setSelectedUserIds}
+        />
       )}
 
       <DraggableFlatList
@@ -360,7 +335,7 @@ export default function Board() {
             handleReorderLists(data, movedItem);
           }
         }}
-        style={{ paddingVertical: Spacing[4] }}
+        style={{ paddingVertical: Spacing[2] }}
         renderItem={({ item, drag }) => (
           <TouchableOpacity
             activeOpacity={0.9}
