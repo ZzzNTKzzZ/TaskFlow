@@ -1,14 +1,4 @@
-/**
- * ============================================================================
- * 📊 TRELLO CLONE CENTRAL TS CONTRACT (types.ts)
- * ----------------------------------------------------------------------------
- * Staff-level TypeScript Definitions representing strict client-server contracts.
- * Matches all Express routing, controllers, and Prisma schemas exactly.
- * Includes known backend property typos (e.g. checkListCompelete) for runtime safety.
- * ============================================================================
- */
-
-export type Priority = "low" | "medium" | "high" | "urgent";
+type Priority = "low" | "medium" | "high" | "urgent";
 export type BoardVisibility = "private" | "workspace" | "public";
 export type WorkspaceRole = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
