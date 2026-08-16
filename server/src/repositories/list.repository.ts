@@ -63,17 +63,27 @@ class ListRepository extends BaseRepository<any> {
             ],
           },
         },
+      });
+
+      // Fetch the full list with its newly created cards and checklists
+      return await tx.list.findUnique({
+        where: { id: list.id },
         include: {
-          items: true,
-          _count: {
-            select: {
-              items: true,
+          cards: {
+            include: {
+              labels: { include: { label: true } },
+              assignees: {
+                include: { user: { select: { id: true, name: true, email: true } } },
+              },
+              checklists: {
+                include: {
+                  items: true,
+                },
+              },
             },
           },
         },
       });
-
-      return list;
     });
   }
 

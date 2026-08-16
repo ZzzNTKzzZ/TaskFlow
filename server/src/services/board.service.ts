@@ -190,7 +190,10 @@ export default class BoardService {
     const board = await BoardRepository.findBoard({ boardId });
     if (!board) throw new AppError("Board not found", 404);
 
-    return ListRepository.createListWithDefaults({ boardId, name });
+    const list = await ListRepository.createListWithDefaults({ boardId, name });
+    if (!list) throw new AppError("Failed to create list", 500);
+
+    return list;
   }
 
   static async reorderList(input: {

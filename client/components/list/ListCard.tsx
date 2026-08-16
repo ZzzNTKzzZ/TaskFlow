@@ -41,7 +41,6 @@ export default function ListCard({
   onDeleteList,
   typeCard = "Board",
 }: ListCardProps) {
-  const pathName = usePathname()
   const [activeMenu, setActiveMenu] = useState(false)
   const [active, setActive] = useState(false);
   const [isActiveAddCard, setIsActiveAddCard] = useState(false)
@@ -88,7 +87,7 @@ export default function ListCard({
               }}
             >
               <Text style={[Typography.subtitle, { fontSize: 14 }]}>
-                {cardCount}
+                {cardCount }
               </Text>
             </View>
           </View>
@@ -183,7 +182,7 @@ export default function ListCard({
             }}
           >
             <Text style={[Typography.subtitle, { fontSize: 14 }]}>
-              {cardCount}
+              {cardCount ?? 1}
             </Text>
           </View>
         </TouchableOpacity>
