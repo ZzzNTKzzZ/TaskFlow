@@ -1,3 +1,4 @@
+import http from "http"
 import express from "express"
 import dotenv from "dotenv"
 import { routes } from "./routes/routes.js"
@@ -7,6 +8,7 @@ import cors from "cors"
 import morgan from "morgan"
 import { apiRateLimiter } from "./middleware/rateLimit.middleware.js"
 import { sanitizeMiddleware } from "./middleware/sanitize.middleware.js"
+import { initSocket } from "./lib/socket.js"
 
 dotenv.config()
 
@@ -53,6 +55,10 @@ app.get('/api/check-connection', (req, res) => {
 });
 routes(app)
 app.use(errorMiddleware)
-app.listen(PORT, () => {
-  console.log(`Server is listening on http://localhost:${PORT}`);
+
+const httpServer = http.createServer(app)
+initSocket(httpServer)
+
+httpServer.listen(PORT, () => {
+  console.log(`Server with Socket.io is listening on http://localhost:${PORT}`);
 });

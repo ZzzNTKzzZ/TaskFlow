@@ -22,6 +22,7 @@ import { Typography } from "@/theme/typography";
 import MultiSelectDropDown from "@/components/ui/MultiSelectDropDown";
 import SortCardsOverlay, { CardSortOption } from "@/components/overlays/SortCardsOverlay";
 import Icons from "@/components/icons/Icons";
+import SocketService from "@/services/socket.service";
 
 export default function Board() {
   const { boardId, refresh } = useLocalSearchParams<{ boardId: string; refresh?: string }>();
@@ -68,6 +69,18 @@ export default function Board() {
       getBoardData();
     }
   }, [refresh, boardId, isDeleting]);
+
+  // Socket.io Room Subscription for Cross-Device Real-Time Sync
+  useEffect(() => {
+    if (boardId) {
+      SocketService.joinBoard(boardId);
+    }
+    return () => {
+      if (boardId) {
+        SocketService.leaveBoard(boardId);
+      }
+    };
+  }, [boardId]);
 
   // EventBus Subscriptions for Live List CRUD Sync
   useEffect(() => {
