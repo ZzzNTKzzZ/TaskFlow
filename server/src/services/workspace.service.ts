@@ -303,7 +303,7 @@ export class WorkspaceService {
       ...board,
       memberCount: _count.members,
       listCount: _count.lists,
-      cardCount: lists.length
+      cardCount: lists.reduce((total, list) => total + list._count.cards, 0)
     }));
   }
 

@@ -87,7 +87,18 @@ class CardRepository extends BaseRepository<any> {
         },
       });
 
-      return card;
+      return await tx.card.findUnique({
+        where: { id: card.id },
+        include: {
+          _count: { select: { checklists: true } },
+          checklists: {
+            include: { items: { orderBy: { isCompleted: "asc" } } }
+          },
+          assignees: {
+            include: { user: { select: { id: true, name: true, email: true } } }
+          }
+        },
+      });
     });
   }
 

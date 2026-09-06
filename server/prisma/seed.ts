@@ -68,29 +68,29 @@ async function main() {
     {
       name: "Acme Corp Tech",
       boards: [
-        { name: "Q3 Sprint Planning", bg: "#2b3896" },
-        { name: "Backend Refactoring", bg: "#166534" },
-        { name: "DevOps & Infrastructure", bg: "#991b1b" }
+        { name: "Q3 Sprint Planning", bg: "DeepPrussianBlue" },
+        { name: "Backend Refactoring", bg: "Blue" },
+        { name: "DevOps & Infrastructure", bg: "Green" }
       ]
     },
     {
       name: "Design Studio",
       boards: [
-        { name: "Website Redesign 2026", bg: "#86198f" },
-        { name: "Mobile App UI", bg: "#065f46" }
+        { name: "Website Redesign 2026", bg: "Orange" },
+        { name: "Mobile App UI", bg: "Purple" }
       ]
     },
     {
       name: "Marketing & Sales",
       boards: [
-        { name: "Q4 Ads Campaign", bg: "#ea580c" },
-        { name: "Social Media Calendar", bg: "#0369a1" }
+        { name: "Q4 Ads Campaign", bg: "DeepPrussianBlue" },
+        { name: "Social Media Calendar", bg: "Green" }
       ]
     },
     {
       name: "Personal Projects",
       boards: [
-        { name: "Daily Routines", bg: "#4b5563" }
+        { name: "Daily Routines", bg: "Blue" }
       ]
     }
   ];
@@ -115,11 +115,14 @@ async function main() {
     console.log(`🏢 Created Workspace: ${workspace.name}`);
 
     for (const [bIndex, bData] of wData.boards.entries()) {
-      // Create Board
+      // ---------------------------------------------------------
+      // TẠO BOARD (BẢNG CÔNG VIỆC)
+      // Mỗi Workspace sẽ lặp qua mảng boards để tạo ra các Board tương ứng.
+      // ---------------------------------------------------------
       const board = await prisma.board.create({
         data: {
           name: bData.name,
-          background: bData.bg,
+          background: bData.bg, // Giữ nguyên gradient string (DeepPrussianBlue, Blue...)
           visibility: BoardVisibility.workspace,
           workspaceId: workspace.id,
           position: bIndex + 1,
@@ -130,7 +133,10 @@ async function main() {
       });
       console.log(`  📊 Created Board: ${board.name}`);
 
-      // Create Labels
+      // ---------------------------------------------------------
+      // TẠO LABELS (NHÃN DÁN) CHO BOARD
+      // Tạo sẵn các nhãn dán cơ bản với các màu khác nhau để gán vào thẻ
+      // ---------------------------------------------------------
       const labels = await Promise.all([
         prisma.label.create({ data: { boardId: board.id, name: "Bug/Issue", color: "#f87171" } }), 
         prisma.label.create({ data: { boardId: board.id, name: "Feature", color: "#60a5fa" } }), 
@@ -139,7 +145,10 @@ async function main() {
         prisma.label.create({ data: { boardId: board.id, name: "Research", color: "#4ade80" } }), 
       ]);
 
-      // Create Lists
+      // ---------------------------------------------------------
+      // TẠO LISTS (CÁC CỘT TRẠNG THÁI)
+      // Board nào cũng sẽ có 6 cột tiêu chuẩn theo luồng Agile/Scrum
+      // ---------------------------------------------------------
       const listNames = ["Backlog", "To Do", "In Progress", "In Review", "QA Testing", "Done"];
       const lists = await Promise.all(
         listNames.map((name, i) =>
@@ -149,17 +158,20 @@ async function main() {
         )
       );
 
-      // Create Cards (10-15 cards per board spread across lists)
+      // ---------------------------------------------------------
+      // TẠO CARDS (THẺ CÔNG VIỆC)
+      // Tạo 12 thẻ cho mỗi Board và rải đều vào các List khác nhau
+      // ---------------------------------------------------------
       for (let c = 0; c < 12; c++) {
-        const listIndex = c % lists.length; // Spread across lists
+        const listIndex = c % lists.length; // Trải đều thẻ vào 6 cột
         const randomPrio = [Priority.low, Priority.medium, Priority.high, Priority.urgent][c % 4];
         
-        // Random assignees
+        // Chỉ định ngẫu nhiên người thực hiện (Assignees)
         const assignees = [me.id];
         if (c % 2 === 0) assignees.push(dummyUsers[0].id);
         if (c % 3 === 0) assignees.push(dummyUsers[1].id);
 
-        // Random labels
+        // Gắn ngẫu nhiên Nhãn (Labels)
         const labelIds = [];
         if (c % 2 === 0) labelIds.push(labels[0].id);
         if (c % 3 === 0) labelIds.push(labels[1].id);
@@ -174,11 +186,11 @@ async function main() {
             listId: lists[listIndex].id,
             assignees: { create: assignees.map(userId => ({ userId })) },
             labels: { create: labelIds.map(labelId => ({ labelId })) },
-            dueDate: new Date(Date.now() + 86400000 * (c - 5)), // Some overdue, some future
+            dueDate: new Date(Date.now() + 86400000 * (c - 5)), // Một số thẻ sẽ bị quá hạn (overdue), một số ở tương lai
           },
         });
 
-        // Add Checklist for some cards
+        // Thêm Checklist (Danh sách kiểm tra) cho một số thẻ
         if (c % 4 === 0) {
           await prisma.checklist.create({
             data: {
@@ -195,13 +207,25 @@ async function main() {
           });
         }
 
-        // Add Comments for some cards
-        if (c % 5 === 0) {
+        // ---------------------------------------------------------
+        // TẠO COMMENTS VÀ ACTIVITY LOG CHO CÁC THẺ
+        // Làm cho dữ liệu trông sinh động và chân thực như một nhóm đang làm việc
+        // ---------------------------------------------------------
+        if (c % 2 === 0) {
+          const userChatMsg = [
+            "Anh em cho mình hỏi đoạn này xử lý sao nhỉ?",
+            "Đã test xong, pass 100% test case nha.",
+            "UI màn hình này đang bị lệch ở mobile, nhờ design check lại.",
+            "Can someone help me review this?",
+            "Code sạch đẹp lắm, merge luôn nhé."
+          ];
+          const randomMsg = userChatMsg[c % userChatMsg.length];
+
           const comment1 = await prisma.comment.create({
             data: {
               cardId: card.id,
               authorId: dummyUsers[1].id,
-              content: "Can someone help me review this?",
+              content: randomMsg,
             },
           });
           

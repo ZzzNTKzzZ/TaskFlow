@@ -71,6 +71,7 @@ export default function Board() {
     let offCreated: any;
     let offFailed: any;
     let offCardUpdated: any;
+    let offCardDeleted: any;
     let offDeleting: any;
 
     (async () => {
@@ -131,6 +132,18 @@ export default function Board() {
             }
           });
         });
+
+        offCardDeleted = eventBus.on("card:deleted", (deletedCardId: string) => {
+          setList((prev) => 
+            prev.map(l => ({
+              ...l,
+              cards: l.cards?.filter((c: any) => c.id !== deletedCardId),
+              cardCount: l.cards?.some((c: any) => c.id === deletedCardId) 
+                ? Math.max(0, (l.cardCount || 1) - 1) 
+                : l.cardCount
+            }))
+          );
+        });
       } catch (e) {
         console.error("eventBus subscribe error:", e);
       }
@@ -142,6 +155,7 @@ export default function Board() {
         if (offCreated) offCreated();
         if (offFailed) offFailed();
         if (offCardUpdated) offCardUpdated();
+        if (offCardDeleted) offCardDeleted();
         if (offDeleting) offDeleting();
       } catch (e) {}
     };
@@ -195,10 +209,20 @@ export default function Board() {
       priority: payload.priority,
       dueDate: payload.dueDate,
       stats: {
-        checkListCount: 0,
+        checkListCount: 3,
         checkListCompelete: 0,
       },
-      checklists: [],
+      checklists: [
+        {
+          id: `tmp-checklist-${Date.now()}`,
+          name: "Task Checklist",
+          items: [
+            { id: `tmp-item1-${Date.now()}`, name: "Item 1", isCompleted: false },
+            { id: `tmp-item2-${Date.now()}`, name: "Item 2", isCompleted: false },
+            { id: `tmp-item3-${Date.now()}`, name: "Item 3", isCompleted: false },
+          ]
+        }
+      ],
     };
 
     // Optimistic Update local Card state

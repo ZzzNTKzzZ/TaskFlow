@@ -155,6 +155,8 @@ export default function TopBar({
           if (!boardId || !cardId) return;
           const success = await CardService.deleteCard(boardId, cardId);
           if (success) {
+            const eventBus = await import("@/services/eventBus");
+            eventBus.default.emit("card:deleted", cardId);
             router.back();
           } else {
             Alert.alert("Error", "Failed to delete card. You might not have permission.");

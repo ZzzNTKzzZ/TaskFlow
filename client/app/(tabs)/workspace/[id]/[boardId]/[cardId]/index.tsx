@@ -27,6 +27,7 @@ import { Alert, Text, TouchableOpacity, View, TextInput } from "react-native";
 import CommentService from "@/services/comment.service";
 import { Comment } from "@/types/comment";
 import { useAuthStore } from "@/store/auth.store";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 function InnerTodoItem({
   item,
@@ -512,7 +513,7 @@ export default function Card() {
     };
   }, [boardId, cardId]);
 
-  if (loading) return <Text style={{ padding: Spacing[6] }}>Loading...</Text>;
+  if (loading) return <LoadingScreen />;
   if (!card) return <Text style={{ padding: Spacing[6] }}>Card not found</Text>;
 
   return (
@@ -761,38 +762,36 @@ export default function Card() {
                 onPress={async () => {
                   try {
                     const mId = member.userId || member.id;
+                    let newAssignees;
                     if (isAssigned) {
                       await CardService.unassignUserFromCard(boardId as string, cardId as string, mId);
-                      setCard(prev => {
-                        if (!prev) return prev;
-                        return {
-                          ...prev,
-                          assignees: (prev.assignees || []).filter((a: any) => a.userId !== mId && a.user?.id !== mId)
-                        } as any;
-                      });
+                      newAssignees = (card.assignees || []).filter((a: any) => a.userId !== mId && a.user?.id !== mId);
                     } else {
                       await CardService.assignUsersToCard(boardId as string, cardId as string, [mId]);
-                      setCard(prev => {
-                        if (!prev) return prev;
-                        return {
-                          ...prev,
-                          assignees: [
-                            ...(prev.assignees || []),
-                            {
-                              id: Math.random().toString(),
-                              userId: mId,
-                              cardId,
-                              user: { id: mId, name: member.name, email: member.email || "", createdAt: "" },
-                            },
-                          ]
-                        } as any;
-                      });
+                      newAssignees = [
+                        ...(card.assignees || []),
+                        {
+                          id: Math.random().toString(),
+                          userId: mId,
+                          cardId,
+                          user: { id: mId, name: member.name, email: member.email || "", createdAt: "" },
+                        },
+                      ];
                     }
+                    
+                    setCard(prev => {
+                      if (!prev) return prev;
+                      return {
+                        ...prev,
+                        assignees: newAssignees
+                      } as any;
+                    });
+
                     // Emit event bus to update board detail view immediately
                     const eventBus = await import("@/services/eventBus");
                     eventBus.default.emit("card:updated", {
                       cardId,
-                      payload: { assignees: card.assignees }
+                      payload: { assignees: newAssignees }
                     });
                   } catch (e) {
                     console.error("Assign error", e);
