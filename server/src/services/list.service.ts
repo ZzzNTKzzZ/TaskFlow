@@ -59,6 +59,7 @@ export default class ListService {
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
       },
     });
+    if (!card) throw new AppError("Failed to create card", 500);
     return card;
   }
 }

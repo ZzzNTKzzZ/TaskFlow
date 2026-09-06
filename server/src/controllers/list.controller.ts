@@ -2,23 +2,26 @@ import type { Request, Response } from "express";
 import ListService from "../services/list.service.js";
 import { responseHandler } from "../utils/responseHandler.js";
 import { ActivityService } from "../services/activity.service.js";
+import { broadcastToBoard } from "../lib/socket.js";
 
 export default class ListController {
   // PATCH  /lists/:listId
   static async editList(req: Request, res: Response) {
     const listId = req.params.listId as string;
+    const boardId = req.params.boardId as string;
     const { name, position } = req.body;
 
     const list = await ListService.editList({ listId, name, position });
 
     await ActivityService.logActivity({
-      boardId: req.params.boardId as string,
-
+      boardId,
       userId: req.user.userId,
-      listId: listId as string,
+      listId,
       action: "LIST_UPDATED",
       description: `updated a list`,
     });
+
+    broadcastToBoard(boardId, "list:updated", { list });
 
     res.status(200).json(responseHandler.success(list));
   }
@@ -26,15 +29,18 @@ export default class ListController {
   // DELETE /lists/:listId
   static async deleteList(req: Request, res: Response) {
     const listId = req.params.listId as string;
+    const boardId = req.params.boardId as string;
 
     const list = await ListService.deleteList({ listId });
 
     await ActivityService.logActivity({
-      boardId: req.params.boardId as string,
+      boardId,
       userId: req.user.userId,
       action: "LIST_DELETED",
       description: `deleted a list`,
     });
+
+    broadcastToBoard(boardId, "list:deleted", { listId });
 
     res.status(200).json(responseHandler.success(list));
   }
@@ -42,7 +48,6 @@ export default class ListController {
   // GET /lists/:listId/cards
   static async getCards(req: Request, res: Response) {
     const listId = req.params.listId as string;
-    console.log(listId);
     const cards = await ListService.getCards({ listId });
     res.status(200).json(responseHandler.success(cards));
   }
@@ -50,16 +55,19 @@ export default class ListController {
   // POST /lists/:listId/cards
   static async createCard(req: Request, res: Response) {
     const listId = req.params.listId as string;
+    const boardId = req.params.boardId as string;
     const card = await ListService.createCard({ ...req.body, listId });
 
     await ActivityService.logActivity({
-      boardId: req.params.boardId as string,
+      boardId,
       userId: req.user.userId,
-      listId: listId as string,
+      listId,
       cardId: card.id,
       action: "CARD_CREATED",
       description: `created card "${card.name}"`,
     });
+
+    broadcastToBoard(boardId, "card:created", { card });
 
     res.status(201).json(responseHandler.success(card));
   }

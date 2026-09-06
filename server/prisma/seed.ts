@@ -162,20 +162,25 @@ async function main() {
       // TẠO CARDS (THẺ CÔNG VIỆC)
       // Tạo 12 thẻ cho mỗi Board và rải đều vào các List khác nhau
       // ---------------------------------------------------------
+      const prios: Priority[] = [Priority.low, Priority.medium, Priority.high, Priority.urgent];
+
       for (let c = 0; c < 12; c++) {
         const listIndex = c % lists.length; // Trải đều thẻ vào 6 cột
-        const randomPrio = [Priority.low, Priority.medium, Priority.high, Priority.urgent][c % 4];
+        const randomPrio: Priority = prios[c % 4] as Priority;
         
         // Chỉ định ngẫu nhiên người thực hiện (Assignees)
         const assignees = [me.id];
-        if (c % 2 === 0) assignees.push(dummyUsers[0].id);
-        if (c % 3 === 0) assignees.push(dummyUsers[1].id);
+        if (c % 2 === 0) assignees.push(dummyUsers[0]!.id);
+        if (c % 3 === 0) assignees.push(dummyUsers[1]!.id);
 
         // Gắn ngẫu nhiên Nhãn (Labels)
         const labelIds = [];
-        if (c % 2 === 0) labelIds.push(labels[0].id);
-        if (c % 3 === 0) labelIds.push(labels[1].id);
-        if (c % 5 === 0) labelIds.push(labels[3].id);
+        if (c % 2 === 0 && labels[0]) labelIds.push(labels[0].id);
+        if (c % 3 === 0 && labels[1]) labelIds.push(labels[1].id);
+        if (c % 5 === 0 && labels[3]) labelIds.push(labels[3].id);
+
+        const targetList = lists[listIndex];
+        if (!targetList) continue;
 
         const card = await prisma.card.create({
           data: {
@@ -183,7 +188,7 @@ async function main() {
             description: `This is a detailed description for Task ${c + 1}. We need to ensure all criteria are met before moving this to the Done column.`,
             priority: randomPrio,
             position: c,
-            listId: lists[listIndex].id,
+            listId: targetList.id,
             assignees: { create: assignees.map(userId => ({ userId })) },
             labels: { create: labelIds.map(labelId => ({ labelId })) },
             dueDate: new Date(Date.now() + 86400000 * (c - 5)), // Một số thẻ sẽ bị quá hạn (overdue), một số ở tương lai
@@ -219,12 +224,12 @@ async function main() {
             "Can someone help me review this?",
             "Code sạch đẹp lắm, merge luôn nhé."
           ];
-          const randomMsg = userChatMsg[c % userChatMsg.length];
+          const randomMsg = userChatMsg[c % userChatMsg.length] || "Looks great!";
 
           const comment1 = await prisma.comment.create({
             data: {
               cardId: card.id,
-              authorId: dummyUsers[1].id,
+              authorId: dummyUsers[1]!.id,
               content: randomMsg,
             },
           });
@@ -232,9 +237,9 @@ async function main() {
           await prisma.activityLog.create({
             data: {
               boardId: board.id,
-              userId: dummyUsers[1].id,
+              userId: dummyUsers[1]!.id,
               cardId: card.id,
-              listId: lists[listIndex].id,
+              listId: targetList.id,
               action: "COMMENT_CREATED",
               description: `Bob Tran commented on ${card.name}`,
             }
@@ -253,7 +258,7 @@ async function main() {
               boardId: board.id,
               userId: me.id,
               cardId: card.id,
-              listId: lists[listIndex].id,
+              listId: targetList.id,
               action: "COMMENT_CREATED",
               description: `Admin User commented on ${card.name}`,
             }
@@ -264,21 +269,22 @@ async function main() {
       // Generate Random Activity Logs for the Board
       const randomActivities = [
         { u: me, action: "BOARD_CREATED", desc: `created this board` },
-        { u: dummyUsers[0], action: "LIST_CREATED", desc: `added list 'Backlog'` },
-        { u: dummyUsers[1], action: "LIST_CREATED", desc: `added list 'To Do'` },
-        { u: dummyUsers[2], action: "CARD_MOVED", desc: `moved a card from 'To Do' to 'In Progress'` },
-        { u: dummyUsers[3], action: "CARD_ASSIGNED", desc: `joined a card` },
+        { u: dummyUsers[0]!, action: "LIST_CREATED", desc: `added list 'Backlog'` },
+        { u: dummyUsers[1]!, action: "LIST_CREATED", desc: `added list 'To Do'` },
+        { u: dummyUsers[2]!, action: "CARD_MOVED", desc: `moved a card from 'To Do' to 'In Progress'` },
+        { u: dummyUsers[3]!, action: "CARD_ASSIGNED", desc: `joined a card` },
         { u: me, action: "CARD_UPDATED", desc: `changed the due date of a card` },
-        { u: dummyUsers[0], action: "CHECKLIST_ITEM_COMPLETED", desc: `completed 'Write unit tests' on a checklist` },
+        { u: dummyUsers[0]!, action: "CHECKLIST_ITEM_COMPLETED", desc: `completed 'Write unit tests' on a checklist` },
       ];
 
       for (let i = 0; i < randomActivities.length; i++) {
+        const item = randomActivities[i]!;
         await prisma.activityLog.create({
           data: {
             boardId: board.id,
-            userId: randomActivities[i].u.id,
-            action: randomActivities[i].action as any,
-            description: `${randomActivities[i].u.name} ${randomActivities[i].desc}`,
+            userId: item.u.id,
+            action: item.action as any,
+            description: `${item.u.name} ${item.desc}`,
             createdAt: new Date(Date.now() - 86400000 * (10 - i)), // Spread over the past 10 days
           }
         });

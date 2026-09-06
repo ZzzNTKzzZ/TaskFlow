@@ -49,9 +49,10 @@ async function main() {
   const boardNames = ["Phát triển phần mềm", "Chiến dịch Marketing", "Kế hoạch nhân sự"];
   
   for (let i = 0; i < boardNames.length; i++) {
+    const bName = boardNames[i] || `Board ${i + 1}`;
     const board = await prisma.board.create({
       data: {
-        name: boardNames[i],
+        name: bName,
         workspaceId: workspace.id,
         visibility: "workspace",
         position: i,
@@ -68,18 +69,18 @@ async function main() {
           ]
         }
       },
-      include: { labels: true }
     });
 
-    const labels = board.labels;
+    const labels = await prisma.label.findMany({ where: { boardId: board.id } });
 
     // Tạo các Danh sách (Lists)
     const listNames = ["Backlog", "To Do", "In Progress", "Review", "Done"];
     
     for (let j = 0; j < listNames.length; j++) {
+      const lName = listNames[j] || `List ${j + 1}`;
       const list = await prisma.list.create({
         data: {
-          name: listNames[j],
+          name: lName,
           boardId: board.id,
           position: j,
         }
@@ -93,36 +94,41 @@ async function main() {
         if (k === 1) assignees.push({ userId: alice.id }); // Việc Alice
         if (k === 2) assignees.push({ userId: bob.id }, { userId: admin.id }); // Làm chung
 
-        const card = await prisma.card.create({
-          data: {
-            name: `${board.name} - ${list.name} Task ${k + 1}`,
-            description: `Mô tả chi tiết công việc cho task ${k+1}. Cần hoàn thành trước deadline.`,
-            priority: k === 0 ? "urgent" : (k === 1 ? "high" : "medium"),
-            listId: list.id,
-            position: k,
-            assignees: { create: assignees },
-            labels: { create: [{ labelId: labels[k % labels.length].id }] },
-            // Thêm Checklists
-            checklists: {
-              create: [
-                {
-                  name: "Danh sách công việc con",
-                  items: {
-                    create: [
-                      { name: "Nghiên cứu tài liệu", isCompleted: true },
-                      { name: "Báo cáo kết quả", isCompleted: false }
-                    ]
-                  }
+        const targetLabel = labels.length > 0 ? labels[k % labels.length] : null;
+
+        const cardData: any = {
+          name: `${board.name} - ${list.name} Task ${k + 1}`,
+          description: `Mô tả chi tiết công việc cho task ${k+1}. Cần hoàn thành trước deadline.`,
+          priority: k === 0 ? "urgent" : (k === 1 ? "high" : "medium"),
+          listId: list.id,
+          position: k,
+          assignees: { create: assignees },
+          checklists: {
+            create: [
+              {
+                name: "Danh sách công việc con",
+                items: {
+                  create: [
+                    { name: "Nghiên cứu tài liệu", isCompleted: true },
+                    { name: "Báo cáo kết quả", isCompleted: false }
+                  ]
                 }
-              ]
-            },
-            // Thêm Comment
-            comments: {
-              create: [
-                { content: "Hãy làm phần này cẩn thận nhé!", authorId: admin.id }
-              ]
-            }
+              }
+            ]
+          },
+          comments: {
+            create: [
+              { content: "Hãy làm phần này cẩn thận nhé!", authorId: admin.id }
+            ]
           }
+        };
+
+        if (targetLabel) {
+          cardData.labels = { create: [{ labelId: targetLabel.id }] };
+        }
+
+        const card = await prisma.card.create({
+          data: cardData,
         });
 
         // Thêm Log lịch sử hoạt động
