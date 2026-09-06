@@ -20,6 +20,8 @@ import { Colors } from "@/theme/colors";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import MultiSelectDropDown from "@/components/ui/MultiSelectDropDown";
+import SortCardsOverlay, { CardSortOption } from "@/components/overlays/SortCardsOverlay";
+import Icons from "@/components/icons/Icons";
 
 export default function Board() {
   const { boardId, refresh } = useLocalSearchParams<{ boardId: string; refresh?: string }>();
@@ -30,6 +32,8 @@ export default function Board() {
   const [boardMembers, setBoardMembers] = useState<any[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<CardSortOption>("DEFAULT");
+  const [isSortVisible, setIsSortVisible] = useState(false);
 
   // Fetch Board Details on Mount / Refresh
   const getBoardData = async () => {
@@ -73,6 +77,7 @@ export default function Board() {
     let offCardUpdated: any;
     let offCardDeleted: any;
     let offDeleting: any;
+    let offSort: any;
 
     (async () => {
       try {
@@ -144,6 +149,10 @@ export default function Board() {
             }))
           );
         });
+
+        offSort = eventBus.on("board:open_sort", () => {
+          setIsSortVisible(true);
+        });
       } catch (e) {
         console.error("eventBus subscribe error:", e);
       }
@@ -157,6 +166,7 @@ export default function Board() {
         if (offCardUpdated) offCardUpdated();
         if (offCardDeleted) offCardDeleted();
         if (offDeleting) offDeleting();
+        if (offSort) offSort();
       } catch (e) {}
     };
   }, [boardId]);
@@ -321,33 +331,124 @@ export default function Board() {
     );
   }
 
-  const filteredList = selectedUserIds.length > 0
-    ? list.map((l) => ({
-        ...l,
-        cards: l.cards?.filter((c: any) =>
-          c.assignees?.some(
-            (a: any) =>
-              selectedUserIds.includes(a.userId) || selectedUserIds.includes(a.user?.id)
-          )
-        ),
-      }))
-    : list;
+  const priorityWeight: Record<string, number> = {
+    urgent: 4,
+    high: 3,
+    medium: 2,
+    low: 1,
+  };
+
+  const processedList = list.map((l) => {
+    let cards = l.cards || [];
+    if (selectedUserIds.length > 0) {
+      cards = cards.filter((c: any) =>
+        c.assignees?.some(
+          (a: any) =>
+            selectedUserIds.includes(a.userId) || selectedUserIds.includes(a.user?.id)
+        )
+      );
+    }
+
+    if (sortBy === "DUE_DATE") {
+      cards = [...cards].sort((a: any, b: any) => {
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      });
+    } else if (sortBy === "PRIORITY") {
+      cards = [...cards].sort(
+        (a: any, b: any) =>
+          (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0)
+      );
+    } else if (sortBy === "NAME") {
+      cards = [...cards].sort((a: any, b: any) =>
+        (a.name || "").localeCompare(b.name || "")
+      );
+    }
+
+    return {
+      ...l,
+      cards,
+    };
+  });
 
   return (
     <Screen isScroll={false} padding={Spacing[4]}>
-      {(currentUserRole === "ADMIN" || currentUserRole === "OWNER") && boardMembers.length > 0 && (
-        <MultiSelectDropDown
-          options={boardMembers.map((m) => ({
-            id: m.userId || m.id,
-            name: m.name || m.email || "Unknown",
-          }))}
-          selectedIds={selectedUserIds}
-          onChange={setSelectedUserIds}
-        />
-      )}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: Spacing[2],
+          gap: Spacing[2],
+        }}
+      >
+        {(currentUserRole === "ADMIN" || currentUserRole === "OWNER") && boardMembers.length > 0 ? (
+          <View style={{ flex: 1 }}>
+            <MultiSelectDropDown
+              options={boardMembers.map((m) => ({
+                id: m.userId || m.id,
+                name: m.name || m.email || "Unknown",
+              }))}
+              selectedIds={selectedUserIds}
+              onChange={setSelectedUserIds}
+            />
+          </View>
+        ) : (
+          <View style={{ flex: 1 }} />
+        )}
+
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => setIsSortVisible(true)}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 6,
+            paddingHorizontal: Spacing[3],
+            paddingVertical: 10,
+            backgroundColor: sortBy !== "DEFAULT" ? Colors.primary[100] : Theme.surface,
+            borderWidth: 1.5,
+            borderColor: sortBy !== "DEFAULT" ? Theme.primary : Theme.border,
+            borderRadius: 12,
+          }}
+        >
+          <Icons
+            name="Sort"
+            size={18}
+            color={sortBy !== "DEFAULT" ? Theme.primary : Theme.textSecondary}
+          />
+          <Text
+            style={[
+              Typography.caption,
+              {
+                fontSize: 13,
+                fontWeight: "600",
+                color: sortBy !== "DEFAULT" ? Theme.primary : Theme.textSecondary,
+              },
+            ]}
+          >
+            {sortBy === "DEFAULT"
+              ? "Sort"
+              : sortBy === "DUE_DATE"
+              ? "Due Date"
+              : sortBy === "PRIORITY"
+              ? "Priority"
+              : "Name (A-Z)"}
+          </Text>
+          {sortBy !== "DEFAULT" && (
+            <TouchableOpacity
+              onPress={() => setSortBy("DEFAULT")}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Icons name="Cross" size={12} color={Theme.primary} />
+            </TouchableOpacity>
+          )}
+        </TouchableOpacity>
+      </View>
 
       <DraggableFlatList
-        data={filteredList}
+        data={processedList}
         horizontal
         nestedScrollEnabled
         activationDistance={20}
@@ -373,6 +474,13 @@ export default function Board() {
             />
           </TouchableOpacity>
         )}
+      />
+
+      <SortCardsOverlay
+        visible={isSortVisible}
+        onClose={() => setIsSortVisible(false)}
+        selectedSort={sortBy}
+        onSelectSort={setSortBy}
       />
     </Screen>
   );

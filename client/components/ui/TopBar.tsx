@@ -204,7 +204,13 @@ export default function TopBar({
     }
     
     if (item === "Sort") {
-      Alert.alert("Sort", "Sort options coming soon.");
+      try {
+        import("@/services/eventBus").then((eventBus) => {
+          eventBus.default.emit("board:open_sort");
+        });
+      } catch (e) {
+        console.error("Failed to emit board:open_sort", e);
+      }
     }
 
     if (item === "Help & feedback") {

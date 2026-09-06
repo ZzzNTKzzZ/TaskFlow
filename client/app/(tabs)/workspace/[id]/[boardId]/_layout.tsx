@@ -23,6 +23,7 @@ export default function WorkspaceIdLayout() {
                 workspaceId={routeParams.id}
                 menu={[
                   "Create list",
+                  "Sort",
                   "Members",
                   "Board settings",
                   "Delete board",
