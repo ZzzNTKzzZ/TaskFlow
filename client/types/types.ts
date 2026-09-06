@@ -1,4 +1,4 @@
-type Priority = "low" | "medium" | "high" | "urgent";
+export type Priority = "low" | "medium" | "high" | "urgent";
 export type BoardVisibility = "private" | "workspace" | "public";
 export type WorkspaceRole = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
@@ -564,3 +564,45 @@ export interface RefreshToken {
 
 export type Visibility = BoardVisibility;
 export type RoleWorkspace = WorkspaceRole;
+
+/**
+ * ============================================================================
+ * 🔍 SEARCH MODULE TYPES
+ * ============================================================================
+ */
+
+export interface SearchWorkspaceResult {
+  id: string;
+  name: string;
+  slug: string;
+  memberCount: number;
+  boardCount: number;
+}
+
+export interface SearchBoardResult {
+  id: string;
+  name: string;
+  background: string | null;
+  workspaceId: string;
+  workspaceName: string;
+}
+
+export interface SearchCardResult {
+  id: string;
+  name: string;
+  description: string | null;
+  priority: string;
+  dueDate: string | null;
+  listId: string;
+  listName: string;
+  boardId: string;
+  boardName: string;
+  workspaceId: string;
+  workspaceName: string;
+}
+
+export interface SearchResult {
+  workspaces: SearchWorkspaceResult[];
+  boards: SearchBoardResult[];
+  cards: SearchCardResult[];
+}
