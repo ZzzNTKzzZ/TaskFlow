@@ -20,6 +20,7 @@ import { RoleWorkspace } from "@/types/types";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 // Hàm helper dùng chung để sắp xếp danh sách theo đúng quy tắc yêu cầu
 const sortMembersList = (
@@ -129,7 +130,7 @@ export default function Edit() {
     router.replace("/(tabs)/workspace")
   }
 
-  if (loading) return <Text>Loading...</Text>;
+  if (loading) return <LoadingScreen />;
 
   return (
     <ScreenEdit onSave={() => handleSave()} isScroll={false}>

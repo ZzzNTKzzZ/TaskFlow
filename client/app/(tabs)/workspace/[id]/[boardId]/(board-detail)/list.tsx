@@ -7,6 +7,7 @@ import { useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Text, View, Alert } from "react-native";
 import ListService from "@/services/list.service";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export default function List() {
   const { boardId } = useGlobalSearchParams();
@@ -63,7 +64,7 @@ export default function List() {
     };
   }, [boardId]);
 
-  if (loading) return <Text>Loading...</Text>;
+  if (loading) return <LoadingScreen />;
 
   const handleDeleteList = (listIdParam: string) => {
     Alert.alert("Delete List", "Are you sure you want to delete this list?", [

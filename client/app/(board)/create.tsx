@@ -25,6 +25,7 @@ import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import { Visibility } from "@/types/types";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export default function Create() {
   // --- STATE MANAGEMENT ---
@@ -54,7 +55,7 @@ export default function Create() {
     { color: "#007AFF", name: "Blue" },
     { color: "#34C759", name: "Green" },
     { color: "#FF9500", name: "Orange" },
-    { color: "#FF3B30", name: "Red" },
+    { color: "#FF3B30", name: "Purple" },
   ];
 
   const visibilities: { id: number; name: Visibility }[] = [
@@ -88,7 +89,7 @@ export default function Create() {
     initWorkspaces();
   }, []);
 
-  if (loading) return <Text>Loading...</Text>;
+  if (loading) return <LoadingScreen />;
 
   const handleCreate = async (payload: {
     workspaceId: string;

@@ -15,6 +15,7 @@ import { Typography } from "@/theme/typography";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export default function Workspace() {
   const ITEM_ONE_PAGE = 8;
@@ -70,7 +71,7 @@ export default function Workspace() {
     setActive(false);
   };
 
-  if (isLoading) return <Text style={{ padding: Spacing[4] }}>Loading...</Text>;
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <Screen>

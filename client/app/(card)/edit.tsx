@@ -19,6 +19,7 @@ import { Spacing } from "@/theme/spacing";
 import { Theme } from "@/theme/theme";
 import { Typography } from "@/theme/typography";
 import { Priority } from "@/types/types";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export default function EditCardScreen() {
   const dateNow = new Date();
@@ -135,7 +136,7 @@ export default function EditCardScreen() {
   if (loading) {
     return (
       <Screen isScroll={false}>
-        <Text>Loading...</Text>
+        <LoadingScreen />
       </Screen>
     );
   }

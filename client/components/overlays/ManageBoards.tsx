@@ -65,9 +65,9 @@ export default function ManageBoards({ visible, onClose, workspaceId }: ManageBo
   const handleNavigate = (board: BoardCardUI) => {
     onClose();
     router.push({
-      pathname: `/(tabs)/workspace/${workspaceId}/${board.id}/(board-detail)`,
+      pathname: "/(tabs)/workspace/[id]/[boardId]/(board-detail)",
       params: { id: workspaceId, boardId: board.id }
-    });
+    } as any);
   };
 
   const filteredBoards = boards.filter((b) =>

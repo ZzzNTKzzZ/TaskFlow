@@ -56,7 +56,7 @@ export default function EditBoard() {
     { color: "#007AFF", name: "Blue" },
     { color: "#34C759", name: "Green" },
     { color: "#FF9500", name: "Orange" },
-    { color: "#FF3B30", name: "Red" },
+    { color: "#FF3B30", name: "Purple" },
   ];
 
   const visibilities: { id: number; name: Visibility }[] = [

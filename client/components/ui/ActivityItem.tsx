@@ -53,7 +53,7 @@ export function ActivityItem({ item }: { item: Activity }) {
               { color: Theme.textSecondary },
             ]}
           >
-            {dayjs(item.createdAt).format("hh:mm A")}
+            {dayjs(item.createdAt).format("hh:mm A")} {item.board?.name ? `• ${item.board.name}` : ""}
           </Text>
         </View>
       </View>
